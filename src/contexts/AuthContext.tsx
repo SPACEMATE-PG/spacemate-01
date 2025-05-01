@@ -11,7 +11,7 @@ interface AuthContextType {
   setRole: (role: UserRole) => void;
 }
 
-// Default user for development purposes
+// Default users for development purposes
 const demoUsers = {
   admin: {
     id: "admin-1",
@@ -22,8 +22,8 @@ const demoUsers = {
   },
   guest: {
     id: "guest-1",
-    name: "Guest User",
-    email: "guest@example.com",
+    name: "Vignesh",
+    email: "vignesh2906vi@gmail.com",
     role: UserRole.PG_GUEST,
     roomNumber: "101",
     joinDate: "2023-01-01",
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     if (role === UserRole.ADMIN && email === "admin@example.com" && password === "admin") {
       user = demoUsers.admin;
-    } else if (role === UserRole.PG_GUEST && email === "guest@example.com" && password === "guest") {
+    } else if (role === UserRole.PG_GUEST && email === "vignesh2906vi@gmail.com" && password === "vignesh#@123") {
       user = demoUsers.guest;
     }
 
