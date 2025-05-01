@@ -2,14 +2,29 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.aca79e61113a4ecdba9bac58c2ef66c8',
+  appId: 'app.lovable.a4bf828be7254ac4841ca36a26c524dc',
   appName: 'space-mate-app',
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {
-    url: "https://aca79e61-113a-4ecd-ba9b-ac58c2ef66c8.lovableproject.com?forceHideBadge=true",
+    url: "https://a4bf828b-e725-4ac4-841c-a36a26c524dc.lovableproject.com?forceHideBadge=true",
     cleartext: true
   },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: "#9b87f5",
+      splashFullScreen: true,
+      splashImmersive: true
+    }
+  },
+  ios: {
+    contentInset: "always"
+  },
+  android: {
+    captureInput: true,
+    webContentsDebuggingEnabled: true
+  }
 };
 
 export default config;

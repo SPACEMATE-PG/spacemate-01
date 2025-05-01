@@ -21,7 +21,7 @@ const SplashScreen = () => {
   }, [navigate, isAuthenticated, userRole]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-hostel-primary via-hostel-secondary to-hostel-tertiary text-white">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-hostel-primary via-hostel-secondary to-hostel-tertiary text-white pt-safe pb-safe">
       <div className="animate-scale-in text-center">
         <div className="w-28 h-28 bg-white rounded-full mb-8 mx-auto flex items-center justify-center shadow-lg shadow-hostel-accent/30">
           <img src="/placeholder.svg" alt="Logo" className="w-20 h-20" />
@@ -31,6 +31,10 @@ const SplashScreen = () => {
         <div className="mt-10">
           <div className="w-16 h-1.5 bg-white/40 rounded-full mx-auto animate-pulse"></div>
         </div>
+      </div>
+      <div className="absolute bottom-8 text-xs text-white/70 text-center">
+        <p>© 2025 Space Mate</p>
+        <p>Version 1.0.0</p>
       </div>
     </div>
   );

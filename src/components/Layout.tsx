@@ -96,7 +96,7 @@ const Layout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
+      <header className="bg-white border-b sticky top-0 z-30 shadow-sm fixed-header">
         <div className="container mx-auto flex justify-between items-center h-16 px-4">
           <div className="flex items-center gap-3">
             <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg">
@@ -115,7 +115,7 @@ const Layout = () => {
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[80%] sm:w-[350px] pt-12">
+              <SheetContent side="right" className="w-[80%] sm:w-[350px] pt-safe">
                 <div className="h-full flex flex-col">
                   {/* User Profile Section */}
                   {isAuthenticated && currentUser ? (
@@ -199,7 +199,7 @@ const Layout = () => {
                       <Settings size={16} className="mr-2" />
                       App Settings
                     </Button>
-                    <div className="text-xs text-gray-400 mt-4 text-center">
+                    <div className="text-xs text-gray-400 mt-4 text-center pb-safe">
                       Space Mate v1.0.0
                     </div>
                   </div>
@@ -233,25 +233,27 @@ const Layout = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 pb-safe z-30">
-        <div className="flex justify-around">
-          {navItems.map((item, index) => (
-            <button
-              key={index}
-              className={cn(
-                "flex flex-col items-center py-3 px-3 flex-1 transition-colors",
-                isActive(item.path)
-                  ? "text-hostel-primary"
-                  : "text-gray-500 hover:text-hostel-secondary"
-              )}
-              onClick={() => navigate(item.path)}
-            >
-              <item.icon size={20} />
-              <span className="text-xs mt-1">{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
+      {isMobile && (
+        <nav className="bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 pb-safe z-30">
+          <div className="flex justify-around">
+            {navItems.map((item, index) => (
+              <button
+                key={index}
+                className={cn(
+                  "flex flex-col items-center py-3 px-3 flex-1 transition-colors",
+                  isActive(item.path)
+                    ? "text-hostel-primary"
+                    : "text-gray-500 hover:text-hostel-secondary"
+                )}
+                onClick={() => navigate(item.path)}
+              >
+                <item.icon size={20} />
+                <span className="text-xs mt-1">{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </nav>
+      )}
     </div>
   );
 };

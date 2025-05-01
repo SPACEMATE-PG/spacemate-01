@@ -92,6 +92,8 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02";
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 }
 
@@ -150,9 +152,56 @@
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 /* Fixing page transitions */
 .page-transition {
   @apply animate-fade-in;
+}
+
+/* Mobile status bar styles */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .fixed-header {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* Mobile input adjustments */
+input, select, textarea {
+  font-size: 16px; /* Prevents iOS zoom on focus */
+}
+
+/* Remove tap highlight on mobile */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom animations for mobile transitions */
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease forwards;
+}
+
+/* Overscroll behavior */
+html, body {
+  overscroll-behavior-y: contain;
+}
+
+/* Mobile drawer menu transitions */
+.drawer-transition {
+  transition: transform 0.3s ease;
 }
