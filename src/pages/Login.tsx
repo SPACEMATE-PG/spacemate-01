@@ -132,3 +132,6 @@ const Login = () => {
       </Card>
     </div>
   );
+};
+
+export default Login;
