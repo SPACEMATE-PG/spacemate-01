@@ -16,7 +16,7 @@ const demoUsers = {
   admin: {
     id: "admin-1",
     name: "Admin User",
-    email: "admin@example.com",
+    email: "vignesh2906vi@gmail.com",
     role: UserRole.ADMIN,
     profileImage: "/placeholder.svg"
   },
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // In a real app, we would make an API call to authenticate
     let user: User | null = null;
 
-    if (role === UserRole.ADMIN && email === "admin@example.com" && password === "admin") {
+    if (role === UserRole.ADMIN && email === "vignesh2906vi@gmail.com" && password === "vignesh#@123") {
       user = demoUsers.admin;
     } else if (role === UserRole.PG_GUEST && email === "vignesh2906vi@gmail.com" && password === "vignesh#@123") {
       user = demoUsers.guest;
