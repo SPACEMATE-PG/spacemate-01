@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: UserRole) => Promise<void>;
   logout: () => void;
   setRole: (role: UserRole) => void;
+  updateUser: (user: User) => void; // Added this line
 }
 
 // Default users for development purposes
@@ -39,6 +40,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: () => {},
   setRole: () => {},
+  updateUser: () => {}, // Added this line
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -94,6 +96,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("userRole", role);
   };
 
+  // Add the updateUser function implementation
+  const updateUser = (user: User) => {
+    setCurrentUser(user);
+    localStorage.setItem("currentUser", JSON.stringify(user));
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -103,6 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         logout,
         setRole,
+        updateUser, // Added this line
       }}
     >
       {children}
