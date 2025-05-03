@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { rooms } from "@/data/mockData";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Bell, Utensils, Bed, Wifi, Coffee, RoomService, ShieldCheck, Loader2 } from "lucide-react";
+import { Bell, Utensils, Bed, Wifi, Coffee, ShieldCheck, Loader2 } from "lucide-react";
 import RoomServiceCard, { RoomService } from "@/components/guest/RoomServiceCard";
 
 const GuestRooms = () => {
