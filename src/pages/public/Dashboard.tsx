@@ -1,124 +1,174 @@
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { hostel, rooms } from "@/data/mockData";
+import { Room } from "@/types";
+import { Search, MapPin, Star, Bed, ArrowRight } from "lucide-react";
 
 const PublicDashboard = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
   
-  // Filter available rooms
   const availableRooms = rooms.filter(room => room.available);
-  
+  const filteredRooms = searchQuery
+    ? availableRooms.filter(room => 
+        room.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        room.roomNumber.includes(searchQuery)
+      )
+    : availableRooms;
+
+  const navigateToRoom = (roomId: string) => {
+    navigate(`/public/rooms/${roomId}`);
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="relative rounded-lg overflow-hidden h-48">
-        <img 
-          src={hostel.images[0]} 
-          alt={hostel.name} 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-4">
-          <h1 className="text-2xl font-bold text-white">{hostel.name}</h1>
-          <p className="text-white/80">{hostel.city}</p>
-          <div className="flex items-center mt-1">
-            <div className="bg-yellow-400 text-yellow-900 px-2 py-0.5 rounded text-sm font-medium">
-              {hostel.rating} ★
+    <div className="space-y-6 pb-16 animate-slide-up">
+      {/* Hero Section */}
+      <div className="relative -mx-4 mb-8">
+        <div className="h-64 bg-gradient-to-r from-hostel-primary to-hostel-secondary rounded-b-3xl flex items-end overflow-hidden">
+          <img 
+            src={hostel.images[0]} 
+            alt="Hostel" 
+            className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-20"
+          />
+          <div className="relative z-10 p-6 text-white">
+            <h1 className="text-3xl font-bold mb-2">{hostel.name}</h1>
+            <div className="flex items-center text-sm mb-4">
+              <MapPin size={14} className="mr-1" />
+              <span>{hostel.address}, {hostel.city}</span>
+              <div className="ml-3 flex items-center">
+                <Star size={14} className="fill-white mr-1" />
+                <span>{hostel.rating}</span>
+              </div>
             </div>
-            <span className="text-white/80 text-sm ml-2">
-              {hostel.reviews.length} Reviews
-            </span>
+          </div>
+        </div>
+        
+        {/* Search Bar */}
+        <div className="mx-4 -mt-6 relative z-20">
+          <div className="bg-white rounded-lg shadow-lg p-4">
+            <div className="relative">
+              <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Search for rooms..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>About {hostel.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600">{hostel.description}</p>
-          
-          <div className="mt-4">
-            <h3 className="font-medium mb-2">Amenities:</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {hostel.amenities.map((amenity, index) => (
-                <div key={index} className="flex items-center">
-                  <div className="w-2 h-2 rounded-full bg-hostel-primary mr-2"></div>
-                  <span className="text-sm">{amenity}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Available Rooms</CardTitle>
-          <CardDescription>
-            {availableRooms.length} rooms available for booking
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+
+      {/* Available Rooms */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Available Rooms</h2>
+        
+        {filteredRooms.length > 0 ? (
           <div className="space-y-4">
-            {availableRooms.slice(0, 3).map(room => (
-              <div key={room.id} className="border rounded-md p-3 flex justify-between items-center">
-                <div>
-                  <h3 className="font-medium">{room.type}</h3>
-                  <p className="text-sm text-gray-500">Room {room.roomNumber}</p>
-                  <p className="text-sm text-gray-500">{room.capacity} Bed{room.capacity > 1 ? 's' : ''}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold">₹{room.price}/month</p>
-                  <Button 
-                    size="sm" 
-                    onClick={() => navigate(`/public/rooms/${room.id}`)}
-                    className="mt-2 bg-hostel-primary hover:bg-hostel-secondary"
-                  >
-                    View Details
-                  </Button>
-                </div>
-              </div>
+            {filteredRooms.map(room => (
+              <RoomCard key={room.id} room={room} onClick={() => navigateToRoom(room.id)} />
             ))}
-            
-            {availableRooms.length > 3 && (
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-10">
+              <p className="text-gray-500 mb-4">No rooms matching your search criteria.</p>
               <Button 
                 variant="outline" 
-                className="w-full" 
-                onClick={() => navigate('/public/rooms')}
+                onClick={() => setSearchQuery("")}
               >
-                View All {availableRooms.length} Available Rooms
+                Clear Search
               </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        )}
+      </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Reviews</CardTitle>
-          <CardDescription>
-            What our guests say about us
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {hostel.reviews.map(review => (
-              <div key={review.id} className="border-b pb-3 last:border-b-0">
-                <div className="flex justify-between">
-                  <h3 className="font-medium">{review.userName}</h3>
-                  <div className="text-yellow-500">{review.rating} ★</div>
-                </div>
-                <p className="text-gray-500 text-sm">{review.date}</p>
-                <p className="mt-1">{review.comment}</p>
+      {/* Hostel Amenities */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Hostel Amenities</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {hostel.amenities.map((amenity, index) => (
+            <div 
+              key={index} 
+              className="bg-white p-3 rounded-lg shadow-sm border flex items-center"
+            >
+              <div className="w-8 h-8 rounded-full bg-hostel-muted flex items-center justify-center mr-3">
+                <Bed size={16} className="text-hostel-primary" />
               </div>
-            ))}
-          </div>
+              <span className="text-sm">{amenity}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* CTA */}
+      <Card className="bg-hostel-muted border-none mt-8">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold mb-2">Looking for a comfortable stay?</h3>
+          <p className="text-gray-600 mb-4">Book your room now and enjoy all our premium amenities.</p>
+          <Button 
+            className="w-full bg-hostel-primary hover:bg-hostel-secondary"
+            onClick={() => navigate('/public/rooms')}
+          >
+            Browse All Rooms <ArrowRight size={16} className="ml-2" />
+          </Button>
         </CardContent>
       </Card>
     </div>
   );
 };
+
+// Room Card Component
+const RoomCard = ({ room, onClick }: { room: Room; onClick: () => void }) => (
+  <Card className="overflow-hidden card-hover">
+    <div className="flex h-32 cursor-pointer" onClick={onClick}>
+      <div className="w-32 h-full">
+        <img 
+          src={room.images[0]} 
+          alt={`Room ${room.roomNumber}`}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <CardContent className="flex-1 p-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-medium">{room.type}</h3>
+            <p className="text-sm text-gray-500">Room {room.roomNumber}</p>
+          </div>
+          <p className="font-bold text-hostel-primary">₹{room.price}<span className="text-xs font-normal text-gray-500">/month</span></p>
+        </div>
+        
+        <div className="mt-2 flex flex-wrap gap-1">
+          {room.amenities.slice(0, 2).map((amenity, idx) => (
+            <span 
+              key={idx} 
+              className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
+            >
+              {amenity}
+            </span>
+          ))}
+          {room.amenities.length > 2 && (
+            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+              +{room.amenities.length - 2} more
+            </span>
+          )}
+        </div>
+        
+        <Button 
+          size="sm" 
+          variant="link" 
+          className="h-auto p-0 mt-2 text-hostel-primary"
+        >
+          View Details
+        </Button>
+      </CardContent>
+    </div>
+  </Card>
+);
 
 export default PublicDashboard;

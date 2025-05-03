@@ -1,203 +1,212 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { rooms } from "@/data/mockData";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { rooms } from "@/data/mockData";
+import { Room } from "@/types";
+import { Search, ArrowLeft, Filter, Bed, Check } from "lucide-react";
 
 const PublicRooms = () => {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priceFilter, setPriceFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [showFilters, setShowFilters] = useState(false);
   
-  const [filters, setFilters] = useState({
-    availability: "all",
-    priceMin: "",
-    priceMax: "",
-    capacity: "all",
-  });
-  
-  const handleFilterChange = (name: string, value: string) => {
-    setFilters({ ...filters, [name]: value });
-  };
+  // Filter available rooms
+  const availableRooms = rooms.filter(room => room.available);
   
   // Apply filters
-  const filteredRooms = rooms.filter(room => {
-    // Availability filter
-    if (filters.availability === "available" && !room.available) return false;
-    if (filters.availability === "occupied" && room.available) return false;
+  const filteredRooms = availableRooms.filter(room => {
+    // Apply search query filter
+    const matchesSearch = searchQuery === "" || 
+      room.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      room.roomNumber.includes(searchQuery);
     
-    // Price range filter
-    const minPrice = filters.priceMin ? parseInt(filters.priceMin) : 0;
-    const maxPrice = filters.priceMax ? parseInt(filters.priceMax) : Infinity;
-    if (room.price < minPrice || room.price > maxPrice) return false;
+    // Apply price filter
+    let matchesPrice = true;
+    if (priceFilter === "low") {
+      matchesPrice = room.price < 8000;
+    } else if (priceFilter === "mid") {
+      matchesPrice = room.price >= 8000 && room.price <= 9000;
+    } else if (priceFilter === "high") {
+      matchesPrice = room.price > 9000;
+    }
     
-    // Capacity filter
-    if (filters.capacity !== "all" && room.capacity !== parseInt(filters.capacity)) return false;
+    // Apply type filter
+    let matchesType = true;
+    if (typeFilter !== "all") {
+      matchesType = room.type.toLowerCase().includes(typeFilter.toLowerCase());
+    }
     
-    return true;
+    return matchesSearch && matchesPrice && matchesType;
   });
+
+  const navigateToRoomDetails = (roomId: string) => {
+    navigate(`/public/rooms/${roomId}`);
+  };
   
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Available Rooms</h1>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Filter Rooms</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="availability">Availability</Label>
-              <Select 
-                value={filters.availability}
-                onValueChange={(value) => handleFilterChange("availability", value)}
-              >
-                <SelectTrigger id="availability">
-                  <SelectValue placeholder="Select availability" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Rooms</SelectItem>
-                  <SelectItem value="available">Available Only</SelectItem>
-                  <SelectItem value="occupied">Occupied Only</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="capacity">Capacity</Label>
-              <Select 
-                value={filters.capacity}
-                onValueChange={(value) => handleFilterChange("capacity", value)}
-              >
-                <SelectTrigger id="capacity">
-                  <SelectValue placeholder="Select capacity" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Any Capacity</SelectItem>
-                  <SelectItem value="1">1 Person</SelectItem>
-                  <SelectItem value="2">2 Persons</SelectItem>
-                  <SelectItem value="3">3 Persons</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="priceMin">Min Price (₹)</Label>
-              <Input 
-                id="priceMin" 
-                type="number"
-                placeholder="Min price"
-                value={filters.priceMin}
-                onChange={(e) => handleFilterChange("priceMin", e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="priceMax">Max Price (₹)</Label>
-              <Input 
-                id="priceMax" 
-                type="number"
-                placeholder="Max price"
-                value={filters.priceMax}
-                onChange={(e) => handleFilterChange("priceMax", e.target.value)}
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredRooms.map(room => (
-          <Card 
-            key={room.id} 
-            className="hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => navigate(`/public/rooms/${room.id}`)}
-          >
-            <div className="h-40 overflow-hidden">
-              <img 
-                src={room.images[0]} 
-                alt={room.type} 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="font-medium">{room.type}</h2>
-                  <p className="text-sm text-gray-500">Room {room.roomNumber}</p>
-                </div>
-                <Badge variant={room.available ? "default" : "outline"}>
-                  {room.available ? "Available" : "Occupied"}
-                </Badge>
-              </div>
-              
-              <div className="mt-2">
-                <p className="text-sm">
-                  <span className="text-gray-500">Capacity:</span> {room.capacity} person{room.capacity > 1 ? 's' : ''}
-                </p>
-                <p className="font-bold mt-2">₹{room.price}/month</p>
-              </div>
-              
-              <div className="mt-3 flex flex-wrap gap-1">
-                {room.amenities.slice(0, 3).map((amenity, index) => (
-                  <span 
-                    key={index} 
-                    className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
-                  >
-                    {amenity}
-                  </span>
-                ))}
-                {room.amenities.length > 3 && (
-                  <span className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
-                    +{room.amenities.length - 3} more
-                  </span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="space-y-6 pb-16 animate-fade-in">
+      {/* Back Button */}
+      <div className="flex justify-between items-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft size={16} className="mr-1" /> Back
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          <Filter size={16} className="mr-1" /> Filters
+        </Button>
       </div>
       
-      {filteredRooms.length === 0 && (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-gray-500">No rooms matching your filters.</p>
-            <Button 
-              variant="outline" 
-              className="mt-4"
-              onClick={() => setFilters({
-                availability: "all",
-                priceMin: "",
-                priceMax: "",
-                capacity: "all",
-              })}
-            >
-              Clear Filters
-            </Button>
+      <h1 className="text-2xl font-bold">Available Rooms</h1>
+      
+      {/* Search Bar */}
+      <div className="relative">
+        <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <Input
+          placeholder="Search for rooms..."
+          className="pl-10"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      
+      {/* Filters */}
+      {showFilters && (
+        <Card className="animate-slide-up">
+          <CardContent className="p-4 space-y-4">
+            <div>
+              <label className="text-sm font-medium block mb-2">Price Range</label>
+              <Select value={priceFilter} onValueChange={setPriceFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select price range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Prices</SelectItem>
+                  <SelectItem value="low">Budget (Below ₹8,000)</SelectItem>
+                  <SelectItem value="mid">Standard (₹8,000 - ₹9,000)</SelectItem>
+                  <SelectItem value="high">Premium (Above ₹9,000)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium block mb-2">Room Type</label>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select room type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="single">Single</SelectItem>
+                  <SelectItem value="double">Double</SelectItem>
+                  <SelectItem value="triple">Triple</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
       )}
+      
+      {/* Room List */}
+      <div className="space-y-4">
+        {filteredRooms.length > 0 ? (
+          filteredRooms.map(room => (
+            <RoomCard 
+              key={room.id} 
+              room={room} 
+              onClick={() => navigateToRoomDetails(room.id)} 
+            />
+          ))
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-10">
+              <p className="text-gray-500 mb-4">No rooms matching your search criteria.</p>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setSearchQuery("");
+                  setPriceFilter("all");
+                  setTypeFilter("all");
+                }}
+              >
+                Clear Filters
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
 
-// Add Badge component since it might be missing from the generated imports
-const Badge = ({ children, variant = "default" }: { children: React.ReactNode, variant?: "default" | "outline" }) => {
-  const baseClasses = "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold";
-  
-  const variantClasses = {
-    default: "bg-green-100 text-green-800",
-    outline: "bg-transparent border border-gray-300 text-gray-700",
-  };
-  
-  return (
-    <span className={`${baseClasses} ${variantClasses[variant]}`}>
-      {children}
-    </span>
-  );
-};
+// Room Card Component
+const RoomCard = ({ room, onClick }: { room: Room; onClick: () => void }) => (
+  <Card className="overflow-hidden card-hover">
+    <div onClick={onClick}>
+      <div className="h-48 relative">
+        <img 
+          src={room.images[0]} 
+          alt={`Room ${room.roomNumber}`}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute top-2 right-2 bg-white px-2 py-0.5 rounded text-xs font-medium text-hostel-primary">
+          Room {room.roomNumber}
+        </div>
+      </div>
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <h3 className="font-medium">{room.type}</h3>
+          <p className="font-bold text-hostel-primary">₹{room.price}<span className="text-xs font-normal text-gray-500">/month</span></p>
+        </div>
+        
+        <div className="flex items-center text-sm text-gray-600 mb-3">
+          <Bed size={16} className="mr-1" />
+          <span>Capacity: {room.capacity} {room.capacity > 1 ? 'persons' : 'person'}</span>
+        </div>
+        
+        <div className="flex flex-wrap gap-1 mb-3">
+          {room.amenities.slice(0, 3).map((amenity, idx) => (
+            <div 
+              key={idx} 
+              className="flex items-center text-xs bg-gray-50 text-gray-600 px-2 py-0.5 rounded"
+            >
+              <Check size={10} className="mr-1 text-hostel-primary" />
+              {amenity}
+            </div>
+          ))}
+          {room.amenities.length > 3 && (
+            <span className="text-xs bg-gray-50 text-gray-600 px-2 py-0.5 rounded">
+              +{room.amenities.length - 3} more
+            </span>
+          )}
+        </div>
+        
+        <Button 
+          className="w-full bg-hostel-primary hover:bg-hostel-secondary"
+        >
+          View Details
+        </Button>
+      </CardContent>
+    </div>
+  </Card>
+);
 
 export default PublicRooms;

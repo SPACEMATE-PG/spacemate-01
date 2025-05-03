@@ -2,12 +2,12 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.a4bf828be7254ac4841ca36a26c524dc',
+  appId: 'app.lovable.48c34bbc875e46d0b136846e3ce540e6',
   appName: 'space-mate-app',
   webDir: 'dist',
   bundledWebRuntime: false,
   server: {
-    url: "https://a4bf828b-e725-4ac4-841c-a36a26c524dc.lovableproject.com?forceHideBadge=true",
+    url: "https://48c34bbc-875e-46d0-b136-846e3ce540e6.lovableproject.com?forceHideBadge=true",
     cleartext: true
   },
   plugins: {

@@ -1,12 +1,21 @@
 
-// Define user roles
 export enum UserRole {
   ADMIN = "admin",
   PG_GUEST = "guest",
-  PUBLIC = "public",
+  PUBLIC = "public"
 }
 
-// Room interfaces
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  profileImage?: string;
+  roomNumber?: string;
+  joinDate?: string;
+  endDate?: string;
+}
+
 export interface Room {
   id: string;
   roomNumber: string;
@@ -19,7 +28,6 @@ export interface Room {
   available: boolean;
 }
 
-// Meal interfaces
 export interface Meal {
   id: string;
   date: string;
@@ -28,31 +36,14 @@ export interface Meal {
   isActive: boolean;
 }
 
-// User interfaces
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  roomNumber?: string;
-  joinDate?: string;
-  endDate?: string;
-  profileImage?: string;
-}
-
-// Booking interface
-export interface Booking {
+export interface MealResponse {
   id: string;
   userId: string;
-  roomId: string;
-  startDate: string;
-  endDate: string;
-  status: "pending" | "approved" | "cancelled";
-  paymentStatus: "pending" | "paid";
-  amount: number;
+  mealId: string;
+  attending: boolean;
+  response: "yes" | "no" | "pending";
 }
 
-// Notification interface
 export interface Notification {
   id: string;
   userId: string;
@@ -65,16 +56,6 @@ export interface Notification {
   actionId?: string;
 }
 
-// MealResponse interface
-export interface MealResponse {
-  id: string;
-  userId: string;
-  mealId: string;
-  attending: boolean;
-  response: "yes" | "no" | "pending";
-}
-
-// Hostel interface
 export interface Hostel {
   id: string;
   name: string;
@@ -89,7 +70,6 @@ export interface Hostel {
   reviews: Review[];
 }
 
-// Review interface
 export interface Review {
   id: string;
   userId: string;
@@ -99,12 +79,11 @@ export interface Review {
   date: string;
 }
 
-// Payment interface
 export interface Payment {
   id: string;
   userId: string;
   amount: number;
-  type: "booking" | "monthly" | "service";
+  type: "monthly" | "service" | "deposit";
   status: "pending" | "completed" | "failed";
   date: string;
   description: string;
