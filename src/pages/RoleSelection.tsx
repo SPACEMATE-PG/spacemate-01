@@ -1,10 +1,8 @@
 
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserRole } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Home, Users } from "lucide-react";
+import { Home, Shield, User } from "lucide-react";
 
 const RoleSelection = () => {
   const navigate = useNavigate();
@@ -21,71 +19,60 @@ const RoleSelection = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-hostel-light to-hostel-accent p-5">
       <div className="w-full max-w-md space-y-8 animate-fade-in">
         <div className="text-center">
-          <div className="w-20 h-20 bg-hostel-primary rounded-full mb-4 mx-auto flex items-center justify-center shadow-md">
-            <img src="/placeholder.svg" alt="Logo" className="w-12 h-12" />
+          <div className="w-24 h-24 bg-gradient-to-br from-hostel-primary to-hostel-secondary rounded-2xl mb-6 mx-auto flex items-center justify-center shadow-md">
+            <img src="/placeholder.svg" alt="Logo" className="w-14 h-14" />
           </div>
-          <h1 className="text-3xl font-bold text-hostel-primary mb-2">Welcome to Space Mate</h1>
-          <p className="text-gray-600">Select how you want to continue</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome to Space Mate</h1>
+          <p className="text-gray-600 mb-8">Your one-stop solution for PG accommodation</p>
         </div>
 
-        <div className="space-y-4 mt-8">
-          <Card
-            className="hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-hostel-primary group"
+        <div className="space-y-4">
+          <div 
+            className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center"
             onClick={() => handleRoleSelect(UserRole.ADMIN)}
           >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="group-hover:text-hostel-primary transition-colors">Admin</CardTitle>
-                <User className="text-gray-500 group-hover:text-hostel-primary transition-colors" />
-              </div>
-              <CardDescription>Manage hostel, rooms, and guests</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">
-                Login with your admin credentials to access the dashboard.
-              </p>
-            </CardContent>
-          </Card>
+            <div className="w-12 h-12 rounded-full bg-hostel-accent flex items-center justify-center mr-4">
+              <Shield className="text-hostel-primary w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-lg text-gray-800">Admin</h2>
+              <p className="text-sm text-gray-600">Manage your hostel properties and guests</p>
+            </div>
+          </div>
 
-          <Card
-            className="hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-hostel-primary group"
+          <div 
+            className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center"
             onClick={() => handleRoleSelect(UserRole.PG_GUEST)}
           >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="group-hover:text-hostel-primary transition-colors">PG Guest</CardTitle>
-                <Home className="text-gray-500 group-hover:text-hostel-primary transition-colors" />
-              </div>
-              <CardDescription>Access your resident account</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">
-                Login with your resident credentials to view your account.
-              </p>
-            </CardContent>
-          </Card>
+            <div className="w-12 h-12 rounded-full bg-hostel-accent flex items-center justify-center mr-4">
+              <User className="text-hostel-primary w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-lg text-gray-800">PG Guest</h2>
+              <p className="text-sm text-gray-600">Access your resident details and services</p>
+            </div>
+          </div>
 
-          <Card
-            className="hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-hostel-primary group"
+          <div 
+            className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center"
             onClick={() => handleRoleSelect(UserRole.PUBLIC)}
           >
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle className="group-hover:text-hostel-primary transition-colors">Continue as Guest</CardTitle>
-                <Users className="text-gray-500 group-hover:text-hostel-primary transition-colors" />
-              </div>
-              <CardDescription>Browse hostels and rooms</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-500">
-                Explore available hostels and rooms without logging in.
-              </p>
-            </CardContent>
-          </Card>
+            <div className="w-12 h-12 rounded-full bg-hostel-accent flex items-center justify-center mr-4">
+              <Home className="text-hostel-primary w-6 h-6" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-lg text-gray-800">Continue as Guest</h2>
+              <p className="text-sm text-gray-600">Explore available hostels and room options</p>
+            </div>
+          </div>
         </div>
+
+        <p className="text-xs text-gray-500 text-center mt-8">
+          Find your perfect accommodation with Space Mate
+        </p>
       </div>
     </div>
   );

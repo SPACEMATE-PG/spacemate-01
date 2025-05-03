@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { rooms } from "@/data/mockData";
+import { Users, Home, CheckCircle, AlertCircle, Bell, Calendar } from "lucide-react";
 
 const AdminDashboard = () => {
   // Calculate hostel statistics
@@ -10,87 +11,137 @@ const AdminDashboard = () => {
   const occupancyRate = Math.round((occupiedRooms / totalRooms) * 100);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+    <div className="space-y-6 p-4 sm:p-6 animate-fade-in">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Welcome Back, Admin</h1>
+        <div className="bg-hostel-accent text-hostel-primary px-3 py-1 rounded-full text-sm font-medium">
+          Today's Overview
+        </div>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Rooms</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-l-hostel-primary">
+          <CardContent className="p-4 flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-500">Total Rooms</span>
+              <Home className="h-5 w-5 text-hostel-primary" />
+            </div>
             <div className="text-2xl font-bold">{totalRooms}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Available Rooms</CardTitle>
-          </CardHeader>
-          <CardContent>
+        
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-4 flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-500">Available</span>
+              <CheckCircle className="h-5 w-5 text-green-500" />
+            </div>
             <div className="text-2xl font-bold">{availableRooms}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Occupied Rooms</CardTitle>
-          </CardHeader>
-          <CardContent>
+        
+        <Card className="border-l-4 border-l-amber-500">
+          <CardContent className="p-4 flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-500">Occupied</span>
+              <Users className="h-5 w-5 text-amber-500" />
+            </div>
             <div className="text-2xl font-bold">{occupiedRooms}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Occupancy Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
+        
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4 flex flex-col">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-500">Occupancy</span>
+              <AlertCircle className="h-5 w-5 text-blue-500" />
+            </div>
             <div className="text-2xl font-bold">{occupancyRate}%</div>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            <li className="flex justify-between">
-              <span>New booking request</span>
-              <span className="text-gray-500">10 minutes ago</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Payment received from Room 101</span>
-              <span className="text-gray-500">2 hours ago</span>
-            </li>
-            <li className="flex justify-between">
-              <span>Meal plan updated</span>
-              <span className="text-gray-500">1 day ago</span>
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2 border-b">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold flex items-center">
+                <Bell className="h-4 w-4 mr-2 text-hostel-primary" />
+                Recent Activities
+              </CardTitle>
+              <div className="text-xs text-hostel-primary cursor-pointer">View All</div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <ul className="space-y-4">
+              <li className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <div className="flex items-start">
+                  <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                    <Users className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium">New booking request</h3>
+                    <p className="text-xs text-gray-500">Room 304 requested by John Doe</p>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-500">10 min ago</span>
+              </li>
+              
+              <li className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <div className="flex items-start">
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                    <Home className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium">Payment received from Room 101</h3>
+                    <p className="text-xs text-gray-500">₹12,000 monthly rent</p>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-500">2h ago</span>
+              </li>
+              
+              <li className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-md transition-colors">
+                <div className="flex items-start">
+                  <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center mr-3">
+                    <Calendar className="h-4 w-4 text-amber-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium">Meal plan updated</h3>
+                    <p className="text-xs text-gray-500">Weekly menu changes applied</p>
+                  </div>
+                </div>
+                <span className="text-xs text-gray-500">1d ago</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-2">
-            <button className="p-2 bg-hostel-muted text-hostel-primary rounded hover:bg-hostel-accent">
-              Send Notification
-            </button>
-            <button className="p-2 bg-hostel-muted text-hostel-primary rounded hover:bg-hostel-accent">
-              Update Menu
-            </button>
-            <button className="p-2 bg-hostel-muted text-hostel-primary rounded hover:bg-hostel-accent">
-              Add Room
-            </button>
-            <button className="p-2 bg-hostel-muted text-hostel-primary rounded hover:bg-hostel-accent">
-              View Reports
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2 border-b">
+            <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="grid grid-cols-2 gap-3">
+              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+                <Bell className="h-4 w-4 mr-2" />
+                <span>Send Notification</span>
+              </button>
+              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+                <Calendar className="h-4 w-4 mr-2" />
+                <span>Update Menu</span>
+              </button>
+              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+                <Home className="h-4 w-4 mr-2" />
+                <span>Add Room</span>
+              </button>
+              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+                <Users className="h-4 w-4 mr-2" />
+                <span>View Reports</span>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

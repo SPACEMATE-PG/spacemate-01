@@ -22,11 +22,13 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         hostel: {
-          primary: "#9b87f5",
-          secondary: "#7E69AB",
-          tertiary: "#6E59A5",
-          accent: "#E5DEFF",
-          muted: "#F1F0FB",
+          primary: "#7C5DFA",
+          secondary: "#6248cf",
+          tertiary: "#4A33A9",
+          accent: "#F0ECFF",
+          muted: "#F8F7FE",
+          light: "#FBFAFF",
+          dark: "#1F1A42",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
