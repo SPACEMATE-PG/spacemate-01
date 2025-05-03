@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,21 +9,63 @@ import { hostel } from "@/data/mockData";
 import { useToast } from "@/components/ui/use-toast";
 
 const AdminProfile = () => {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, updateUser } = useAuth();
   const { toast } = useToast();
   
+  const [personalInfo, setPersonalInfo] = useState({
+    name: currentUser?.name || "",
+    email: currentUser?.email || "",
+    password: "",
+  });
+  
+  const [hostelInfo, setHostelInfo] = useState({
+    name: hostel.name,
+    address: hostel.address,
+    city: hostel.city,
+    description: hostel.description,
+    logo: hostel.logo,
+  });
+
+  const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPersonalInfo(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleHostelInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setHostelInfo(prev => ({ ...prev, [name]: value }));
+  };
+  
+  const handleSavePersonalInfo = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, this would call an API to update the user
+    if (updateUser) {
+      updateUser({
+        ...currentUser!,
+        name: personalInfo.name,
+        email: personalInfo.email,
+      });
+    }
+    
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been updated successfully.",
+    });
+  };
+  
   const handleLogoUpload = () => {
+    // In a real app, this would open a file picker dialog
     toast({
       title: "Logo Updated",
       description: "Hostel logo has been successfully updated.",
     });
   };
   
-  const handleSaveSettings = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSaveHostelSettings = () => {
+    // In a real app, this would call an API to update the hostel info
     toast({
-      title: "Settings Saved",
-      description: "Your profile settings have been updated.",
+      title: "Hostel Settings Saved",
+      description: "Your hostel settings have been updated successfully.",
     });
   };
   
@@ -37,32 +80,53 @@ const AdminProfile = () => {
         <CardContent>
           <div className="flex items-center space-x-4">
             <div className="w-20 h-20 rounded-full bg-hostel-accent text-hostel-primary flex items-center justify-center text-2xl">
-              {currentUser?.name.charAt(0)}
+              {personalInfo.name.charAt(0)}
             </div>
             <div>
-              <h2 className="font-bold text-lg">{currentUser?.name}</h2>
-              <p className="text-gray-500">{currentUser?.email}</p>
+              <h2 className="font-bold text-lg">{personalInfo.name}</h2>
+              <p className="text-gray-500">{personalInfo.email}</p>
               <p className="mt-1 text-sm">Administrator</p>
             </div>
           </div>
           
-          <form onSubmit={handleSaveSettings} className="mt-6 space-y-4">
+          <form onSubmit={handleSavePersonalInfo} className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue={currentUser?.name} />
+              <Input 
+                id="name" 
+                name="name"
+                value={personalInfo.name}
+                onChange={handlePersonalInfoChange}
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input id="email" type="email" defaultValue={currentUser?.email} />
+              <Input 
+                id="email" 
+                name="email"
+                type="email" 
+                value={personalInfo.email}
+                onChange={handlePersonalInfoChange}
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="password">Change Password</Label>
-              <Input id="password" type="password" placeholder="New password" />
+              <Input 
+                id="password" 
+                name="password"
+                type="password" 
+                placeholder="New password"
+                value={personalInfo.password}
+                onChange={handlePersonalInfoChange}
+              />
             </div>
             
-            <Button type="submit" className="bg-hostel-primary hover:bg-hostel-secondary">
+            <Button 
+              type="submit" 
+              className="bg-hostel-primary hover:bg-hostel-secondary"
+            >
               Save Changes
             </Button>
           </form>
@@ -79,7 +143,7 @@ const AdminProfile = () => {
               <Label>Hostel Logo</Label>
               <div className="flex items-center space-x-4">
                 <img 
-                  src={hostel.logo} 
+                  src={hostelInfo.logo} 
                   alt="Hostel Logo" 
                   className="w-16 h-16 object-contain border rounded p-1"
                 />
@@ -91,29 +155,50 @@ const AdminProfile = () => {
             
             <div className="space-y-2">
               <Label htmlFor="hostelName">Hostel Name</Label>
-              <Input id="hostelName" defaultValue={hostel.name} />
+              <Input 
+                id="hostelName" 
+                name="name"
+                value={hostelInfo.name} 
+                onChange={handleHostelInfoChange}
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="hostelAddress">Address</Label>
-              <Input id="hostelAddress" defaultValue={hostel.address} />
+              <Input 
+                id="hostelAddress" 
+                name="address"
+                value={hostelInfo.address}
+                onChange={handleHostelInfoChange}
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="hostelCity">City</Label>
-              <Input id="hostelCity" defaultValue={hostel.city} />
+              <Input 
+                id="hostelCity" 
+                name="city"
+                value={hostelInfo.city}
+                onChange={handleHostelInfoChange}
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="hostelDescription">Description</Label>
               <textarea 
                 id="hostelDescription"
+                name="description"
                 className="w-full border rounded-md p-2 min-h-[100px]"
-                defaultValue={hostel.description}
+                value={hostelInfo.description}
+                onChange={handleHostelInfoChange}
               />
             </div>
             
-            <Button type="button" className="bg-hostel-primary hover:bg-hostel-secondary">
+            <Button 
+              type="button" 
+              className="bg-hostel-primary hover:bg-hostel-secondary"
+              onClick={handleSaveHostelSettings}
+            >
               Save Hostel Settings
             </Button>
           </div>

@@ -2,13 +2,41 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { rooms } from "@/data/mockData";
 import { Users, Home, CheckCircle, AlertCircle, Bell, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   // Calculate hostel statistics
   const totalRooms = rooms.length;
   const occupiedRooms = rooms.filter(room => room.occupied === room.capacity).length;
   const availableRooms = rooms.filter(room => room.available).length;
   const occupancyRate = Math.round((occupiedRooms / totalRooms) * 100);
+
+  // Handle quick actions
+  const handleSendNotification = () => {
+    toast({
+      title: "Notification Sent",
+      description: "Notification has been sent to all residents",
+    });
+  };
+
+  const handleUpdateMenu = () => {
+    navigate('/admin/meals');
+  };
+
+  const handleAddRoom = () => {
+    navigate('/admin/rooms');
+  };
+
+  const handleViewReports = () => {
+    toast({
+      title: "Reports Feature",
+      description: "Reports functionality will be available soon",
+    });
+  };
 
   return (
     <div className="space-y-6 p-4 sm:p-6 animate-fade-in">
@@ -122,19 +150,31 @@ const AdminDashboard = () => {
           </CardHeader>
           <CardContent className="pt-4">
             <div className="grid grid-cols-2 gap-3">
-              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+              <button 
+                className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center"
+                onClick={handleSendNotification}
+              >
                 <Bell className="h-4 w-4 mr-2" />
                 <span>Send Notification</span>
               </button>
-              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+              <button 
+                className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center"
+                onClick={handleUpdateMenu}
+              >
                 <Calendar className="h-4 w-4 mr-2" />
                 <span>Update Menu</span>
               </button>
-              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+              <button 
+                className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center"
+                onClick={handleAddRoom}
+              >
                 <Home className="h-4 w-4 mr-2" />
                 <span>Add Room</span>
               </button>
-              <button className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center">
+              <button 
+                className="p-3 bg-hostel-accent text-hostel-primary rounded-lg hover:bg-hostel-accent/80 transition-colors flex items-center justify-center"
+                onClick={handleViewReports}
+              >
                 <Users className="h-4 w-4 mr-2" />
                 <span>View Reports</span>
               </button>

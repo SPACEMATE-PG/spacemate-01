@@ -22,13 +22,13 @@ const config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         hostel: {
-          primary: "#7C5DFA",
-          secondary: "#6248cf",
-          tertiary: "#4A33A9",
-          accent: "#F0ECFF",
-          muted: "#F8F7FE",
-          light: "#FBFAFF",
-          dark: "#1F1A42",
+          primary: "#7C5DFA", // Main purple
+          secondary: "#6248cf", // Darker purple for hover states
+          tertiary: "#4A33A9", // Even darker purple for active states
+          accent: "#F0ECFF", // Very light purple for backgrounds/accents
+          muted: "#F8F7FE", // Almost white with slight purple tint
+          light: "#FBFAFF", // Even lighter purple for subtle backgrounds
+          dark: "#1F1A42", // Very dark purple, almost black
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -84,6 +84,14 @@ const config = {
         "fade-in": {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' }
+        },
+        "pulse": {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' }
+        },
+        "bounce-subtle": {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-5px)' }
         }
       },
       animation: {
@@ -91,11 +99,19 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
         "slide-up": "slide-up 0.3s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
-        "fade-in": "fade-in 0.4s ease-out"
+        "fade-in": "fade-in 0.4s ease-out",
+        "pulse": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "bounce-subtle": "bounce-subtle 2s ease infinite"
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
+      boxShadow: {
+        'card': '0 4px 20px -5px rgba(0, 0, 0, 0.1)',
+        'card-hover': '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+        'button': '0 2px 5px rgba(124, 93, 250, 0.3)',
+        'nav': '0 4px 15px rgba(0, 0, 0, 0.05)',
+      }
     },
   },
   plugins: [],
