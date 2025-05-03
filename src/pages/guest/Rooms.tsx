@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -174,7 +173,7 @@ const GuestRooms = () => {
         <TabsContent value="services" className="space-y-4 mt-4">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-lg flex items-center">
-              <RoomService className="h-5 w-5 mr-2 text-hostel-primary" />
+              <Bell className="h-5 w-5 mr-2 text-hostel-primary" />
               Available Services
             </h2>
             {isRequestProcessing && (
