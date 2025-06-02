@@ -2,14 +2,14 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.48c34bbc875e46d0b136846e3ce540e6',
+  appId: 'com.lovable.spacemate',
   appName: 'space-mate-app',
   webDir: 'dist',
-  bundledWebRuntime: false,
-  server: {
-    url: "https://48c34bbc-875e-46d0-b136-846e3ce540e6.lovableproject.com?forceHideBadge=true",
-    cleartext: true
-  },
+  
+  //server: {
+    //url: "http://192.168.109.48:8080",
+    //cleartext: true
+  //},
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
