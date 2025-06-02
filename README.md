@@ -1,73 +1,157 @@
-# Welcome to your Lovable project
+# SpaceMate - Modern PG/Hostel Management System
 
-## Project info
+## Overview
+SpaceMate is a comprehensive mobile application designed to streamline the management of Paying Guest (PG) accommodations and hostels. The application serves three distinct user roles: Administrators, PG Guests, and Public users, each with tailored functionalities to enhance the accommodation experience.
 
-**URL**: https://lovable.dev/projects/aca79e61-113a-4ecd-ba9b-ac58c2ef66c8
+## 🎯 Purpose
+SpaceMate addresses the growing need for digital solutions in the accommodation management sector by:
+- Simplifying room booking and management
+- Streamlining meal planning and tracking
+- Enhancing communication between administrators and guests
+- Providing a seamless booking experience for new guests
+- Managing payments and notifications efficiently
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### For Administrators
+- Dashboard with key metrics and analytics
+- Room management and availability tracking
+- Meal planning and management
+- Guest management and communication
+- Notification system
+- Profile and settings management
 
-**Use Lovable**
+### For PG Guests
+- Personalized dashboard
+- Room information and status
+- Meal schedules and preferences
+- Notification center
+- Profile management
+- Payment tracking
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/aca79e61-113a-4ecd-ba9b-ac58c2ef66c8) and start prompting.
+### For Public Users
+- Room browsing and filtering
+- Detailed room information
+- Online booking system
+- Secure payment processing
+- Booking status tracking
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Technology Stack
 
-**Use your preferred IDE**
+### Frontend
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: 
+  - Tailwind CSS
+  - shadcn/ui components
+  - Radix UI primitives
+- **State Management**: React Query
+- **Routing**: React Router v6
+- **Form Handling**: React Hook Form with Zod validation
+- **UI Components**: Comprehensive set of Radix UI components
+- **Data Visualization**: Recharts
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Mobile Development
+- **Framework**: Capacitor 7
+- **Platforms**: 
+  - iOS
+  - Android
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Development Tools
+- TypeScript for type safety
+- ESLint for code quality
+- PostCSS for CSS processing
+- Tailwind for utility-first CSS
 
-Follow these steps:
+## 🏗️ Project Structure
+```
+src/
+├── components/     # Reusable UI components
+├── contexts/       # React context providers
+├── hooks/          # Custom React hooks
+├── lib/           # Utility functions and configurations
+├── pages/         # Application pages
+│   ├── admin/     # Admin-specific pages
+│   ├── guest/     # PG guest pages
+│   └── public/    # Public-facing pages
+├── types/         # TypeScript type definitions
+└── data/          # Static data and constants
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🚀 Getting Started
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Prerequisites
+- Node.js (Latest LTS version recommended)
+- npm or yarn
+- iOS/Android development environment (for mobile builds)
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Installation
+```bash
+# Clone the repository
+git clone <repository-url>
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Navigate to project directory
+cd space-mate-app
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Building for Mobile
+```bash
+# Build the web application
+npm run build
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# Add mobile platforms
+npx cap add android
+npx cap add ios
 
-**Use GitHub Codespaces**
+# Sync with native projects
+npx cap sync
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Open in native IDEs
+npx cap open android
+npx cap open ios
+```
 
-## What technologies are used for this project?
+## 🔧 Development Workflow
+1. Development server runs on `http://localhost:8080`
+2. Changes are automatically reflected in the browser
+3. Mobile builds can be tested using Capacitor's live reload
+4. Use the provided scripts for building and deployment
 
-This project is built with:
+## 📱 Mobile Deployment
+The application can be deployed to both iOS and Android platforms using Capacitor. Follow the platform-specific guidelines for:
+- App Store submission
+- Google Play Store submission
+- Production builds
+- Environment configuration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🔐 Security
+- Role-based access control
+- Secure authentication system
+- Protected API endpoints
+- Secure payment processing
 
-## How can I deploy this project?
+## 🤝 Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-Simply open [Lovable](https://lovable.dev/projects/aca79e61-113a-4ecd-ba9b-ac58c2ef66c8) and click on Share -> Publish.
+## 📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Can I connect a custom domain to my Lovable project?
+## 📞 Support
+For support, please contact [support email/contact]
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🔄 Updates
+Regular updates and improvements are planned for:
+- Enhanced user experience
+- Additional features
+- Performance optimizations
+- Security enhancements
