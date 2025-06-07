@@ -4,8 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { UserRole } from "@/types";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { UserRole, AdminSubRole } from "@/types";
 
 // Pages
 import SplashScreen from "@/pages/SplashScreen";
@@ -23,6 +23,7 @@ import AdminRooms from "@/pages/admin/Rooms";
 import AdminMeals from "@/pages/admin/Meals";
 import AdminNotifications from "@/pages/admin/Notifications";
 import AdminProfile from "@/pages/admin/Profile";
+import SuperAdmin from "@/pages/admin/SuperAdmin";
 
 // Guest pages
 import GuestRooms from "@/pages/guest/Rooms";
@@ -38,56 +39,78 @@ import Payment from "@/pages/public/Payment";
 
 const queryClient = new QueryClient();
 
+// Super Admin protection component
+const RequireSuperAdmin = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, userRole, adminSubRole } = useAuth();
+  
+  if (!isAuthenticated || userRole !== UserRole.ADMIN || adminSubRole !== AdminSubRole.SUPER_ADMIN) {
+    return <Navigate to="/role-selection" replace />;
+  }
+  
+  return children;
+};
+
+const AppRoutes = () => (
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<SplashScreen />} />
+      <Route path="/role-selection" element={<RoleSelection />} />
+      <Route path="/login" element={<Login />} />
+      
+      {/* Super Admin Route - Separate and Direct Access Only */}
+      <Route path="/super-admin" element={
+        <RequireSuperAdmin>
+          <SuperAdmin />
+        </RequireSuperAdmin>
+      } />
+      
+      {/* Admin Routes */}
+      <Route path="/admin" element={
+        <RequireAuth allowedRole={UserRole.ADMIN}>
+          <Layout />
+        </RequireAuth>
+      }>
+        <Route index element={<AdminDashboard />} />
+        <Route path="rooms" element={<AdminRooms />} />
+        <Route path="meals" element={<AdminMeals />} />
+        <Route path="notifications" element={<AdminNotifications />} />
+        <Route path="profile" element={<AdminProfile />} />
+      </Route>
+
+      {/* Guest Routes */}
+      <Route path="/guest" element={
+        <RequireAuth allowedRole={UserRole.PG_GUEST}>
+          <Layout />
+        </RequireAuth>
+      }>
+        <Route index element={<GuestDashboard />} />
+        <Route path="rooms" element={<GuestRooms />} />
+        <Route path="meals" element={<GuestMeals />} />
+        <Route path="notifications" element={<GuestNotifications />} />
+        <Route path="profile" element={<GuestProfile />} />
+      </Route>
+
+      {/* Public Routes */}
+      <Route path="/public" element={<Layout />}>
+        <Route index element={<PublicDashboard />} />
+        <Route path="rooms" element={<PublicRooms />} />
+        <Route path="rooms/:id" element={<RoomDetails />} />
+        <Route path="booking/:id" element={<BookingForm />} />
+        <Route path="payment/:id" element={<Payment />} />
+      </Route>
+
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </BrowserRouter>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<SplashScreen />} />
-            <Route path="/role-selection" element={<RoleSelection />} />
-            <Route path="/login" element={<Login />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin" element={
-              <RequireAuth allowedRole={UserRole.ADMIN}>
-                <Layout />
-              </RequireAuth>
-            }>
-              <Route index element={<AdminDashboard />} />
-              <Route path="rooms" element={<AdminRooms />} />
-              <Route path="meals" element={<AdminMeals />} />
-              <Route path="notifications" element={<AdminNotifications />} />
-              <Route path="profile" element={<AdminProfile />} />
-            </Route>
-
-            {/* Guest Routes */}
-            <Route path="/guest" element={
-              <RequireAuth allowedRole={UserRole.PG_GUEST}>
-                <Layout />
-              </RequireAuth>
-            }>
-              <Route index element={<GuestDashboard />} />
-              <Route path="rooms" element={<GuestRooms />} />
-              <Route path="meals" element={<GuestMeals />} />
-              <Route path="notifications" element={<GuestNotifications />} />
-              <Route path="profile" element={<GuestProfile />} />
-            </Route>
-
-            {/* Public Routes */}
-            <Route path="/public" element={<Layout />}>
-              <Route index element={<PublicDashboard />} />
-              <Route path="rooms" element={<PublicRooms />} />
-              <Route path="rooms/:id" element={<RoomDetails />} />
-              <Route path="booking/:id" element={<BookingForm />} />
-              <Route path="payment/:id" element={<Payment />} />
-            </Route>
-
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <AppRoutes />
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
