@@ -47,11 +47,21 @@ const Login = () => {
     try {
       if (userRole === UserRole.ADMIN && selectedAdminSubRole) {
         await login(email, password, UserRole.ADMIN, selectedAdminSubRole);
-        toast({
-          title: "Login successful",
-          description: `Welcome back, ${selectedAdminSubRole === AdminSubRole.SUPER_ADMIN ? 'Super Admin' : selectedAdminSubRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}!`,
-        });
-        navigate("/admin", { replace: true });
+        
+        // Handle different admin sub-role redirections
+        if (selectedAdminSubRole === AdminSubRole.SUPER_ADMIN) {
+          toast({
+            title: "Login successful",
+            description: "Welcome back, Super Admin!",
+          });
+          navigate("/super-admin", { replace: true });
+        } else {
+          toast({
+            title: "Login successful",
+            description: `Welcome back, ${selectedAdminSubRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}!`,
+          });
+          navigate("/admin", { replace: true });
+        }
       } else {
         await login(email, password, userRole);
         toast({
@@ -81,50 +91,48 @@ const Login = () => {
     setSelectedAdminSubRole(null);
   };
 
-  // Show admin sub-role selection first for admin users
+  // Show admin sub-role selection first for admin users - Mobile optimized
   if (userRole === UserRole.ADMIN && !selectedAdminSubRole) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-        <Card className="w-full max-w-md animate-fade-in shadow-xl border-hostel-accent/30">
-          <CardHeader className="space-y-1 text-center bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white rounded-t-lg">
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-            <CardDescription className="text-hostel-accent">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 pt-safe pb-safe">
+        <Card className="w-full max-w-sm animate-fade-in shadow-xl border-hostel-accent/30">
+          <CardHeader className="space-y-1 text-center bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white rounded-t-lg p-4">
+            <CardTitle className="text-xl font-bold">Welcome Back</CardTitle>
+            <CardDescription className="text-hostel-accent text-sm">
               Select Your Admin Role
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <div className="space-y-3">
-                {adminSubRoles.map((subRole) => {
-                  const IconComponent = subRole.icon;
-                  return (
-                    <div
-                      key={subRole.id}
-                      className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center space-x-3 hover:border-hostel-primary"
-                      onClick={() => handleAdminSubRoleSelect(subRole.id)}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-hostel-accent flex items-center justify-center flex-shrink-0">
-                        <IconComponent className="text-hostel-primary w-5 h-5" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800 mb-1">{subRole.title}</h3>
-                        <p className="text-sm text-gray-600">{subRole.description}</p>
-                      </div>
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              {adminSubRoles.map((subRole) => {
+                const IconComponent = subRole.icon;
+                return (
+                  <div
+                    key={subRole.id}
+                    className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center space-x-3 hover:border-hostel-primary active:scale-95"
+                    onClick={() => handleAdminSubRoleSelect(subRole.id)}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-hostel-accent flex items-center justify-center flex-shrink-0">
+                      <IconComponent className="text-hostel-primary w-5 h-5" />
                     </div>
-                  );
-                })}
-              </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-800 text-sm truncate">{subRole.title}</h3>
+                      <p className="text-xs text-gray-600 line-clamp-2">{subRole.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-              <div className="text-center mt-6">
-                <button
-                  type="button"
-                  className="text-sm text-hostel-primary hover:text-hostel-secondary underline transition-colors"
-                  onClick={() => navigate("/role-selection")}
-                >
-                  Back to Role Selection
-                </button>
-              </div>
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                className="text-xs text-hostel-primary hover:text-hostel-secondary underline transition-colors"
+                onClick={() => navigate("/role-selection")}
+              >
+                Back to Role Selection
+              </button>
             </div>
           </CardContent>
         </Card>
@@ -133,25 +141,25 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
-      <Card className="w-full max-w-md animate-fade-in shadow-xl border-hostel-accent/30">
-        <CardHeader className="space-y-1 text-center bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white rounded-t-lg">
-          <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-          <CardDescription className="text-hostel-accent">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 pt-safe pb-safe">
+      <Card className="w-full max-w-sm animate-fade-in shadow-xl border-hostel-accent/30">
+        <CardHeader className="space-y-1 text-center bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white rounded-t-lg p-4">
+          <CardTitle className="text-xl font-bold">Welcome Back</CardTitle>
+          <CardDescription className="text-hostel-accent text-sm">
             {userRole === UserRole.ADMIN ? `Admin Access - ${selectedAdminSubRole === AdminSubRole.SUPER_ADMIN ? 'Super Admin' : selectedAdminSubRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}` : userRole === UserRole.PG_GUEST ? "PG Guest Access" : "Public Access"}
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
+        <CardContent className="p-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-3">
               <div className="relative">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email address
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <User size={18} className="text-gray-500" />
+                    <User size={16} className="text-gray-500" />
                   </div>
                   <Input
                     id="email"
@@ -161,7 +169,7 @@ const Login = () => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10 bg-white"
+                    className="pl-9 bg-white text-sm h-11"
                   />
                 </div>
               </div>
@@ -172,7 +180,7 @@ const Login = () => {
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock size={18} className="text-gray-500" />
+                    <Lock size={16} className="text-gray-500" />
                   </div>
                   <Input
                     id="password"
@@ -182,7 +190,7 @@ const Login = () => {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10 bg-white"
+                    className="pl-9 pr-10 bg-white text-sm h-11"
                   />
                   <button
                     type="button"
@@ -190,9 +198,9 @@ const Login = () => {
                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   >
                     {showPassword ? (
-                      <EyeOff size={18} className="text-gray-500" />
+                      <EyeOff size={16} className="text-gray-500" />
                     ) : (
-                      <Eye size={18} className="text-gray-500" />
+                      <Eye size={16} className="text-gray-500" />
                     )}
                   </button>
                 </div>
@@ -201,26 +209,26 @@ const Login = () => {
 
             <Button
               type="submit"
-              className="w-full bg-hostel-primary hover:bg-hostel-secondary transition-all duration-300 py-2.5"
+              className="w-full bg-hostel-primary hover:bg-hostel-secondary transition-all duration-300 h-11 text-sm font-medium"
               disabled={isLoading}
             >
               {isLoading ? "Processing..." : "Login"}
             </Button>
 
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex justify-between items-center mt-3">
               {userRole === UserRole.ADMIN && (
                 <button
                   type="button"
-                  className="text-sm text-hostel-primary hover:text-hostel-secondary underline transition-colors flex items-center space-x-1"
+                  className="text-xs text-hostel-primary hover:text-hostel-secondary underline transition-colors flex items-center space-x-1"
                   onClick={handleBackToRoleSelection}
                 >
-                  <ArrowLeft size={16} />
+                  <ArrowLeft size={14} />
                   <span>Change Role</span>
                 </button>
               )}
               <button
                 type="button"
-                className="text-sm text-hostel-primary hover:text-hostel-secondary underline transition-colors ml-auto"
+                className="text-xs text-hostel-primary hover:text-hostel-secondary underline transition-colors ml-auto"
                 onClick={() => navigate("/role-selection")}
               >
                 Back to Role Selection
