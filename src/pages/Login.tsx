@@ -16,22 +16,23 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showAdminSubRoles, setShowAdminSubRoles] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { login, userRole } = useAuth();
   const { toast } = useToast();
-
-  const from = location.state?.from?.pathname || `/${userRole}`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // If admin role, show sub-role selection first
     if (userRole === UserRole.ADMIN) {
+      setSelectedRole(userRole);
       setShowAdminSubRoles(true);
       return;
     }
 
+    // For non-admin roles, proceed with login
     setIsLoading(true);
 
     try {
@@ -40,7 +41,10 @@ const Login = () => {
         title: "Login successful",
         description: "Welcome back!",
       });
-      navigate(from, { replace: true });
+      
+      // Redirect based on the actual role
+      const redirectPath = userRole === UserRole.PG_GUEST ? "/guest" : "/public";
+      navigate(redirectPath, { replace: true });
     } catch (error) {
       toast({
         title: "Login failed",
@@ -57,12 +61,14 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password, userRole, subRole);
+      await login(email, password, UserRole.ADMIN, subRole);
       toast({
         title: "Login successful",
         description: `Welcome back, ${subRole === AdminSubRole.SUPER_ADMIN ? 'Super Admin' : subRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}!`,
       });
-      navigate(from, { replace: true });
+      
+      // Always redirect admin to admin dashboard
+      navigate("/admin", { replace: true });
     } catch (error) {
       toast({
         title: "Login failed",
@@ -77,10 +83,11 @@ const Login = () => {
 
   const handleBackToLogin = () => {
     setShowAdminSubRoles(false);
+    setSelectedRole(null);
   };
 
   // Show admin sub-role selection if admin user has entered credentials
-  if (showAdminSubRoles && userRole === UserRole.ADMIN) {
+  if (showAdminSubRoles && selectedRole === UserRole.ADMIN) {
     return (
       <AdminSubRoleSelection 
         onSubRoleSelect={handleAdminSubRoleSelect}
@@ -95,7 +102,7 @@ const Login = () => {
         <CardHeader className="space-y-1 text-center bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white rounded-t-lg">
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
           <CardDescription className="text-hostel-accent">
-            {userRole === "admin" ? "Admin Access" : "PG Guest Access"}
+            {userRole === UserRole.ADMIN ? "Admin Access" : userRole === UserRole.PG_GUEST ? "PG Guest Access" : "Public Access"}
           </CardDescription>
         </CardHeader>
 

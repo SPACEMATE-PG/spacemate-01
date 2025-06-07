@@ -79,16 +79,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const savedAdminSubRole = localStorage.getItem("adminSubRole");
     
     if (savedUser && savedRole) {
-      setCurrentUser(JSON.parse(savedUser));
+      const user = JSON.parse(savedUser);
+      setCurrentUser(user);
       setUserRole(savedRole as UserRole);
       if (savedAdminSubRole) {
         setAdminSubRoleState(savedAdminSubRole as AdminSubRole);
       }
       setIsAuthenticated(true);
+      console.log("Auth restored:", { role: savedRole, user: user.name, subRole: savedAdminSubRole });
     }
   }, []);
 
   const login = async (email: string, password: string, role: UserRole, subRole?: AdminSubRole) => {
+    console.log("Login attempt:", { email, role, subRole });
+    
     // In a real app, we would make an API call to authenticate
     let user: User | null = null;
 
@@ -109,12 +113,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserRole(role);
       setAdminSubRoleState(subRole || null);
       setIsAuthenticated(true);
+      
+      // Store in localStorage
       localStorage.setItem("currentUser", JSON.stringify(user));
       localStorage.setItem("userRole", role);
       if (subRole) {
         localStorage.setItem("adminSubRole", subRole);
+      } else {
+        localStorage.removeItem("adminSubRole");
       }
+      
+      console.log("Login successful:", { role, subRole, userName: user.name });
     } else {
+      console.error("Login failed: Invalid credentials");
       throw new Error("Invalid credentials");
     }
   };
@@ -127,9 +138,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("currentUser");
     localStorage.removeItem("userRole");
     localStorage.removeItem("adminSubRole");
+    console.log("User logged out");
   };
 
   const setRole = (role: UserRole) => {
+    console.log("Setting role:", role);
     setUserRole(role);
     localStorage.setItem("userRole", role);
   };
