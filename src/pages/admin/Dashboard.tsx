@@ -1,7 +1,4 @@
 
-import { useAuth } from "@/contexts/AuthContext";
-import { AdminSubRole } from "@/types";
-import SuperAdminDashboard from "./SuperAdminDashboard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { rooms } from "@/data/mockData";
 import { Users, Home, CheckCircle, AlertCircle, Bell, Calendar } from "lucide-react";
@@ -9,14 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
 const AdminDashboard = () => {
-  const { adminSubRole } = useAuth();
-
-  // If user is Super Admin, show the Super Admin dashboard
-  if (adminSubRole === AdminSubRole.SUPER_ADMIN) {
-    return <SuperAdminDashboard />;
-  }
-
-  // For PG Manager and Warden, show the regular admin dashboard
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -52,9 +41,7 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-6 p-4 sm:p-6 animate-fade-in">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Welcome Back, {adminSubRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800">Welcome Back, Admin</h1>
         <div className="bg-hostel-accent text-hostel-primary px-3 py-1 rounded-full text-sm font-medium">
           Today's Overview
         </div>
