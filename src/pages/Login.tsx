@@ -7,12 +7,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff, User, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { AdminSubRole, UserRole } from "@/types";
+import AdminSubRoleSelection from "@/components/AdminSubRoleSelection";
 
 const Login = () => {
   const [email, setEmail] = useState("vignesh2906vi@gmail.com");
   const [password, setPassword] = useState("vignesh#@123");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showAdminSubRoles, setShowAdminSubRoles] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { login, userRole } = useAuth();
@@ -22,6 +25,13 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // If admin role, show sub-role selection first
+    if (userRole === UserRole.ADMIN) {
+      setShowAdminSubRoles(true);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -42,6 +52,42 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  const handleAdminSubRoleSelect = async (subRole: AdminSubRole) => {
+    setIsLoading(true);
+
+    try {
+      await login(email, password, userRole, subRole);
+      toast({
+        title: "Login successful",
+        description: `Welcome back, ${subRole === AdminSubRole.SUPER_ADMIN ? 'Super Admin' : subRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}!`,
+      });
+      navigate(from, { replace: true });
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "Invalid credentials. Try again.",
+        variant: "destructive",
+      });
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBackToLogin = () => {
+    setShowAdminSubRoles(false);
+  };
+
+  // Show admin sub-role selection if admin user has entered credentials
+  if (showAdminSubRoles && userRole === UserRole.ADMIN) {
+    return (
+      <AdminSubRoleSelection 
+        onSubRoleSelect={handleAdminSubRoleSelect}
+        onBack={handleBackToLogin}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -115,7 +161,7 @@ const Login = () => {
               className="w-full bg-hostel-primary hover:bg-hostel-secondary transition-all duration-300 py-2.5"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Login"}
+              {isLoading ? "Processing..." : userRole === UserRole.ADMIN ? "Continue" : "Login"}
             </Button>
 
             <div className="text-center mt-4">

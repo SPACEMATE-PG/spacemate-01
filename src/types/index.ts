@@ -5,11 +5,18 @@ export enum UserRole {
   PUBLIC = "public"
 }
 
+export enum AdminSubRole {
+  SUPER_ADMIN = "super_admin",
+  PG_MANAGER = "pg_manager", 
+  WARDEN = "warden"
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  adminSubRole?: AdminSubRole; // Added for admin sub-roles
   profileImage?: string;
   roomNumber?: string;
   joinDate?: string;
