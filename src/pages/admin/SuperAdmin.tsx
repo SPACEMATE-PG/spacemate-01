@@ -27,7 +27,11 @@ import {
   Award,
   Target,
   Crown,
-  Bell
+  Bell,
+  BarChart3,
+  Zap,
+  Shield,
+  DollarSign
 } from "lucide-react";
 
 interface PGAdmin {
@@ -119,13 +123,13 @@ const SuperAdmin = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+        return <Badge className="bg-emerald-100 text-emerald-700 font-medium">Active</Badge>;
       case "free":
-        return <Badge className="bg-blue-100 text-blue-800">Free Trial</Badge>;
+        return <Badge className="bg-blue-100 text-blue-700 font-medium">Free Trial</Badge>;
       case "expired":
-        return <Badge className="bg-red-100 text-red-800">Expired</Badge>;
+        return <Badge className="bg-red-100 text-red-700 font-medium">Expired</Badge>;
       case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+        return <Badge className="bg-amber-100 text-amber-700 font-medium">Pending</Badge>;
       default:
         return <Badge variant="outline">Unknown</Badge>;
     }
@@ -192,297 +196,378 @@ const SuperAdmin = () => {
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 animate-fade-in">
-      {/* Header Section - matching admin dashboard style */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Welcome Back, Super Admin</h1>
-          <p className="text-sm text-gray-500 mt-1">Monetization & Revenue Management</p>
-        </div>
-        <div className="bg-hostel-accent text-hostel-primary px-3 py-1 rounded-full text-sm font-medium">
-          Today's Overview
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Professional Header */}
+      <div className="bg-white border-b border-slate-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-slate-900">Super Admin Dashboard</h1>
+                  <p className="text-slate-600 text-sm mt-1">Revenue & Subscription Management Portal</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 px-3 py-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                System Online
+              </Badge>
+              <div className="text-sm text-slate-500">
+                Last updated: {new Date().toLocaleTimeString()}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Key Metrics Cards - matching admin dashboard style */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-hostel-primary">
-          <CardContent className="p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-500">Total PGs</span>
-              <Building2 className="h-5 w-5 text-hostel-primary" />
-            </div>
-            <div className="text-2xl font-bold">{totalPGs}</div>
-            <div className="text-xs text-gray-500 mt-1">{activePGs} active</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-500">Revenue</span>
-              <IndianRupee className="h-5 w-5 text-green-500" />
-            </div>
-            <div className="text-2xl font-bold">₹{(monthlyRevenue / 1000).toFixed(0)}K</div>
-            <div className="text-xs text-gray-500 mt-1">monthly</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-l-4 border-l-amber-500">
-          <CardContent className="p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-500">Active Plans</span>
-              <CheckCircle className="h-5 w-5 text-amber-500" />
-            </div>
-            <div className="text-2xl font-bold">{activeSubscriptions}</div>
-            <div className="text-xs text-gray-500 mt-1">subscriptions</div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-4 flex flex-col">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-500">Conversion</span>
-              <Target className="h-5 w-5 text-blue-500" />
-            </div>
-            <div className="text-2xl font-bold">67%</div>
-            <div className="text-xs text-gray-500 mt-1">trial to paid</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* PG Admin Management Section */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2 border-b">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold flex items-center">
-                <Users className="h-4 w-4 mr-2 text-hostel-primary" />
-                PG Admin Management
-              </CardTitle>
-              <div className="text-xs text-hostel-primary cursor-pointer">
-                {filteredAdmins.length} Admins
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Enhanced Key Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-blue-100 rounded-xl">
+                  <Building2 className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-blue-900">{totalPGs}</div>
+                  <div className="text-blue-600 text-sm font-medium">Total Properties</div>
+                </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4">
-            {/* Search and Filter */}
-            <div className="space-y-3 mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search admins..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+              <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center text-green-600">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="font-medium">{activePGs} Active</span>
+                </div>
               </div>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-hostel-primary focus:ring-hostel-primary bg-white text-sm"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="free">Free Trial</option>
-                <option value="expired">Expired</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200 hover:shadow-lg transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-emerald-100 rounded-xl">
+                  <DollarSign className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-emerald-900">₹{(monthlyRevenue / 1000).toFixed(0)}K</div>
+                  <div className="text-emerald-600 text-sm font-medium">Monthly Revenue</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center text-emerald-600">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="font-medium">+12% vs last month</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 hover:shadow-lg transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-purple-100 rounded-xl">
+                  <Crown className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-purple-900">{activeSubscriptions}</div>
+                  <div className="text-purple-600 text-sm font-medium">Active Subscriptions</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center text-purple-600">
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  <span className="font-medium">67% conversion rate</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:shadow-lg transition-all duration-300">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-amber-100 rounded-xl">
+                  <BarChart3 className="h-6 w-6 text-amber-600" />
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-amber-900">89%</div>
+                  <div className="text-amber-600 text-sm font-medium">Customer Satisfaction</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center text-amber-600">
+                  <Award className="h-4 w-4 mr-1" />
+                  <span className="font-medium">Excellent rating</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Admin List */}
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {filteredAdmins.map((admin) => (
-                <div key={admin.id} className="p-3 hover:bg-gray-50 rounded-md transition-colors border border-gray-100">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-start">
-                      <div className="h-8 w-8 rounded-full bg-hostel-primary flex items-center justify-center mr-3">
-                        <span className="text-white text-xs font-semibold">{admin.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-medium">{admin.name}</h3>
-                        <p className="text-xs text-gray-500">{admin.commonId}</p>
-                      </div>
-                    </div>
-                    {getStatusBadge(admin.subscriptionStatus)}
-                  </div>
-                  <div className="flex justify-between items-center text-xs text-gray-600">
-                    <span>{admin.totalPGs} PGs • ₹{admin.monthlyRevenue.toLocaleString()}/mo</span>
-                    <span>{new Date(admin.lastActive).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex gap-1 mt-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleUpdateSubscription(admin.id, "monthly")}
-                      className="text-xs bg-hostel-primary hover:bg-hostel-secondary"
-                    >
-                      Monthly
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleUpdateSubscription(admin.id, "yearly")}
-                      className="text-xs bg-green-600 hover:bg-green-700"
-                    >
-                      Yearly
-                    </Button>
-                    {admin.subscriptionStatus === "free" && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleExtendTrial(admin.id)}
-                        className="text-xs"
-                      >
-                        Extend Trial
-                      </Button>
-                    )}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Enhanced Admin Management */}
+          <div className="xl:col-span-2">
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="bg-white border-b border-slate-100 rounded-t-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <CardTitle className="text-xl font-semibold text-slate-900 flex items-center">
+                    <Users className="h-5 w-5 mr-3 text-indigo-600" />
+                    PG Admin Management
+                  </CardTitle>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                      {filteredAdmins.length} Admins
+                    </Badge>
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Subscription Pricing Section */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2 border-b">
-            <CardTitle className="text-lg font-semibold flex items-center">
-              <Calendar className="h-4 w-4 mr-2 text-hostel-primary" />
-              Subscription Plans
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="space-y-4">
-              <Card className="border-2 border-blue-200 bg-blue-50">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-blue-900">Monthly Plan</h3>
-                    <Calendar className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent className="p-6">
+                {/* Enhanced Search and Filter */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      placeholder="Search by name, email, or ID..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+                    />
                   </div>
-                  <div className="text-2xl font-bold text-blue-900 mb-1">₹1,000</div>
-                  <div className="text-blue-700 text-sm">per PG per month</div>
-                  <Badge className="bg-blue-200 text-blue-800 mt-2">Most Flexible</Badge>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-2 border-purple-200 bg-purple-50 relative">
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-purple-600 text-white">POPULAR</Badge>
+                  <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <select
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                      className="pl-10 pr-8 py-2 border border-slate-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 bg-white text-sm min-w-[150px]"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="active">Active</option>
+                      <option value="free">Free Trial</option>
+                      <option value="expired">Expired</option>
+                      <option value="pending">Pending</option>
+                    </select>
+                  </div>
                 </div>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-purple-900">6-Month Plan</h3>
-                    <Building2 className="h-4 w-4 text-purple-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-purple-900 mb-1">₹5,500</div>
-                  <div className="text-purple-700 text-sm">per PG (save ₹500)</div>
-                  <Badge className="bg-purple-200 text-purple-800 mt-2">8% Discount</Badge>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-2 border-green-200 bg-green-50">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-green-900">Yearly Plan</h3>
-                    <Crown className="h-4 w-4 text-green-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-green-900 mb-1">₹10,000</div>
-                  <div className="text-green-700 text-sm">per PG (save ₹2,000)</div>
-                  <Badge className="bg-green-200 text-green-800 mt-2">17% Discount</Badge>
-                </CardContent>
-              </Card>
-            </div>
-            
-            <Card className="mt-4 bg-amber-50 border-amber-200">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-amber-600" />
-                  <div>
-                    <h4 className="font-medium text-amber-900 text-sm">Free Trial</h4>
-                    <p className="text-xs text-amber-800">2-3 months complimentary access for new PG admins</p>
-                  </div>
+
+                {/* Enhanced Admin Cards */}
+                <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                  {filteredAdmins.map((admin) => (
+                    <Card key={admin.id} className="border border-slate-200 hover:border-indigo-300 transition-all duration-200 hover:shadow-md">
+                      <CardContent className="p-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
+                              {admin.name.charAt(0)}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-slate-900 text-lg">{admin.name}</h3>
+                              <p className="text-slate-600 text-sm">{admin.email}</p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge variant="outline" className="text-xs">{admin.commonId}</Badge>
+                                {getStatusBadge(admin.subscriptionStatus)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:items-end gap-2">
+                            <div className="flex items-center gap-4 text-sm text-slate-600">
+                              <div className="flex items-center gap-1">
+                                <Building2 className="h-4 w-4" />
+                                <span>{admin.totalPGs} PGs</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-emerald-600 font-medium">
+                                <IndianRupee className="h-4 w-4" />
+                                <span>₹{admin.monthlyRevenue.toLocaleString()}/mo</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleUpdateSubscription(admin.id, "monthly")}
+                                className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+                              >
+                                Monthly
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleUpdateSubscription(admin.id, "yearly")}
+                                className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
+                              >
+                                Yearly
+                              </Button>
+                              {admin.subscriptionStatus === "free" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleExtendTrial(admin.id)}
+                                  className="text-xs border-slate-300 hover:bg-slate-50"
+                                >
+                                  Extend Trial
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </CardContent>
             </Card>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
 
-      {/* Desktop Table View for larger screens */}
-      <div className="hidden lg:block">
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2 border-b">
-            <CardTitle className="text-lg font-semibold">Detailed Admin Overview</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Admin Details</TableHead>
-                    <TableHead>Common ID</TableHead>
-                    <TableHead>PGs (Total/Active)</TableHead>
-                    <TableHead>Subscription</TableHead>
-                    <TableHead>Revenue/Month</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAdmins.map((admin) => (
-                    <TableRow key={admin.id} className="hover:bg-gray-50">
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-hostel-primary rounded-full flex items-center justify-center text-white font-semibold text-xs">
-                            {admin.name.charAt(0)}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900 text-sm">{admin.name}</div>
-                            <div className="text-xs text-gray-500">{admin.email}</div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs">{admin.commonId}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-center">
-                          <div className="font-semibold text-gray-900 text-sm">
-                            {admin.totalPGs} / <span className="text-green-600">{admin.activePGs}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(admin.subscriptionStatus)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-semibold text-green-600">
-                          ₹{admin.monthlyRevenue.toLocaleString()}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            onClick={() => handleUpdateSubscription(admin.id, "monthly")}
-                            className="text-xs bg-hostel-primary hover:bg-hostel-secondary"
-                          >
-                            Monthly
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleUpdateSubscription(admin.id, "yearly")}
-                            className="text-xs bg-green-600 hover:bg-green-700"
-                          >
-                            Yearly
-                          </Button>
-                        </div>
-                      </TableCell>
+          {/* Enhanced Pricing Section */}
+          <div>
+            <Card className="shadow-sm border-slate-200">
+              <CardHeader className="bg-white border-b border-slate-100 rounded-t-lg">
+                <CardTitle className="text-xl font-semibold text-slate-900 flex items-center">
+                  <Zap className="h-5 w-5 mr-3 text-indigo-600" />
+                  Subscription Plans
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 hover:shadow-md transition-all duration-200">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-blue-900 text-lg">Monthly Plan</h3>
+                        <Calendar className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div className="text-3xl font-bold text-blue-900 mb-2">₹1,000</div>
+                      <div className="text-blue-700 text-sm mb-3">per PG per month</div>
+                      <Badge className="bg-blue-200 text-blue-800 text-xs">Most Flexible</Badge>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50 relative hover:shadow-md transition-all duration-200">
+                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                      <Badge className="bg-purple-600 text-white text-xs px-3 py-1">POPULAR</Badge>
+                    </div>
+                    <CardContent className="p-5 pt-6">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-purple-900 text-lg">6-Month Plan</h3>
+                        <Building2 className="h-5 w-5 text-purple-600" />
+                      </div>
+                      <div className="text-3xl font-bold text-purple-900 mb-2">₹5,500</div>
+                      <div className="text-purple-700 text-sm mb-3">per PG (save ₹500)</div>
+                      <Badge className="bg-purple-200 text-purple-800 text-xs">8% Discount</Badge>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-2 border-emerald-200 bg-gradient-to-br from-emerald-50 to-green-50 hover:shadow-md transition-all duration-200">
+                    <CardContent className="p-5">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-emerald-900 text-lg">Yearly Plan</h3>
+                        <Crown className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div className="text-3xl font-bold text-emerald-900 mb-2">₹10,000</div>
+                      <div className="text-emerald-700 text-sm mb-3">per PG (save ₹2,000)</div>
+                      <Badge className="bg-emerald-200 text-emerald-800 text-xs">17% Discount</Badge>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <Card className="mt-6 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 hover:shadow-md transition-all duration-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-amber-100 rounded-lg">
+                        <Clock className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-amber-900 text-sm">Free Trial</h4>
+                        <p className="text-xs text-amber-800">2-3 months complimentary access for new PG admins</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Enhanced Desktop Table */}
+        <div className="hidden lg:block">
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader className="bg-white border-b border-slate-100 rounded-t-lg">
+              <CardTitle className="text-xl font-semibold text-slate-900">Detailed Admin Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50">
+                      <TableHead className="font-semibold text-slate-700">Admin Details</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Common ID</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Properties</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Subscription</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Revenue</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAdmins.map((admin) => (
+                      <TableRow key={admin.id} className="hover:bg-slate-50 transition-colors">
+                        <TableCell className="py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                              {admin.name.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-medium text-slate-900">{admin.name}</div>
+                              <div className="text-sm text-slate-500">{admin.email}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="border-slate-300 text-slate-700">{admin.commonId}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-center">
+                            <div className="font-semibold text-slate-900">
+                              {admin.totalPGs} / <span className="text-emerald-600">{admin.activePGs}</span>
+                            </div>
+                            <div className="text-xs text-slate-500">Total / Active</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(admin.subscriptionStatus)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-semibold text-emerald-600 text-lg">
+                            ₹{admin.monthlyRevenue.toLocaleString()}
+                          </div>
+                          <div className="text-xs text-slate-500">per month</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateSubscription(admin.id, "monthly")}
+                              className="text-xs bg-indigo-600 hover:bg-indigo-700"
+                            >
+                              Monthly
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleUpdateSubscription(admin.id, "yearly")}
+                              className="text-xs bg-emerald-600 hover:bg-emerald-700"
+                            >
+                              Yearly
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
