@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,11 @@ import {
   AlertCircle,
   Calendar,
   Search,
-  Filter
+  Filter,
+  TrendingUp,
+  Award,
+  Target,
+  Crown
 } from "lucide-react";
 
 interface PGAdmin {
@@ -186,308 +191,398 @@ const SuperAdmin = () => {
   };
 
   return (
-    <div className="space-y-4 p-3 sm:p-6 animate-fade-in min-h-screen bg-gray-50 pt-safe pb-safe">
-      <div className="flex flex-col space-y-2 mb-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Super Admin Dashboard</h1>
-          <p className="text-sm text-gray-600 mt-1">Monetization & Subscription Management</p>
-        </div>
-        <div className="bg-gradient-to-r from-purple-500 to-purple-700 text-white px-3 py-2 rounded-lg text-center">
-          <span className="text-sm font-medium">Revenue Overview</span>
-        </div>
-      </div>
-
-      {/* Key Metrics - Mobile optimized grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card className="border-l-4 border-l-purple-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-gray-500">Total PGs</span>
-              <Building2 className="h-4 w-4 text-purple-500" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 pt-safe pb-safe">
+      {/* Enhanced Header Section */}
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 text-white shadow-lg">
+        <div className="p-4 sm:p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <Crown className="h-7 w-7 text-yellow-300" />
             </div>
-            <div className="text-xl font-bold">{totalPGs}</div>
-            <div className="text-xs text-gray-500">{activePGs} active</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-gray-500">Monthly Revenue</span>
-              <IndianRupee className="h-4 w-4 text-green-500" />
-            </div>
-            <div className="text-xl font-bold">₹{monthlyRevenue.toLocaleString()}</div>
-            <div className="text-xs text-green-600">+12% from last month</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-gray-500">Active Subscriptions</span>
-              <CheckCircle className="h-4 w-4 text-blue-500" />
-            </div>
-            <div className="text-xl font-bold">{activeSubscriptions}</div>
-            <div className="text-xs text-blue-600">of {pgAdmins.length} total admins</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-l-4 border-l-amber-500">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-gray-500">Conversion Rate</span>
-              <AlertCircle className="h-4 w-4 text-amber-500" />
-            </div>
-            <div className="text-xl font-bold">67%</div>
-            <div className="text-xs text-amber-600">trial to paid</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* PG Admin Management */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Users className="h-5 w-5" />
-            PG Admin Management
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex flex-col space-y-3 mb-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search by name, email, or Common ID..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 text-sm"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="flex-1 border rounded-md px-3 py-2 text-sm h-10"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="free">Free Trial</option>
-                <option value="expired">Expired</option>
-                <option value="pending">Pending</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Mobile-optimized table */}
-          <div className="space-y-3 sm:hidden">
-            {filteredAdmins.map((admin) => (
-              <Card key={admin.id} className="p-3">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="font-medium text-sm">{admin.name}</div>
-                      <div className="text-xs text-gray-500">{admin.email}</div>
-                    </div>
-                    <Badge variant="outline" className="text-xs">{admin.commonId}</Badge>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs">
-                      <span className="font-semibold">{admin.totalPGs}</span> / 
-                      <span className="text-green-600 ml-1">{admin.activePGs}</span> PGs
-                    </div>
-                    {getStatusBadge(admin.subscriptionStatus)}
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div className="font-semibold text-green-600 text-sm">
-                      ₹{admin.monthlyRevenue.toLocaleString()}
-                    </div>
-                    {admin.freeTrialEnd && (
-                      <div className="text-xs text-gray-500">
-                        Trial: {admin.freeTrialEnd}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="flex gap-1 pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleUpdateSubscription(admin.id, "monthly")}
-                      className="text-xs flex-1"
-                    >
-                      Monthly
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleUpdateSubscription(admin.id, "yearly")}
-                      className="text-xs flex-1"
-                    >
-                      Yearly
-                    </Button>
-                  </div>
-                  
-                  {admin.subscriptionStatus === "free" && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleExtendTrial(admin.id)}
-                      className="text-xs w-full"
-                    >
-                      Extend Trial
-                    </Button>
-                  )}
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {/* Desktop table */}
-          <div className="hidden sm:block overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs">Admin Details</TableHead>
-                  <TableHead className="text-xs">Common ID</TableHead>
-                  <TableHead className="text-xs">PGs (Total/Active)</TableHead>
-                  <TableHead className="text-xs">Subscription</TableHead>
-                  <TableHead className="text-xs">Revenue/Month</TableHead>
-                  <TableHead className="text-xs">Trial End</TableHead>
-                  <TableHead className="text-xs">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAdmins.map((admin) => (
-                  <TableRow key={admin.id}>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{admin.name}</div>
-                        <div className="text-sm text-gray-500">{admin.email}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{admin.commonId}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-center">
-                        <span className="font-semibold">{admin.totalPGs}</span> / 
-                        <span className="text-green-600 ml-1">{admin.activePGs}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        {getStatusBadge(admin.subscriptionStatus)}
-                        {admin.subscriptionTier && (
-                          <div className="text-xs text-gray-500 capitalize">
-                            {admin.subscriptionTier.replace('_', ' ')}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-semibold text-green-600">
-                        ₹{admin.monthlyRevenue.toLocaleString()}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        ₹1000 × {admin.totalPGs} PGs
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {admin.freeTrialEnd && (
-                        <div className="text-sm">
-                          <div>{admin.freeTrialEnd}</div>
-                          <div className="text-xs text-gray-500">
-                            {new Date(admin.freeTrialEnd) > new Date() ? "Active" : "Expired"}
-                          </div>
-                        </div>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-2">
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUpdateSubscription(admin.id, "monthly")}
-                            className="text-xs"
-                          >
-                            Monthly
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUpdateSubscription(admin.id, "yearly")}
-                            className="text-xs"
-                          >
-                            Yearly
-                          </Button>
-                        </div>
-                        {admin.subscriptionStatus === "free" && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleExtendTrial(admin.id)}
-                            className="text-xs w-full"
-                          >
-                            Extend Trial
-                          </Button>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subscription Pricing - Mobile optimized */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Calendar className="h-5 w-5" />
-            Subscription Pricing Model
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 gap-3">
-            <div className="bg-blue-50 p-3 rounded-lg border">
-              <h3 className="font-semibold text-blue-800 mb-1 text-sm">Monthly Plan</h3>
-              <div className="text-xl font-bold text-blue-900 mb-1">₹1,000</div>
-              <div className="text-xs text-blue-600">per PG per month</div>
-              <div className="text-xs text-blue-500 mt-1">Most flexible option</div>
-            </div>
-            
-            <div className="bg-purple-50 p-3 rounded-lg border">
-              <h3 className="font-semibold text-purple-800 mb-1 text-sm">6-Month Plan</h3>
-              <div className="text-xl font-bold text-purple-900 mb-1">₹5,500</div>
-              <div className="text-xs text-purple-600">per PG (save ₹500)</div>
-              <div className="text-xs text-purple-500 mt-1">8% discount</div>
-            </div>
-            
-            <div className="bg-green-50 p-3 rounded-lg border">
-              <h3 className="font-semibold text-green-800 mb-1 text-sm">Yearly Plan</h3>
-              <div className="text-xl font-bold text-green-900 mb-1">₹10,000</div>
-              <div className="text-xs text-green-600">per PG (save ₹2,000)</div>
-              <div className="text-xs text-green-500 mt-1">17% discount</div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">Super Admin Dashboard</h1>
+              <p className="text-blue-100 text-sm">Monetization & Revenue Management</p>
             </div>
           </div>
           
-          <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-            <div className="flex items-center gap-2 text-yellow-800">
-              <Clock className="h-4 w-4" />
-              <span className="font-medium text-sm">Free Trial Period</span>
+          {/* Revenue Banner */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-300" />
+                <span className="font-semibold">Total Monthly Revenue</span>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold">₹{monthlyRevenue.toLocaleString()}</div>
+                <div className="text-green-300 text-sm">+12% from last month</div>
+              </div>
             </div>
-            <p className="text-xs text-yellow-700 mt-1">
-              New PG admins get 2-3 months of free premium access before subscription enforcement begins.
-            </p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-6 space-y-6">
+        {/* Enhanced Key Metrics */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+            <CardContent className="p-4 relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <Building2 className="h-8 w-8 text-blue-200" />
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{totalPGs}</div>
+                  <div className="text-xs text-blue-200">Total PGs</div>
+                </div>
+              </div>
+              <div className="text-sm text-blue-100">{activePGs} currently active</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-green-600 text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+            <CardContent className="p-4 relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <IndianRupee className="h-8 w-8 text-green-200" />
+                <div className="text-right">
+                  <div className="text-2xl font-bold">₹{(monthlyRevenue / 1000).toFixed(0)}K</div>
+                  <div className="text-xs text-green-200">Monthly Revenue</div>
+                </div>
+              </div>
+              <div className="text-sm text-green-100">Revenue this month</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+            <CardContent className="p-4 relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <CheckCircle className="h-8 w-8 text-purple-200" />
+                <div className="text-right">
+                  <div className="text-2xl font-bold">{activeSubscriptions}</div>
+                  <div className="text-xs text-purple-200">Active Plans</div>
+                </div>
+              </div>
+              <div className="text-sm text-purple-100">of {pgAdmins.length} total admins</div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-orange-600 text-white overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+            <CardContent className="p-4 relative z-10">
+              <div className="flex items-center justify-between mb-3">
+                <Target className="h-8 w-8 text-orange-200" />
+                <div className="text-right">
+                  <div className="text-2xl font-bold">67%</div>
+                  <div className="text-xs text-orange-200">Conversion</div>
+                </div>
+              </div>
+              <div className="text-sm text-orange-100">trial to paid</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Enhanced PG Admin Management */}
+        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+          <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-blue-50">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                <Users className="h-6 w-6 text-indigo-600" />
+              </div>
+              PG Admin Management
+              <Badge variant="outline" className="ml-auto">
+                {filteredAdmins.length} Admins
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            {/* Enhanced Search and Filter */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search by name, email, or Common ID..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-indigo-500 bg-white h-12"
+                >
+                  <option value="all">All Status</option>
+                  <option value="active">Active Subscriptions</option>
+                  <option value="free">Free Trial</option>
+                  <option value="expired">Expired</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Enhanced Mobile Cards */}
+            <div className="space-y-4 sm:hidden">
+              {filteredAdmins.map((admin) => (
+                <Card key={admin.id} className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-900">{admin.name}</div>
+                          <div className="text-sm text-gray-500">{admin.email}</div>
+                        </div>
+                        <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                          {admin.commonId}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
+                        <div className="text-sm">
+                          <span className="font-semibold text-gray-900">{admin.totalPGs}</span>
+                          <span className="text-gray-500"> / </span>
+                          <span className="text-green-600 font-semibold">{admin.activePGs}</span>
+                          <span className="text-gray-500 ml-1">PGs</span>
+                        </div>
+                        {getStatusBadge(admin.subscriptionStatus)}
+                      </div>
+                      
+                      <div className="flex justify-between items-center py-2 px-3 bg-green-50 rounded-lg">
+                        <div className="font-semibold text-green-700 text-lg">
+                          ₹{admin.monthlyRevenue.toLocaleString()}
+                        </div>
+                        {admin.freeTrialEnd && (
+                          <div className="text-xs text-gray-500">
+                            Trial: {new Date(admin.freeTrialEnd).toLocaleDateString()}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateSubscription(admin.id, "monthly")}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        >
+                          Monthly Plan
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => handleUpdateSubscription(admin.id, "yearly")}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          Yearly Plan
+                        </Button>
+                      </div>
+                      
+                      {admin.subscriptionStatus === "free" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleExtendTrial(admin.id)}
+                          className="w-full border-gray-300 hover:bg-gray-50"
+                        >
+                          <Clock className="h-4 w-4 mr-2" />
+                          Extend Trial
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Enhanced Desktop Table */}
+            <div className="hidden sm:block">
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gradient-to-r from-gray-50 to-blue-50">
+                      <TableHead className="font-semibold text-gray-700">Admin Details</TableHead>
+                      <TableHead className="font-semibold text-gray-700">Common ID</TableHead>
+                      <TableHead className="font-semibold text-gray-700">PGs (Total/Active)</TableHead>
+                      <TableHead className="font-semibold text-gray-700">Subscription</TableHead>
+                      <TableHead className="font-semibold text-gray-700">Revenue/Month</TableHead>
+                      <TableHead className="font-semibold text-gray-700">Trial Status</TableHead>
+                      <TableHead className="font-semibold text-gray-700">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAdmins.map((admin) => (
+                      <TableRow key={admin.id} className="hover:bg-gray-50 transition-colors">
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                              {admin.name.charAt(0)}
+                            </div>
+                            <div>
+                              <div className="font-medium text-gray-900">{admin.name}</div>
+                              <div className="text-sm text-gray-500">{admin.email}</div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                            {admin.commonId}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-center">
+                            <div className="font-semibold text-gray-900">
+                              {admin.totalPGs} / <span className="text-green-600">{admin.activePGs}</span>
+                            </div>
+                            <div className="text-xs text-gray-500">total / active</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            {getStatusBadge(admin.subscriptionStatus)}
+                            {admin.subscriptionTier && (
+                              <div className="text-xs text-gray-500 capitalize">
+                                {admin.subscriptionTier.replace('_', ' ')} plan
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-semibold text-green-600 text-lg">
+                            ₹{admin.monthlyRevenue.toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            ₹1,000 × {admin.totalPGs} PGs
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {admin.freeTrialEnd && (
+                            <div>
+                              <div className="text-sm font-medium">
+                                {new Date(admin.freeTrialEnd).toLocaleDateString()}
+                              </div>
+                              <div className={`text-xs ${new Date(admin.freeTrialEnd) > new Date() ? "text-green-600" : "text-red-600"}`}>
+                                {new Date(admin.freeTrialEnd) > new Date() ? "Active Trial" : "Expired"}
+                              </div>
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-2">
+                            <div className="flex gap-1">
+                              <Button
+                                size="sm"
+                                onClick={() => handleUpdateSubscription(admin.id, "monthly")}
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs"
+                              >
+                                Monthly
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={() => handleUpdateSubscription(admin.id, "yearly")}
+                                className="bg-green-600 hover:bg-green-700 text-white text-xs"
+                              >
+                                Yearly
+                              </Button>
+                            </div>
+                            {admin.subscriptionStatus === "free" && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleExtendTrial(admin.id)}
+                                className="text-xs w-full border-gray-300 hover:bg-gray-50"
+                              >
+                                <Clock className="h-3 w-3 mr-1" />
+                                Extend Trial
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Enhanced Subscription Pricing */}
+        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
+          <CardHeader className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-purple-50">
+            <CardTitle className="flex items-center gap-3 text-xl">
+              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-purple-600" />
+              </div>
+              Subscription Pricing Model
+              <Badge className="ml-auto bg-purple-100 text-purple-700">Per PG Pricing</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Calendar className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-blue-900 text-lg mb-2">Monthly Plan</h3>
+                  <div className="text-3xl font-bold text-blue-900 mb-2">₹1,000</div>
+                  <div className="text-blue-700 text-sm mb-4">per PG per month</div>
+                  <Badge className="bg-blue-200 text-blue-800">Most Flexible</Badge>
+                  <div className="text-xs text-blue-600 mt-2">Perfect for testing</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-2 border-purple-300 bg-gradient-to-br from-purple-50 to-purple-100 hover:shadow-lg transition-shadow relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-purple-600 text-white px-3 py-1">
+                    <Award className="h-3 w-3 mr-1" />
+                    POPULAR
+                  </Badge>
+                </div>
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Building2 className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-purple-900 text-lg mb-2">6-Month Plan</h3>
+                  <div className="text-3xl font-bold text-purple-900 mb-2">₹5,500</div>
+                  <div className="text-purple-700 text-sm mb-4">per PG (save ₹500)</div>
+                  <Badge className="bg-purple-200 text-purple-800">8% Discount</Badge>
+                  <div className="text-xs text-purple-600 mt-2">Great for growth</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-2 border-green-300 bg-gradient-to-br from-green-50 to-green-100 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6 text-center">
+                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Crown className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="font-bold text-green-900 text-lg mb-2">Yearly Plan</h3>
+                  <div className="text-3xl font-bold text-green-900 mb-2">₹10,000</div>
+                  <div className="text-green-700 text-sm mb-4">per PG (save ₹2,000)</div>
+                  <Badge className="bg-green-200 text-green-800">17% Discount</Badge>
+                  <div className="text-xs text-green-600 mt-2">Best value option</div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <Card className="mt-6 bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Clock className="h-6 w-6 text-amber-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-amber-900 mb-1">Free Trial Period</h4>
+                    <p className="text-sm text-amber-800">
+                      New PG admins receive <strong>2-3 months</strong> of complimentary premium access 
+                      to explore all features before subscription enforcement begins.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
