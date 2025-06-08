@@ -53,6 +53,7 @@ const PGManager = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [newMenuItems, setNewMenuItems] = useState({ breakfast: "", lunch: "", dinner: "" });
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   
   // Modal states
   const [assetModal, setAssetModal] = useState({ isOpen: false, type: 'add' as 'add' | 'manage' | 'schedule', asset: null });
