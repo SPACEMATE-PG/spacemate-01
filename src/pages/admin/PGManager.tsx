@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AssetModal from "@/components/admin/AssetModal";
+import ServiceRequestModal from "@/components/admin/ServiceRequestModal";
 import { 
   Building2, 
   Bed, 
@@ -28,7 +29,6 @@ import {
   TrendingUp,
   Search,
   Filter,
-  MoreVertical,
   Plus,
   Edit,
   Trash2,
@@ -50,16 +50,17 @@ const PGManager = () => {
   const [serviceRequests, setServiceRequests] = useState(8);
   const [unreadMessages, setUnreadMessages] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
   const [newMenuItems, setNewMenuItems] = useState({ breakfast: "", lunch: "", dinner: "" });
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  
+  // Modal states
+  const [assetModal, setAssetModal] = useState({ isOpen: false, type: 'add' as 'add' | 'manage' | 'schedule', asset: null });
+  const [serviceModal, setServiceModal] = useState({ isOpen: false, request: null as any });
 
   // Real-time data simulation
   useEffect(() => {
     const interval = setInterval(() => {
-      // Simulate real-time updates
       if (Math.random() > 0.8) {
         setUnreadMessages(prev => prev + 1);
         toast({
@@ -80,12 +81,9 @@ const PGManager = () => {
     });
   };
 
-  const handleServiceRequest = (id: string, action: 'acknowledge' | 'complete' | 'reject') => {
+  const handleServiceRequestUpdate = (id: string, status: string, notes?: string) => {
     setServiceRequests(prev => prev - 1);
-    toast({
-      title: `Service Request ${action.charAt(0).toUpperCase() + action.slice(1)}d`,
-      description: `Request #${id} has been ${action}d successfully`,
-    });
+    console.log(`Service request ${id} updated to ${status}`, notes);
   };
 
   const handleJoiningRequest = (id: string, action: 'accept' | 'reject') => {
@@ -175,30 +173,115 @@ const PGManager = () => {
   ];
 
   const joiningRequests = [
-    { id: '1', name: 'Rahul Kumar', profession: 'Software Engineer', roomType: 'Single room', appliedTime: '2 hours ago', profileViews: 15 },
-    { id: '2', name: 'Priya Sharma', profession: 'Marketing Manager', roomType: 'Shared room', appliedTime: '4 hours ago', profileViews: 8 },
-    { id: '3', name: 'Amit Singh', profession: 'Data Analyst', roomType: 'Single room', appliedTime: '6 hours ago', profileViews: 12 },
-    { id: '4', name: 'Sneha Patel', profession: 'UI/UX Designer', roomType: 'Shared room', appliedTime: '1 day ago', profileViews: 20 }
+    { 
+      id: '1', 
+      name: 'Rahul Kumar', 
+      profession: 'Software Engineer', 
+      roomType: 'Single room', 
+      appliedTime: '2 hours ago', 
+      profileViews: 15,
+      profileScore: 85,
+      contactNumber: '+91 98765 43210',
+      emergencyContact: '+91 98765 43211'
+    },
+    { 
+      id: '2', 
+      name: 'Priya Sharma', 
+      profession: 'Marketing Manager', 
+      roomType: 'Shared room', 
+      appliedTime: '4 hours ago', 
+      profileViews: 8,
+      profileScore: 92,
+      contactNumber: '+91 98765 43212',
+      emergencyContact: '+91 98765 43213'
+    },
+    { 
+      id: '3', 
+      name: 'Amit Singh', 
+      profession: 'Data Analyst', 
+      roomType: 'Single room', 
+      appliedTime: '6 hours ago', 
+      profileViews: 12,
+      profileScore: 78,
+      contactNumber: '+91 98765 43214',
+      emergencyContact: '+91 98765 43215'
+    }
   ];
 
   const serviceRequestsData = [
-    { id: '1', asset: 'Washing Machine #2', issue: 'Not starting properly', requests: 8, priority: 'High', icon: Wrench, status: 'pending' },
-    { id: '2', asset: 'Water Purifier #3', issue: 'Low water pressure', requests: 5, priority: 'Medium', icon: Droplets, status: 'pending' },
-    { id: '3', asset: 'Wi-Fi Router #1', issue: 'Connectivity issues', requests: 12, priority: 'High', icon: Wifi, status: 'pending' },
-    { id: '4', asset: 'Air Conditioner #5', issue: 'Not cooling effectively', requests: 3, priority: 'Low', icon: Zap, status: 'pending' }
+    { 
+      id: '1', 
+      asset: 'Washing Machine #2', 
+      issue: 'Not starting properly', 
+      requests: 8, 
+      priority: 'High', 
+      icon: Wrench, 
+      status: 'pending',
+      submittedBy: ['Rahul K.', 'Priya S.', 'Amit R.', 'Sneha P.', '4 others'],
+      description: 'The washing machine is not starting. Display shows error E02. Tried basic troubleshooting but issue persists.',
+      submittedAt: '2 hours ago'
+    },
+    { 
+      id: '2', 
+      asset: 'Water Purifier #3', 
+      issue: 'Low water pressure', 
+      requests: 5, 
+      priority: 'Medium', 
+      icon: Droplets, 
+      status: 'pending',
+      submittedBy: ['John D.', 'Sarah M.', 'Mike T.', '2 others'],
+      description: 'Water flow from the purifier has reduced significantly. Takes very long to fill a bottle.',
+      submittedAt: '4 hours ago'
+    },
+    { 
+      id: '3', 
+      asset: 'Wi-Fi Router #1', 
+      issue: 'Connectivity issues', 
+      requests: 12, 
+      priority: 'High', 
+      icon: Wifi, 
+      status: 'pending',
+      submittedBy: ['Alex K.', 'Nina P.', 'Tom B.', 'Lisa R.', '8 others'],
+      description: 'Internet keeps disconnecting frequently. Speed is also very slow during peak hours.',
+      submittedAt: '1 hour ago'
+    }
   ];
 
   const communicationData = [
-    { id: '1', user: 'Priya Sharma', message: 'Wi-Fi password not working in room 204', time: '2 hours ago', type: 'individual' },
-    { id: '2', user: 'Amit Kumar', message: 'When will the washing machine be fixed?', time: '4 hours ago', type: 'individual' },
-    { id: '3', user: 'General Query', message: 'Water supply timing clarification needed', time: '1 day ago', type: 'general' }
+    { 
+      id: '1', 
+      user: 'Priya Sharma', 
+      message: 'Wi-Fi password not working in room 204', 
+      time: '2 hours ago', 
+      type: 'individual',
+      priority: 'medium',
+      resolved: false 
+    },
+    { 
+      id: '2', 
+      user: 'Amit Kumar', 
+      message: 'When will the washing machine be fixed?', 
+      time: '4 hours ago', 
+      type: 'individual',
+      priority: 'high',
+      resolved: false 
+    },
+    { 
+      id: '3', 
+      user: 'General Query', 
+      message: 'Water supply timing clarification needed', 
+      time: '1 day ago', 
+      type: 'general',
+      priority: 'low',
+      resolved: true 
+    }
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 p-2 sm:p-4 lg:p-6">
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         {/* Header Section */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-lg shadow-sm border">
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
               <Building2 className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-primary" />
@@ -221,8 +304,8 @@ const PGManager = () => {
               </Badge>
             </div>
             <div className="text-xs text-gray-500 flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              Last updated: now
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              Live
             </div>
           </div>
         </div>
@@ -255,7 +338,7 @@ const PGManager = () => {
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow cursor-pointer" onClick={() => toggleCardExpansion('pending')}>
+          <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
             <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -268,7 +351,7 @@ const PGManager = () => {
             </CardContent>
           </Card>
           
-          <Card className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow cursor-pointer" onClick={() => toggleCardExpansion('service')}>
+          <Card className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
             <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -282,16 +365,13 @@ const PGManager = () => {
           </Card>
         </div>
 
-        {/* Professional Tab Navigation */}
+        {/* Enhanced Tab Navigation */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-            <div className="border-b border-gray-200 bg-gray-50/50">
-              <div className="px-4 py-2">
-                <h3 className="text-sm font-medium text-gray-700">Management Sections</h3>
-              </div>
+          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+            <div className="border-b bg-gray-50/50 px-4 py-3">
+              <h3 className="text-sm font-medium text-gray-700">Management Sections</h3>
             </div>
             
-            {/* Enhanced Tab Navigation */}
             <div className="p-2">
               <TabsList className="w-full h-auto bg-transparent p-0 gap-1">
                 {tabConfig.map((tab) => {
@@ -396,16 +476,20 @@ const PGManager = () => {
             </div>
           </TabsContent>
 
-          {/* Asset Management Tab */}
+          {/* Enhanced Asset Management Tab */}
           <TabsContent value="assets" className="space-y-4 sm:space-y-6">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between text-lg sm:text-xl">
                   <div className="flex items-center">
-                    <Settings className="h-5 w-5 mr-2 text-hostel-primary" />
+                    <Settings className="h-5 w-5 mr-2 text-primary" />
                     Real-time Asset Management
                   </div>
-                  <Button size="sm" className="bg-hostel-primary hover:bg-hostel-secondary">
+                  <Button 
+                    size="sm" 
+                    onClick={() => setAssetModal({ isOpen: true, type: 'add', asset: null })}
+                    className="bg-primary hover:bg-primary/90"
+                  >
                     <Plus className="h-4 w-4 mr-1" />
                     Add Asset
                   </Button>
@@ -432,7 +516,11 @@ const PGManager = () => {
                         <span className="font-medium text-green-600">6</span>
                       </div>
                     </div>
-                    <Button size="sm" className="mt-3 w-full">
+                    <Button 
+                      size="sm" 
+                      className="mt-3 w-full"
+                      onClick={() => setAssetModal({ isOpen: true, type: 'manage', asset: { name: 'Room Management', type: 'room' } })}
+                    >
                       <Edit className="h-3 w-3 mr-1" />
                       Manage Rooms
                     </Button>
@@ -474,7 +562,7 @@ const PGManager = () => {
                   
                   <div className="p-4 border rounded-lg hover:shadow-md transition-shadow bg-gradient-to-br from-purple-50 to-purple-100">
                     <h3 className="font-semibold flex items-center mb-3">
-                      <TrendingUp className="h-4 w-4 mr-2 text-purple-600" />
+                      <Calendar className="h-4 w-4 mr-2 text-purple-600" />
                       Maintenance Queue
                     </h3>
                     <div className="space-y-2 text-sm">
@@ -491,7 +579,11 @@ const PGManager = () => {
                         <span className="font-medium text-green-600">5 items</span>
                       </div>
                     </div>
-                    <Button size="sm" className="mt-3 w-full">
+                    <Button 
+                      size="sm" 
+                      className="mt-3 w-full"
+                      onClick={() => setAssetModal({ isOpen: true, type: 'schedule', asset: null })}
+                    >
                       <Calendar className="h-3 w-3 mr-1" />
                       View Schedule
                     </Button>
@@ -501,19 +593,19 @@ const PGManager = () => {
             </Card>
           </TabsContent>
 
-          {/* User Requests Tab */}
+          {/* Enhanced Joining Requests Tab */}
           <TabsContent value="requests" className="space-y-4 sm:space-y-6">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                   <div className="flex items-center">
-                    <UserPlus className="h-5 w-5 mr-2 text-hostel-primary" />
+                    <UserPlus className="h-5 w-5 mr-2 text-primary" />
                     Joining Requests
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge className="bg-amber-100 text-amber-700">{pendingRequests} Pending</Badge>
                     <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <Clock className="h-3 w-3" />
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                       Auto-refresh: 30s
                     </div>
                   </div>
@@ -535,39 +627,53 @@ const PGManager = () => {
                     Filter
                   </Button>
                 </div>
+                
                 <div className="space-y-4">
                   {joiningRequests.map((request) => (
-                    <div key={request.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex-1 mb-3 sm:mb-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium">{request.name}</h4>
-                          <Badge variant="outline" className="text-xs">{request.profileViews} views</Badge>
+                    <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-medium text-lg">{request.name}</h4>
+                            <Badge variant="outline" className="text-xs bg-blue-50">
+                              {request.profileViews} views
+                            </Badge>
+                            <Badge className={`text-xs ${request.profileScore >= 90 ? 'bg-green-100 text-green-700' : 
+                              request.profileScore >= 80 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
+                              Score: {request.profileScore}%
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                            <p><span className="font-medium">Profession:</span> {request.profession}</p>
+                            <p><span className="font-medium">Room Type:</span> {request.roomType}</p>
+                            <p><span className="font-medium">Applied:</span> {request.appliedTime}</p>
+                            <p><span className="font-medium">Contact:</span> {request.contactNumber}</p>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-600">{request.profession} • Preferred: {request.roomType}</p>
-                        <p className="text-xs text-gray-500">Applied {request.appliedTime}</p>
-                      </div>
-                      <div className="flex gap-2 w-full sm:w-auto">
-                        <Button size="sm" variant="outline" className="flex-1 sm:flex-initial">
-                          <Eye className="h-3 w-3 mr-1" />
-                          View Profile
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          className="flex-1 sm:flex-initial bg-green-600 hover:bg-green-700"
-                          onClick={() => handleJoiningRequest(request.id, 'accept')}
-                        >
-                          <Check className="h-3 w-3 mr-1" />
-                          Accept
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive"
-                          className="flex-1 sm:flex-initial"
-                          onClick={() => handleJoiningRequest(request.id, 'reject')}
-                        >
-                          <X className="h-3 w-3 mr-1" />
-                          Reject
-                        </Button>
+                        
+                        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+                          <Button size="sm" variant="outline" className="flex-1 lg:flex-initial">
+                            <Eye className="h-3 w-3 mr-1" />
+                            View Profile
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            className="flex-1 lg:flex-initial bg-green-600 hover:bg-green-700"
+                            onClick={() => handleJoiningRequest(request.id, 'accept')}
+                          >
+                            <Check className="h-3 w-3 mr-1" />
+                            Accept
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive"
+                            className="flex-1 lg:flex-initial"
+                            onClick={() => handleJoiningRequest(request.id, 'reject')}
+                          >
+                            <X className="h-3 w-3 mr-1" />
+                            Reject
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -576,59 +682,68 @@ const PGManager = () => {
             </Card>
           </TabsContent>
 
-          {/* Service Requests Tab */}
+          {/* Enhanced Service Requests Tab */}
           <TabsContent value="services" className="space-y-4 sm:space-y-6">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                   <div className="flex items-center">
-                    <Wrench className="h-5 w-5 mr-2 text-hostel-primary" />
+                    <Wrench className="h-5 w-5 mr-2 text-primary" />
                     Service Requests
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge className="bg-red-100 text-red-700">{serviceRequests} Pending</Badge>
                     <Badge className="bg-yellow-100 text-yellow-700">3 High Priority</Badge>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      Live Updates
+                    </div>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {serviceRequestsData.map((request) => (
-                    <div key={request.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                      <div className="flex items-start gap-3 flex-1 mb-3 sm:mb-0">
-                        <request.icon className="h-5 w-5 text-gray-600 mt-1" />
-                        <div>
-                          <h4 className="font-medium">{request.asset}</h4>
-                          <p className="text-sm text-gray-600">{request.issue}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <p className="text-xs text-gray-500">{request.requests} user requests</p>
-                            <Badge className={
-                              request.priority === 'High' ? 'bg-red-100 text-red-700' :
-                              request.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-green-100 text-green-700'
-                            }>
-                              {request.priority}
-                            </Badge>
+                    <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                         onClick={() => setServiceModal({ isOpen: true, request })}>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div className="flex items-start gap-3 flex-1">
+                          <request.icon className="h-5 w-5 text-gray-600 mt-1 flex-shrink-0" />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <h4 className="font-medium">{request.asset}</h4>
+                              <Badge className={
+                                request.priority === 'High' ? 'bg-red-100 text-red-700' :
+                                request.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                                'bg-green-100 text-green-700'
+                              }>
+                                {request.priority}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs">
+                                {request.requests} affected
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{request.issue}</p>
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <span>Submitted: {request.submittedAt}</span>
+                              <span>Status: {request.status}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex gap-2 w-full sm:w-auto">
-                        <Button 
-                          size="sm"
-                          className="flex-1 sm:flex-initial bg-blue-600 hover:bg-blue-700"
-                          onClick={() => handleServiceRequest(request.id, 'acknowledge')}
-                        >
-                          <CheckCircle className="h-3 w-3 mr-1" />
-                          Acknowledge
-                        </Button>
-                        <Button 
-                          size="sm"
-                          className="flex-1 sm:flex-initial bg-green-600 hover:bg-green-700"
-                          onClick={() => handleServiceRequest(request.id, 'complete')}
-                        >
-                          <Check className="h-3 w-3 mr-1" />
-                          Complete
-                        </Button>
+                        
+                        <div className="flex gap-2 w-full sm:w-auto">
+                          <Button 
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setServiceModal({ isOpen: true, request });
+                            }}
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View Details
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -637,7 +752,7 @@ const PGManager = () => {
             </Card>
           </TabsContent>
 
-          {/* Meal Management Tab */}
+          {/* Enhanced Meal Management Tab */}
           <TabsContent value="meals" className="space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card className="hover:shadow-md transition-shadow">
@@ -734,7 +849,7 @@ const PGManager = () => {
             </div>
           </TabsContent>
 
-          {/* Communication Tab */}
+          {/* Enhanced Communication Tab */}
           <TabsContent value="communication" className="space-y-4 sm:space-y-6">
             <Card className="hover:shadow-md transition-shadow">
               <CardHeader>
@@ -837,6 +952,21 @@ const PGManager = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Modals */}
+        <AssetModal
+          isOpen={assetModal.isOpen}
+          onClose={() => setAssetModal({ isOpen: false, type: 'add', asset: null })}
+          type={assetModal.type}
+          asset={assetModal.asset}
+        />
+
+        <ServiceRequestModal
+          isOpen={serviceModal.isOpen}
+          onClose={() => setServiceModal({ isOpen: false, request: null })}
+          request={serviceModal.request}
+          onUpdateStatus={handleServiceRequestUpdate}
+        />
       </div>
     </div>
   );
