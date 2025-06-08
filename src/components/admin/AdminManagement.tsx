@@ -14,6 +14,10 @@ import {
   RefreshCw,
   Eye,
   MoreVertical,
+  Phone,
+  Mail,
+  Calendar,
+  MapPin,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,6 +26,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PGAdmin, useUpdateSubscription, useExtendTrial } from "@/hooks/usePGAdmins";
+import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface AdminManagementProps {
   admins: PGAdmin[];
@@ -42,6 +48,8 @@ const AdminManagement = ({
 }: AdminManagementProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const isMobile = useIsMobile();
+  const { toast } = useToast();
   
   const updateSubscriptionMutation = useUpdateSubscription();
   const extendTrialMutation = useExtendTrial();
@@ -58,24 +66,52 @@ const AdminManagement = ({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "active":
-        return <Badge className="bg-emerald-100 text-emerald-700 font-medium">Active</Badge>;
+        return <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs font-medium">Active</Badge>;
       case "free":
-        return <Badge className="bg-blue-100 text-blue-700 font-medium">Free Trial</Badge>;
+        return <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs font-medium">Free Trial</Badge>;
       case "expired":
-        return <Badge className="bg-red-100 text-red-700 font-medium">Expired</Badge>;
+        return <Badge className="bg-red-100 text-red-700 border-red-200 text-xs font-medium">Expired</Badge>;
       case "pending":
-        return <Badge className="bg-amber-100 text-amber-700 font-medium">Pending</Badge>;
+        return <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs font-medium">Pending</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline" className="text-xs">Unknown</Badge>;
     }
   };
 
   const handleUpdateSubscription = (adminId: string, newTier: string) => {
-    updateSubscriptionMutation.mutate({ adminId, newTier });
+    updateSubscriptionMutation.mutate({ adminId, newTier }, {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: `Subscription updated to ${newTier} successfully`,
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to update subscription",
+          variant: "destructive",
+        });
+      }
+    });
   };
 
   const handleExtendTrial = (adminId: string) => {
-    extendTrialMutation.mutate(adminId);
+    extendTrialMutation.mutate(adminId, {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "Trial extended by 30 days successfully",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to extend trial",
+          variant: "destructive",
+        });
+      }
+    });
   };
 
   const handleAdminSelection = (adminId: string, checked: boolean) => {
@@ -86,6 +122,18 @@ const AdminManagement = ({
     } else {
       onSelectionChange(selectedAdmins.filter(id => id !== adminId));
     }
+  };
+
+  const handleCallAdmin = (email: string) => {
+    // In a real app, this would integrate with a calling service
+    toast({
+      title: "Call Feature",
+      description: `Calling ${email}... (Feature would integrate with VoIP service)`,
+    });
+  };
+
+  const handleEmailAdmin = (email: string) => {
+    window.open(`mailto:${email}`, '_blank');
   };
 
   if (isLoading) {
@@ -113,143 +161,279 @@ const AdminManagement = ({
   return (
     <Card className="shadow-sm border-slate-200">
       <CardHeader className="bg-white border-b border-slate-100 rounded-t-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <CardTitle className="text-xl font-semibold text-slate-900 flex items-center">
-            <Users className="h-5 w-5 mr-3 text-indigo-600" />
-            PG Admin Management
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={isLoading}
-              className="flex items-center gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
-              {filteredAdmins.length} Admins
-            </Badge>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <CardTitle className="text-xl font-semibold text-slate-900 flex items-center">
+              <Users className="h-5 w-5 mr-3 text-indigo-600" />
+              PG Admin Management
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRefresh}
+                disabled={isLoading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                {!isMobile && "Refresh"}
+              </Button>
+              <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200">
+                {filteredAdmins.length} Admins
+              </Badge>
+            </div>
+          </div>
+
+          {/* Search and Filter - Mobile Optimized */}
+          <div className="flex flex-col gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Search by name, email, or ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
+              />
+            </div>
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full pl-10 pr-8 py-2 border border-slate-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 bg-white text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="free">Free Trial</option>
+                <option value="expired">Expired</option>
+                <option value="pending">Pending</option>
+              </select>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-6">
-        {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              placeholder="Search by name, email, or ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 border-slate-300 focus:border-indigo-500 focus:ring-indigo-500"
-            />
-          </div>
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="pl-10 pr-8 py-2 border border-slate-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500 bg-white text-sm min-w-[150px]"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="free">Free Trial</option>
-              <option value="expired">Expired</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Admin Cards */}
-        <div className="space-y-4 max-h-[600px] overflow-y-auto">
-          {filteredAdmins.map((admin) => (
-            <Card key={admin.id} className="border border-slate-200 hover:border-indigo-300 transition-all duration-200 hover:shadow-md">
-              <CardContent className="p-5">
-                <div className="flex items-center gap-4">
-                  {onSelectionChange && (
-                    <Checkbox
-                      checked={selectedAdmins.includes(admin.id)}
-                      onCheckedChange={(checked) => handleAdminSelection(admin.id, checked as boolean)}
-                      className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
-                    />
-                  )}
-                  
-                  <div className="flex items-center gap-4 flex-1">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
-                      {admin.name.charAt(0)}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-slate-900 text-lg">{admin.name}</h3>
-                      <p className="text-slate-600 text-sm">{admin.email}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs">{admin.commonId}</Badge>
-                        {getStatusBadge(admin.subscriptionStatus)}
+      <CardContent className="p-4 sm:p-6">
+        {/* Admin Cards - Mobile Optimized */}
+        <div className="space-y-3 max-h-[600px] overflow-y-auto">
+          {filteredAdmins.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No admins found matching your criteria</p>
+            </div>
+          ) : (
+            filteredAdmins.map((admin) => (
+              <Card key={admin.id} className="border border-slate-200 hover:border-indigo-300 transition-all duration-200 hover:shadow-md">
+                <CardContent className="p-4">
+                  {isMobile ? (
+                    // Mobile Layout
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        {onSelectionChange && (
+                          <Checkbox
+                            checked={selectedAdmins.includes(admin.id)}
+                            onCheckedChange={(checked) => handleAdminSelection(admin.id, checked as boolean)}
+                            className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600 mt-1"
+                          />
+                        )}
+                        
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg">
+                            {admin.name.charAt(0)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-slate-900 text-base truncate">{admin.name}</h3>
+                            <p className="text-slate-600 text-sm truncate">{admin.email}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Badge variant="outline" className="text-xs">{admin.commonId}</Badge>
+                              {getStatusBadge(admin.subscriptionStatus)}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-4 text-sm text-slate-600">
-                      <div className="flex items-center gap-1">
-                        <Building2 className="h-4 w-4" />
-                        <span>{admin.totalPGs} PGs</span>
+                      
+                      <div className="flex items-center justify-between text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                        <div className="flex items-center gap-1">
+                          <Building2 className="h-4 w-4" />
+                          <span>{admin.totalPGs} PGs</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-emerald-600 font-medium">
+                          <IndianRupee className="h-4 w-4" />
+                          <span>₹{admin.monthlyRevenue.toLocaleString()}/mo</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1 text-emerald-600 font-medium">
-                        <IndianRupee className="h-4 w-4" />
-                        <span>₹{admin.monthlyRevenue.toLocaleString()}/mo</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {onAdminClick && (
+                      
+                      <div className="flex gap-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => onAdminClick(admin)}
-                          className="text-xs border-slate-300 hover:bg-slate-50"
+                          onClick={() => handleCallAdmin(admin.email)}
+                          className="flex-1 text-xs border-slate-300 hover:bg-slate-50"
                         >
-                          <Eye className="h-3 w-3 mr-1" />
-                          View
+                          <Phone className="h-3 w-3 mr-1" />
+                          Call
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEmailAdmin(admin.email)}
+                          className="flex-1 text-xs border-slate-300 hover:bg-slate-50"
+                        >
+                          <Mail className="h-3 w-3 mr-1" />
+                          Email
+                        </Button>
+                        {onAdminClick && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onAdminClick(admin)}
+                            className="flex-1 text-xs border-slate-300 hover:bg-slate-50"
+                          >
+                            <Eye className="h-3 w-3 mr-1" />
+                            View
+                          </Button>
+                        )}
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline" className="text-xs px-2">
+                              <MoreVertical className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-white border border-slate-200 shadow-lg rounded-lg">
+                            <DropdownMenuItem
+                              onClick={() => handleUpdateSubscription(admin.id, "monthly")}
+                              disabled={updateSubscriptionMutation.isPending}
+                              className="hover:bg-slate-50"
+                            >
+                              Upgrade to Monthly
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleUpdateSubscription(admin.id, "yearly")}
+                              disabled={updateSubscriptionMutation.isPending}
+                              className="hover:bg-slate-50"
+                            >
+                              Upgrade to Yearly
+                            </DropdownMenuItem>
+                            {admin.subscriptionStatus === "free" && (
+                              <DropdownMenuItem
+                                onClick={() => handleExtendTrial(admin.id)}
+                                disabled={extendTrialMutation.isPending}
+                                className="hover:bg-slate-50"
+                              >
+                                Extend Trial
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  ) : (
+                    // Desktop Layout
+                    <div className="flex items-center gap-4">
+                      {onSelectionChange && (
+                        <Checkbox
+                          checked={selectedAdmins.includes(admin.id)}
+                          onCheckedChange={(checked) => handleAdminSelection(admin.id, checked as boolean)}
+                          className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                        />
                       )}
                       
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button size="sm" variant="outline" className="text-xs">
-                            <MoreVertical className="h-3 w-3" />
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
+                          {admin.name.charAt(0)}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-slate-900 text-lg">{admin.name}</h3>
+                          <p className="text-slate-600 text-sm">{admin.email}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="text-xs">{admin.commonId}</Badge>
+                            {getStatusBadge(admin.subscriptionStatus)}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-4 text-sm text-slate-600">
+                          <div className="flex items-center gap-1">
+                            <Building2 className="h-4 w-4" />
+                            <span>{admin.totalPGs} PGs</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-emerald-600 font-medium">
+                            <IndianRupee className="h-4 w-4" />
+                            <span>₹{admin.monthlyRevenue.toLocaleString()}/mo</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCallAdmin(admin.email)}
+                            className="text-xs border-slate-300 hover:bg-slate-50"
+                          >
+                            <Phone className="h-3 w-3 mr-1" />
+                            Call
                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem
-                            onClick={() => handleUpdateSubscription(admin.id, "monthly")}
-                            disabled={updateSubscriptionMutation.isPending}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEmailAdmin(admin.email)}
+                            className="text-xs border-slate-300 hover:bg-slate-50"
                           >
-                            Upgrade to Monthly
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleUpdateSubscription(admin.id, "yearly")}
-                            disabled={updateSubscriptionMutation.isPending}
-                          >
-                            Upgrade to Yearly
-                          </DropdownMenuItem>
-                          {admin.subscriptionStatus === "free" && (
-                            <DropdownMenuItem
-                              onClick={() => handleExtendTrial(admin.id)}
-                              disabled={extendTrialMutation.isPending}
+                            <Mail className="h-3 w-3 mr-1" />
+                            Email
+                          </Button>
+                          {onAdminClick && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => onAdminClick(admin)}
+                              className="text-xs border-slate-300 hover:bg-slate-50"
                             >
-                              Extend Trial
-                            </DropdownMenuItem>
+                              <Eye className="h-3 w-3 mr-1" />
+                              View
+                            </Button>
                           )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="sm" variant="outline" className="text-xs">
+                                <MoreVertical className="h-3 w-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-white border border-slate-200 shadow-lg rounded-lg">
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateSubscription(admin.id, "monthly")}
+                                disabled={updateSubscriptionMutation.isPending}
+                                className="hover:bg-slate-50"
+                              >
+                                Upgrade to Monthly
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleUpdateSubscription(admin.id, "yearly")}
+                                disabled={updateSubscriptionMutation.isPending}
+                                className="hover:bg-slate-50"
+                              >
+                                Upgrade to Yearly
+                              </DropdownMenuItem>
+                              {admin.subscriptionStatus === "free" && (
+                                <DropdownMenuItem
+                                  onClick={() => handleExtendTrial(admin.id)}
+                                  disabled={extendTrialMutation.isPending}
+                                  className="hover:bg-slate-50"
+                                >
+                                  Extend Trial
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </CardContent>
     </Card>
