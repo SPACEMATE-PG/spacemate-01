@@ -72,22 +72,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [adminSubRole, setAdminSubRoleState] = useState<AdminSubRole | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // In a real app, we would check for an existing session here
+  // Clear any existing authentication state on app start to force proper flow
   useEffect(() => {
-    const savedUser = localStorage.getItem("currentUser");
-    const savedRole = localStorage.getItem("userRole");
-    const savedAdminSubRole = localStorage.getItem("adminSubRole");
-    
-    if (savedUser && savedRole) {
-      const user = JSON.parse(savedUser);
-      setCurrentUser(user);
-      setUserRole(savedRole as UserRole);
-      if (savedAdminSubRole) {
-        setAdminSubRoleState(savedAdminSubRole as AdminSubRole);
-      }
-      setIsAuthenticated(true);
-      console.log("Auth restored:", { role: savedRole, user: user.name, subRole: savedAdminSubRole });
-    }
+    // Clear localStorage on app initialization to ensure clean state
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("adminSubRole");
+    console.log("Authentication state cleared - starting fresh");
   }, []);
 
   const login = async (email: string, password: string, role: UserRole, subRole?: AdminSubRole) => {
