@@ -55,10 +55,16 @@ const Login = () => {
             description: "Welcome back, Super Admin!",
           });
           navigate("/super-admin", { replace: true });
+        } else if (selectedAdminSubRole === AdminSubRole.PG_MANAGER) {
+          toast({
+            title: "Login successful",
+            description: "Welcome back, PG Manager!",
+          });
+          navigate("/pg-manager", { replace: true });
         } else {
           toast({
             title: "Login successful",
-            description: `Welcome back, ${selectedAdminSubRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}!`,
+            description: "Welcome back, Warden!",
           });
           navigate("/admin", { replace: true });
         }

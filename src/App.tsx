@@ -24,6 +24,7 @@ import AdminMeals from "@/pages/admin/Meals";
 import AdminNotifications from "@/pages/admin/Notifications";
 import AdminProfile from "@/pages/admin/Profile";
 import SuperAdmin from "@/pages/admin/SuperAdmin";
+import PGManager from "@/pages/admin/PGManager";
 
 // Guest pages
 import GuestRooms from "@/pages/guest/Rooms";
@@ -50,6 +51,17 @@ const RequireSuperAdmin = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
+// PG Manager protection component
+const RequirePGManager = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, userRole, adminSubRole } = useAuth();
+  
+  if (!isAuthenticated || userRole !== UserRole.ADMIN || adminSubRole !== AdminSubRole.PG_MANAGER) {
+    return <Navigate to="/role-selection" replace />;
+  }
+  
+  return children;
+};
+
 const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
@@ -62,6 +74,13 @@ const AppRoutes = () => (
         <RequireSuperAdmin>
           <SuperAdmin />
         </RequireSuperAdmin>
+      } />
+
+      {/* PG Manager Route - Separate and Direct Access Only */}
+      <Route path="/pg-manager" element={
+        <RequirePGManager>
+          <PGManager />
+        </RequirePGManager>
       } />
       
       {/* Admin Routes */}
