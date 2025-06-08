@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -325,7 +324,6 @@ const PGManager = () => {
                         {request.priority}
                       </Badge>
                       <Button 
-                        size="sm" 
                         onClick={() => handleServiceRequest(request.id)}
                       >
                         Acknowledge
@@ -417,7 +415,6 @@ const PGManager = () => {
                       <h4 className="font-medium flex items-center">
                         {query.user}
                         <Badge 
-                          size="sm" 
                           className={query.type === 'individual' ? 'ml-2 bg-blue-100 text-blue-700' : 'ml-2 bg-green-100 text-green-700'}
                         >
                           {query.type === 'individual' ? 'Private' : 'Public'}
@@ -426,7 +423,7 @@ const PGManager = () => {
                       <p className="text-sm text-gray-600">{query.message}</p>
                       <p className="text-xs text-gray-500">{query.time}</p>
                     </div>
-                    <Button size="sm">Reply</Button>
+                    <Button>Reply</Button>
                   </div>
                 ))}
               </div>
