@@ -4,23 +4,42 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Users, 
   Search, 
   Filter, 
   Building2, 
   IndianRupee, 
-  RefreshCw
+  RefreshCw,
+  Eye,
+  MoreVertical,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PGAdmin, useUpdateSubscription, useExtendTrial } from "@/hooks/usePGAdmins";
 
 interface AdminManagementProps {
   admins: PGAdmin[];
   isLoading?: boolean;
   onRefresh?: () => void;
+  selectedAdmins?: string[];
+  onSelectionChange?: (adminIds: string[]) => void;
+  onAdminClick?: (admin: PGAdmin) => void;
 }
 
-const AdminManagement = ({ admins, isLoading, onRefresh }: AdminManagementProps) => {
+const AdminManagement = ({ 
+  admins, 
+  isLoading, 
+  onRefresh, 
+  selectedAdmins = [], 
+  onSelectionChange,
+  onAdminClick
+}: AdminManagementProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   
@@ -57,6 +76,16 @@ const AdminManagement = ({ admins, isLoading, onRefresh }: AdminManagementProps)
 
   const handleExtendTrial = (adminId: string) => {
     extendTrialMutation.mutate(adminId);
+  };
+
+  const handleAdminSelection = (adminId: string, checked: boolean) => {
+    if (!onSelectionChange) return;
+    
+    if (checked) {
+      onSelectionChange([...selectedAdmins, adminId]);
+    } else {
+      onSelectionChange(selectedAdmins.filter(id => id !== adminId));
+    }
   };
 
   if (isLoading) {
@@ -139,12 +168,20 @@ const AdminManagement = ({ admins, isLoading, onRefresh }: AdminManagementProps)
           {filteredAdmins.map((admin) => (
             <Card key={admin.id} className="border border-slate-200 hover:border-indigo-300 transition-all duration-200 hover:shadow-md">
               <CardContent className="p-5">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
+                  {onSelectionChange && (
+                    <Checkbox
+                      checked={selectedAdmins.includes(admin.id)}
+                      onCheckedChange={(checked) => handleAdminSelection(admin.id, checked as boolean)}
+                      className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                    />
+                  )}
+                  
+                  <div className="flex items-center gap-4 flex-1">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
                       {admin.name.charAt(0)}
                     </div>
-                    <div>
+                    <div className="flex-1">
                       <h3 className="font-semibold text-slate-900 text-lg">{admin.name}</h3>
                       <p className="text-slate-600 text-sm">{admin.email}</p>
                       <div className="flex items-center gap-2 mt-1">
@@ -153,7 +190,8 @@ const AdminManagement = ({ admins, isLoading, onRefresh }: AdminManagementProps)
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:items-end gap-2">
+                  
+                  <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-4 text-sm text-slate-600">
                       <div className="flex items-center gap-1">
                         <Building2 className="h-4 w-4" />
@@ -165,33 +203,47 @@ const AdminManagement = ({ admins, isLoading, onRefresh }: AdminManagementProps)
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        onClick={() => handleUpdateSubscription(admin.id, "monthly")}
-                        disabled={updateSubscriptionMutation.isPending}
-                        className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
-                      >
-                        Monthly
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => handleUpdateSubscription(admin.id, "yearly")}
-                        disabled={updateSubscriptionMutation.isPending}
-                        className="text-xs bg-emerald-600 hover:bg-emerald-700 text-white"
-                      >
-                        Yearly
-                      </Button>
-                      {admin.subscriptionStatus === "free" && (
+                      {onAdminClick && (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleExtendTrial(admin.id)}
-                          disabled={extendTrialMutation.isPending}
+                          onClick={() => onAdminClick(admin)}
                           className="text-xs border-slate-300 hover:bg-slate-50"
                         >
-                          Extend Trial
+                          <Eye className="h-3 w-3 mr-1" />
+                          View
                         </Button>
                       )}
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="outline" className="text-xs">
+                            <MoreVertical className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            onClick={() => handleUpdateSubscription(admin.id, "monthly")}
+                            disabled={updateSubscriptionMutation.isPending}
+                          >
+                            Upgrade to Monthly
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleUpdateSubscription(admin.id, "yearly")}
+                            disabled={updateSubscriptionMutation.isPending}
+                          >
+                            Upgrade to Yearly
+                          </DropdownMenuItem>
+                          {admin.subscriptionStatus === "free" && (
+                            <DropdownMenuItem
+                              onClick={() => handleExtendTrial(admin.id)}
+                              disabled={extendTrialMutation.isPending}
+                            >
+                              Extend Trial
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </div>

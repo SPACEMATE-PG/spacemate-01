@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { usePGAdmins, useAdminStats } from "@/hooks/usePGAdmins";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
@@ -8,10 +9,17 @@ import ErrorBoundary from "@/components/admin/ErrorBoundary";
 import SuperAdminHeader from "@/components/admin/SuperAdminHeader";
 import SuperAdminTable from "@/components/admin/SuperAdminTable";
 import SuperAdminPricing from "@/components/admin/SuperAdminPricing";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
+import AdminBulkActions from "@/components/admin/AdminBulkActions";
+import AdminDetailModal from "@/components/admin/AdminDetailModal";
+import LiveActivityFeed from "@/components/admin/LiveActivityFeed";
+import { PGAdmin } from "@/hooks/usePGAdmins";
 
 const SuperAdmin = () => {
   const { data: pgAdmins = [], isLoading, error, refetch } = usePGAdmins();
   const stats = useAdminStats(pgAdmins);
+  const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
+  const [selectedAdminForDetail, setSelectedAdminForDetail] = useState<PGAdmin | null>(null);
 
   if (error) {
     return (
@@ -47,22 +55,40 @@ const SuperAdmin = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
           <SuperAdminMetrics stats={stats} isLoading={isLoading} />
 
+          <AnalyticsDashboard stats={stats} isLoading={isLoading} />
+
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="xl:col-span-2">
+            <div className="xl:col-span-2 space-y-8">
+              <AdminBulkActions 
+                admins={pgAdmins}
+                selectedAdmins={selectedAdmins}
+                onSelectionChange={setSelectedAdmins}
+              />
+
               <AdminManagement 
                 admins={pgAdmins} 
                 isLoading={isLoading} 
                 onRefresh={() => refetch()}
+                selectedAdmins={selectedAdmins}
+                onSelectionChange={setSelectedAdmins}
+                onAdminClick={setSelectedAdminForDetail}
               />
             </div>
 
-            <div>
+            <div className="space-y-8">
               <SuperAdminPricing />
+              <LiveActivityFeed />
             </div>
           </div>
 
           <SuperAdminTable pgAdmins={pgAdmins} isLoading={isLoading} />
         </div>
+
+        <AdminDetailModal
+          admin={selectedAdminForDetail}
+          isOpen={!!selectedAdminForDetail}
+          onClose={() => setSelectedAdminForDetail(null)}
+        />
       </div>
     </ErrorBoundary>
   );
