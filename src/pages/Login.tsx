@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { Eye, EyeOff, User, Lock, Shield, Users, UserCheck, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AdminSubRole, UserRole } from "@/types";
+import PGSelector from "@/components/PGSelector";
 
 const Login = () => {
   const [email, setEmail] = useState("vignesh2906vi@gmail.com");
@@ -15,6 +16,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAdminSubRole, setSelectedAdminSubRole] = useState<AdminSubRole | null>(null);
+  const [selectedPGId, setSelectedPGId] = useState<string | null>(null);
+  const [showPGSelector, setShowPGSelector] = useState(false);
   const navigate = useNavigate();
   const { login, userRole } = useAuth();
   const { toast } = useToast();
@@ -46,7 +49,7 @@ const Login = () => {
 
     try {
       if (userRole === UserRole.ADMIN && selectedAdminSubRole) {
-        await login(email, password, UserRole.ADMIN, selectedAdminSubRole);
+        await login(email, password, UserRole.ADMIN, selectedAdminSubRole, selectedPGId || undefined);
         
         // Handle different admin sub-role redirections
         if (selectedAdminSubRole === AdminSubRole.SUPER_ADMIN) {
@@ -69,7 +72,7 @@ const Login = () => {
           navigate("/admin", { replace: true });
         }
       } else {
-        await login(email, password, userRole);
+        await login(email, password, userRole, undefined, selectedPGId || undefined);
         toast({
           title: "Login successful",
           description: "Welcome back!",
@@ -91,11 +94,39 @@ const Login = () => {
 
   const handleAdminSubRoleSelect = (subRole: AdminSubRole) => {
     setSelectedAdminSubRole(subRole);
+    // Show PG selector for all roles that need PG association
+    if (subRole === AdminSubRole.PG_MANAGER || subRole === AdminSubRole.WARDEN) {
+      setShowPGSelector(true);
+    }
+  };
+
+  const handlePGSelect = (pgId: string) => {
+    setSelectedPGId(pgId);
+    setShowPGSelector(false);
   };
 
   const handleBackToRoleSelection = () => {
     setSelectedAdminSubRole(null);
+    setSelectedPGId(null);
+    setShowPGSelector(false);
   };
+
+  const handleGuestPGSelection = () => {
+    setShowPGSelector(true);
+  };
+
+  // Show PG selector
+  if (showPGSelector) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 pt-safe pb-safe">
+        <PGSelector 
+          onPGSelect={handlePGSelect}
+          onBack={() => setShowPGSelector(false)}
+          userRole={userRole}
+        />
+      </div>
+    );
+  }
 
   // Show admin sub-role selection first for admin users - Mobile optimized
   if (userRole === UserRole.ADMIN && !selectedAdminSubRole) {
@@ -153,6 +184,11 @@ const Login = () => {
           <CardTitle className="text-xl font-bold">Welcome Back</CardTitle>
           <CardDescription className="text-hostel-accent text-sm">
             {userRole === UserRole.ADMIN ? `Admin Access - ${selectedAdminSubRole === AdminSubRole.SUPER_ADMIN ? 'Super Admin' : selectedAdminSubRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}` : userRole === UserRole.PG_GUEST ? "PG Guest Access" : "Public Access"}
+            {selectedPGId && (
+              <div className="text-xs mt-1 text-hostel-accent">
+                PG Selected: {selectedPGId}
+              </div>
+            )}
           </CardDescription>
         </CardHeader>
 
@@ -213,10 +249,39 @@ const Login = () => {
               </div>
             </div>
 
+            {/* PG Selection for guests */}
+            {userRole === UserRole.PG_GUEST && !selectedPGId && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGuestPGSelection}
+                className="w-full h-11 text-sm font-medium"
+              >
+                Select Your PG
+              </Button>
+            )}
+
+            {/* PG Selection for admin roles that need it */}
+            {userRole === UserRole.ADMIN && selectedAdminSubRole && 
+             (selectedAdminSubRole === AdminSubRole.PG_MANAGER || selectedAdminSubRole === AdminSubRole.WARDEN) && 
+             !selectedPGId && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowPGSelector(true)}
+                className="w-full h-11 text-sm font-medium"
+              >
+                Select Your PG
+              </Button>
+            )}
+
             <Button
               type="submit"
               className="w-full bg-hostel-primary hover:bg-hostel-secondary transition-all duration-300 h-11 text-sm font-medium"
-              disabled={isLoading}
+              disabled={isLoading || (userRole === UserRole.PG_GUEST && !selectedPGId) || 
+                       (userRole === UserRole.ADMIN && selectedAdminSubRole && 
+                        (selectedAdminSubRole === AdminSubRole.PG_MANAGER || selectedAdminSubRole === AdminSubRole.WARDEN) && 
+                        !selectedPGId)}
             >
               {isLoading ? "Processing..." : "Login"}
             </Button>

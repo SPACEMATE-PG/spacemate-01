@@ -1,4 +1,3 @@
-
 export enum UserRole {
   ADMIN = "admin",
   PG_GUEST = "guest",
@@ -21,6 +20,7 @@ export interface User {
   roomNumber?: string;
   joinDate?: string;
   endDate?: string;
+  pgId?: string; // Added for PG association
 }
 
 export interface Room {
@@ -94,4 +94,26 @@ export interface Payment {
   status: "pending" | "completed" | "failed";
   date: string;
   description: string;
+}
+
+export interface PGProperty {
+  id: string;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  description: string;
+  amenities: string[];
+  rules: string[];
+  images: string[];
+  logo: string;
+  rating: number;
+  totalRooms: number;
+  occupiedRooms: number;
+  monthlyRent: number;
+  securityDeposit: number;
+  contactNumber: string;
+  managerName: string;
+  established: string;
 }

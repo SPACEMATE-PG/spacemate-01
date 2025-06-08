@@ -6,11 +6,13 @@ interface AuthContextType {
   currentUser: User | null;
   userRole: UserRole;
   adminSubRole: AdminSubRole | null;
+  selectedPGId: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string, role: UserRole, subRole?: AdminSubRole) => Promise<void>;
+  login: (email: string, password: string, role: UserRole, subRole?: AdminSubRole, pgId?: string) => Promise<void>;
   logout: () => void;
   setRole: (role: UserRole) => void;
   setAdminSubRole: (subRole: AdminSubRole) => void;
+  setPGId: (pgId: string) => void;
   updateUser: (user: User) => void;
 }
 
@@ -56,11 +58,13 @@ const AuthContext = createContext<AuthContextType>({
   currentUser: null,
   userRole: UserRole.PUBLIC,
   adminSubRole: null,
+  selectedPGId: null,
   isAuthenticated: false,
   login: async () => {},
   logout: () => {},
   setRole: () => {},
   setAdminSubRole: () => {},
+  setPGId: () => {},
   updateUser: () => {},
 });
 
@@ -70,6 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<UserRole>(UserRole.PUBLIC);
   const [adminSubRole, setAdminSubRoleState] = useState<AdminSubRole | null>(null);
+  const [selectedPGId, setSelectedPGId] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   // Clear any existing authentication state on app start to force proper flow
@@ -78,31 +83,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem("currentUser");
     localStorage.removeItem("userRole");
     localStorage.removeItem("adminSubRole");
+    localStorage.removeItem("selectedPGId");
     console.log("Authentication state cleared - starting fresh");
   }, []);
 
-  const login = async (email: string, password: string, role: UserRole, subRole?: AdminSubRole) => {
-    console.log("Login attempt:", { email, role, subRole });
+  const login = async (email: string, password: string, role: UserRole, subRole?: AdminSubRole, pgId?: string) => {
+    console.log("Login attempt:", { email, role, subRole, pgId });
     
     // In a real app, we would make an API call to authenticate
     let user: User | null = null;
 
     if (role === UserRole.ADMIN && email === "vignesh2906vi@gmail.com" && password === "vignesh#@123") {
       if (subRole === AdminSubRole.SUPER_ADMIN) {
-        user = demoUsers.superAdmin;
+        user = { ...demoUsers.superAdmin, pgId };
       } else if (subRole === AdminSubRole.PG_MANAGER) {
-        user = demoUsers.pgManager;
+        user = { ...demoUsers.pgManager, pgId };
       } else if (subRole === AdminSubRole.WARDEN) {
-        user = demoUsers.warden;
+        user = { ...demoUsers.warden, pgId };
       }
     } else if (role === UserRole.PG_GUEST && email === "vignesh2906vi@gmail.com" && password === "vignesh#@123") {
-      user = demoUsers.guest;
+      user = { ...demoUsers.guest, pgId };
     }
 
     if (user) {
       setCurrentUser(user);
       setUserRole(role);
       setAdminSubRoleState(subRole || null);
+      setSelectedPGId(pgId || null);
       setIsAuthenticated(true);
       
       // Store in localStorage
@@ -113,8 +120,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         localStorage.removeItem("adminSubRole");
       }
+      if (pgId) {
+        localStorage.setItem("selectedPGId", pgId);
+      } else {
+        localStorage.removeItem("selectedPGId");
+      }
       
-      console.log("Login successful:", { role, subRole, userName: user.name });
+      console.log("Login successful:", { role, subRole, pgId, userName: user.name });
     } else {
       console.error("Login failed: Invalid credentials");
       throw new Error("Invalid credentials");
@@ -125,10 +137,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(null);
     setUserRole(UserRole.PUBLIC);
     setAdminSubRoleState(null);
+    setSelectedPGId(null);
     setIsAuthenticated(false);
     localStorage.removeItem("currentUser");
     localStorage.removeItem("userRole");
     localStorage.removeItem("adminSubRole");
+    localStorage.removeItem("selectedPGId");
     console.log("User logged out");
   };
 
@@ -143,6 +157,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("adminSubRole", subRole);
   };
 
+  const setPGId = (pgId: string) => {
+    setSelectedPGId(pgId);
+    localStorage.setItem("selectedPGId", pgId);
+  };
+
   const updateUser = (user: User) => {
     setCurrentUser(user);
     localStorage.setItem("currentUser", JSON.stringify(user));
@@ -154,11 +173,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentUser,
         userRole,
         adminSubRole,
+        selectedPGId,
         isAuthenticated,
         login,
         logout,
         setRole,
         setAdminSubRole,
+        setPGId,
         updateUser,
       }}
     >
