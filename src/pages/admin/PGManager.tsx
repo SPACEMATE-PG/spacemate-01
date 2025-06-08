@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Building2, 
@@ -128,6 +128,52 @@ const PGManager = () => {
     });
   };
 
+  // Tab configuration with icons and notifications
+  const tabConfig = [
+    { 
+      id: 'overview', 
+      label: 'Overview', 
+      icon: BarChart3, 
+      description: 'Dashboard analytics',
+      notificationCount: 0 
+    },
+    { 
+      id: 'assets', 
+      label: 'Assets', 
+      icon: Settings, 
+      description: 'Manage facilities',
+      notificationCount: 0 
+    },
+    { 
+      id: 'requests', 
+      label: 'Requests', 
+      icon: UserPlus, 
+      description: 'Joining applications',
+      notificationCount: pendingRequests 
+    },
+    { 
+      id: 'services', 
+      label: 'Services', 
+      icon: Wrench, 
+      description: 'Maintenance issues',
+      notificationCount: serviceRequests 
+    },
+    { 
+      id: 'meals', 
+      label: 'Meals', 
+      icon: Utensils, 
+      description: 'Food management',
+      notificationCount: 0 
+    },
+    { 
+      id: 'communication', 
+      label: 'Messages', 
+      icon: MessageSquare, 
+      description: 'Resident queries',
+      notificationCount: unreadMessages 
+    }
+  ];
+
   const joiningRequests = [
     { id: '1', name: 'Rahul Kumar', profession: 'Software Engineer', roomType: 'Single room', appliedTime: '2 hours ago', profileViews: 15 },
     { id: '2', name: 'Priya Sharma', profession: 'Marketing Manager', roomType: 'Shared room', appliedTime: '4 hours ago', profileViews: 8 },
@@ -155,7 +201,7 @@ const PGManager = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-lg shadow-sm">
           <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
-              <Building2 className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-hostel-primary" />
+              <Building2 className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-primary" />
               PG Manager Dashboard
             </h1>
             <p className="text-gray-600 mt-1 text-sm sm:text-base">Real-time PG management and operations control</p>
@@ -236,17 +282,47 @@ const PGManager = () => {
           </Card>
         </div>
 
-        {/* Main Dashboard Tabs */}
-        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <div className="bg-white p-2 rounded-lg shadow-sm overflow-x-auto">
-            <TabsList className={`grid w-full ${isMobile ? 'grid-cols-3' : 'grid-cols-6'} gap-1`}>
-              <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-              <TabsTrigger value="assets" className="text-xs sm:text-sm">Assets</TabsTrigger>
-              <TabsTrigger value="requests" className="text-xs sm:text-sm">Requests</TabsTrigger>
-              <TabsTrigger value="services" className="text-xs sm:text-sm">Services</TabsTrigger>
-              <TabsTrigger value="meals" className="text-xs sm:text-sm">Meals</TabsTrigger>
-              <TabsTrigger value="communication" className="text-xs sm:text-sm">Messages</TabsTrigger>
-            </TabsList>
+        {/* Professional Tab Navigation */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="border-b border-gray-200 bg-gray-50/50">
+              <div className="px-4 py-2">
+                <h3 className="text-sm font-medium text-gray-700">Management Sections</h3>
+              </div>
+            </div>
+            
+            {/* Enhanced Tab Navigation */}
+            <div className="p-2">
+              <TabsList className="w-full h-auto bg-transparent p-0 gap-1">
+                {tabConfig.map((tab) => {
+                  const IconComponent = tab.icon;
+                  return (
+                    <TabsTrigger 
+                      key={tab.id}
+                      value={tab.id} 
+                      className="flex-1 min-w-0 h-auto p-3 flex flex-col items-center gap-2 text-center transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-gray-100 rounded-lg border border-transparent data-[state=active]:border-primary data-[state=active]:shadow-sm"
+                    >
+                      <div className="flex items-center justify-center relative">
+                        <IconComponent className="h-5 w-5" />
+                        {tab.notificationCount > 0 && (
+                          <Badge 
+                            className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 text-white border-2 border-white"
+                          >
+                            {tab.notificationCount > 99 ? '99+' : tab.notificationCount}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-center gap-0.5">
+                        <span className="text-xs font-medium leading-none">{tab.label}</span>
+                        {!isMobile && (
+                          <span className="text-xs text-gray-500 leading-none">{tab.description}</span>
+                        )}
+                      </div>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
           </div>
 
           {/* Overview Tab */}
