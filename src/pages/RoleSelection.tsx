@@ -3,18 +3,36 @@ import { useNavigate } from "react-router-dom";
 import { UserRole } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { Home, Shield, User } from "lucide-react";
+import { useEffect } from "react";
 
 const RoleSelection = () => {
   const navigate = useNavigate();
   const { setRole } = useAuth();
 
+  useEffect(() => {
+    // Handle back button on role selection - prevent app closure
+    const handlePopState = (event: PopStateEvent) => {
+      event.preventDefault();
+      // Stay on role selection page instead of closing app
+      window.history.pushState(null, "", "/role-selection");
+    };
+
+    window.history.pushState(null, "", window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
   const handleRoleSelect = (role: UserRole) => {
+    console.log("Role selected:", role);
     setRole(role);
     
     if (role === UserRole.PUBLIC) {
-      navigate("/public");
+      navigate("/public", { replace: true });
     } else {
-      navigate("/login");
+      navigate("/login", { replace: false });
     }
   };
 

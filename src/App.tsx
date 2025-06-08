@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { UserRole, AdminSubRole } from "@/types";
+import { useEffect } from "react";
 
 // Pages
 import SplashScreen from "@/pages/SplashScreen";
@@ -40,6 +41,39 @@ import Payment from "@/pages/public/Payment";
 
 const queryClient = new QueryClient();
 
+// Mobile back button handler
+const MobileBackHandler = () => {
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // Prevent default browser behavior
+      event.preventDefault();
+      
+      // Check if we're at the root level
+      const currentPath = window.location.pathname;
+      console.log("Back button pressed on:", currentPath);
+      
+      // If we're at root paths, redirect to role selection instead of closing app
+      if (currentPath === "/" || currentPath === "/role-selection") {
+        window.history.pushState(null, "", "/role-selection");
+        return;
+      }
+      
+      // For other paths, allow normal navigation
+      window.history.go(-1);
+    };
+
+    // Add state to prevent app closure
+    window.history.pushState(null, "", window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  return null;
+};
+
 // Super Admin protection component
 const RequireSuperAdmin = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated, userRole, adminSubRole } = useAuth();
@@ -64,6 +98,7 @@ const RequirePGManager = ({ children }: { children: JSX.Element }) => {
 
 const AppRoutes = () => (
   <BrowserRouter>
+    <MobileBackHandler />
     <Routes>
       <Route path="/" element={<SplashScreen />} />
       <Route path="/role-selection" element={<RoleSelection />} />

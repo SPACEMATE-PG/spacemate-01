@@ -6,12 +6,24 @@ const SplashScreen = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Prevent back button on splash screen
+    window.history.pushState(null, "", window.location.pathname);
+    
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.pathname);
+    };
+    
+    window.addEventListener("popstate", handlePopState);
+
     // Always redirect to role selection after splash screen timeout
     const timer = setTimeout(() => {
-      navigate("/role-selection");
+      navigate("/role-selection", { replace: true });
     }, 2500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("popstate", handlePopState);
+    };
   }, [navigate]);
 
   return (
