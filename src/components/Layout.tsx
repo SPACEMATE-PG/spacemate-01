@@ -1,10 +1,9 @@
-
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserRole } from "@/types";
 import { 
   Home, User, Calendar, Bell, Menu, LogOut, 
-  X, Settings, Info, List 
+  X, Settings, Info, List, Shield 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -21,6 +20,9 @@ const Layout = () => {
   const { toast } = useToast();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  // Check if we're on super admin route
+  const isSuperAdmin = location.pathname.startsWith('/super-admin');
 
   // Define navigation items based on user role
   const getNavItems = () => {
@@ -96,22 +98,69 @@ const Layout = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0 z-30 shadow-sm fixed-header">
+      <header className={cn(
+        "border-b sticky top-0 z-30 shadow-sm fixed-header",
+        isSuperAdmin 
+          ? "bg-white border-slate-200" 
+          : "bg-white"
+      )}>
         <div className="container mx-auto flex justify-between items-center h-16 px-4">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg">
-              SM
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-hostel-primary to-hostel-secondary bg-clip-text text-transparent">
-              Space Mate
-            </h1>
+            {isSuperAdmin ? (
+              <>
+                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex-shrink-0">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-slate-900">
+                    Super Admin Dashboard
+                  </h1>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg">
+                  SM
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-hostel-primary to-hostel-secondary bg-clip-text text-transparent">
+                  Space Mate
+                </h1>
+              </>
+            )}
           </div>
 
-          {/* Desktop Profile or Mobile Menu Button */}
-          {isMobile ? (
+          <div className="flex items-center gap-3">
+            {/* Desktop Profile */}
+            {!isMobile && isAuthenticated && currentUser && (
+              <div className="flex items-center gap-3 mr-2">
+                <div className="text-right">
+                  <p className="font-medium">{currentUser.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {userRole === UserRole.ADMIN ? "Admin" : "Guest"}
+                  </p>
+                </div>
+                <Avatar className="h-9 w-9">
+                  <AvatarImage src={currentUser.profileImage} />
+                  <AvatarFallback className="bg-hostel-primary text-white">
+                    {currentUser.name.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
             <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={cn(
+                    "p-2 rounded-full",
+                    isSuperAdmin 
+                      ? "hover:bg-slate-100 text-slate-600"
+                      : "hover:bg-gray-100"
+                  )}
+                >
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
@@ -206,24 +255,7 @@ const Layout = () => {
                 </div>
               </SheetContent>
             </Sheet>
-          ) : (
-            isAuthenticated && currentUser && (
-              <div className="flex items-center gap-3">
-                <div className="text-right mr-2">
-                  <p className="font-medium">{currentUser.name}</p>
-                  <p className="text-xs text-gray-500">
-                    {userRole === UserRole.ADMIN ? "Admin" : "Guest"}
-                  </p>
-                </div>
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src={currentUser.profileImage} />
-                  <AvatarFallback className="bg-hostel-primary text-white">
-                    {currentUser.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-            )
-          )}
+          </div>
         </div>
       </header>
 
