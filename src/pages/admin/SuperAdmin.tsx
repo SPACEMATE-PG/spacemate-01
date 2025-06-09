@@ -24,7 +24,7 @@ const SuperAdmin = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 lg:p-8">
         <Card className="border-red-200 bg-red-50 max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-700">
@@ -53,25 +53,29 @@ const SuperAdmin = () => {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
         <SuperAdminHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsContent value="overview">
-              <SuperAdminOverview stats={stats} isLoading={isLoading} />
+            <TabsContent value="overview" className="mt-0">
+              <SuperAdminOverview 
+                stats={stats} 
+                isLoading={isLoading} 
+                onTabChange={setActiveTab}
+              />
             </TabsContent>
 
-            <TabsContent value="subscriptions">
+            <TabsContent value="subscriptions" className="mt-0">
               <SuperAdminSubscriptions admins={pgAdmins} isLoading={isLoading} />
             </TabsContent>
 
-            <TabsContent value="revenue">
+            <TabsContent value="revenue" className="mt-0">
               <SuperAdminRevenue stats={stats} isLoading={isLoading} />
             </TabsContent>
 
-            <TabsContent value="analytics">
+            <TabsContent value="analytics" className="mt-0">
               <AnalyticsDashboard stats={stats} isLoading={isLoading} />
             </TabsContent>
 
-            <TabsContent value="admins">
+            <TabsContent value="admins" className="mt-0">
               <AdminManagement 
                 admins={pgAdmins} 
                 isLoading={isLoading} 
@@ -82,7 +86,7 @@ const SuperAdmin = () => {
               />
             </TabsContent>
 
-            <TabsContent value="activity">
+            <TabsContent value="activity" className="mt-0">
               <div className="max-w-4xl mx-auto">
                 <LiveActivityFeed />
               </div>
