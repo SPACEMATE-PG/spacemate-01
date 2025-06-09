@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import SuperAdminSidebar from "./SuperAdminSidebar";
 
 interface SuperAdminHeaderProps {
   activeTab: string;
@@ -65,6 +66,7 @@ const SuperAdminHeader = ({ activeTab, onTabChange, onBulkOperationsClick }: Sup
               <div className="text-xs lg:text-sm text-slate-500 hidden md:block">
                 Last updated: {new Date().toLocaleTimeString()}
               </div>
+              <SuperAdminSidebar className="ml-2" />
             </div>
           </div>
 
