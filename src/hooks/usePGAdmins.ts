@@ -9,7 +9,7 @@ export interface PGAdmin {
   commonId: string;
   totalPGs: number;
   activePGs: number;
-  subscriptionStatus: "free" | "active" | "expired" | "pending";
+  subscriptionStatus: "free" | "active" | "expired" | "pending" | "trial";
   subscriptionTier: "monthly" | "six_month" | "yearly" | null;
   subscriptionStart: string | null;
   subscriptionEnd: string | null;
@@ -22,6 +22,7 @@ export interface AdminStats {
   totalPGs: number;
   activePGs: number;
   monthlyRevenue: number;
+  totalRevenue: number;
   activeSubscriptions: number;
   customerSatisfaction: number;
   conversionRate: number;
@@ -157,12 +158,14 @@ export const useAdminStats = (admins: PGAdmin[]): AdminStats => {
   const totalPGs = admins.reduce((sum, admin) => sum + admin.totalPGs, 0);
   const activePGs = admins.reduce((sum, admin) => sum + admin.activePGs, 0);
   const monthlyRevenue = admins.reduce((sum, admin) => sum + admin.monthlyRevenue, 0);
+  const totalRevenue = monthlyRevenue * 6; // Calculate total revenue for 6 months
   const activeSubscriptions = admins.filter(admin => admin.subscriptionStatus === "active").length;
 
   return {
     totalPGs,
     activePGs,
     monthlyRevenue,
+    totalRevenue,
     activeSubscriptions,
     customerSatisfaction: 89, // Mock data
     conversionRate: 67, // Mock data
