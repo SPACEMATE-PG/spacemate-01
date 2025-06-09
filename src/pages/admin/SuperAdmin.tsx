@@ -3,21 +3,22 @@ import { useState } from "react";
 import { usePGAdmins, useAdminStats } from "@/hooks/usePGAdmins";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
-import SuperAdminMetrics from "@/components/admin/SuperAdminMetrics";
-import AdminManagement from "@/components/admin/AdminManagement";
 import ErrorBoundary from "@/components/admin/ErrorBoundary";
 import SuperAdminHeader from "@/components/admin/SuperAdminHeader";
-import SuperAdminTable from "@/components/admin/SuperAdminTable";
-import SuperAdminPricing from "@/components/admin/SuperAdminPricing";
+import SuperAdminOverview from "@/components/admin/SuperAdminOverview";
+import SuperAdminSubscriptions from "@/components/admin/SuperAdminSubscriptions";
+import SuperAdminRevenue from "@/components/admin/SuperAdminRevenue";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
-import AdminBulkActions from "@/components/admin/AdminBulkActions";
-import AdminDetailModal from "@/components/admin/AdminDetailModal";
+import AdminManagement from "@/components/admin/AdminManagement";
 import LiveActivityFeed from "@/components/admin/LiveActivityFeed";
+import AdminDetailModal from "@/components/admin/AdminDetailModal";
 import { PGAdmin } from "@/hooks/usePGAdmins";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 const SuperAdmin = () => {
   const { data: pgAdmins = [], isLoading, error, refetch } = usePGAdmins();
   const stats = useAdminStats(pgAdmins);
+  const [activeTab, setActiveTab] = useState("overview");
   const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
   const [selectedAdminForDetail, setSelectedAdminForDetail] = useState<PGAdmin | null>(null);
 
@@ -50,21 +51,27 @@ const SuperAdmin = () => {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-        <SuperAdminHeader />
+        <SuperAdminHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-          <SuperAdminMetrics stats={stats} isLoading={isLoading} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsContent value="overview">
+              <SuperAdminOverview stats={stats} isLoading={isLoading} />
+            </TabsContent>
 
-          <AnalyticsDashboard stats={stats} isLoading={isLoading} />
+            <TabsContent value="subscriptions">
+              <SuperAdminSubscriptions admins={pgAdmins} isLoading={isLoading} />
+            </TabsContent>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="xl:col-span-2 space-y-8">
-              <AdminBulkActions 
-                admins={pgAdmins}
-                selectedAdmins={selectedAdmins}
-                onSelectionChange={setSelectedAdmins}
-              />
+            <TabsContent value="revenue">
+              <SuperAdminRevenue stats={stats} isLoading={isLoading} />
+            </TabsContent>
 
+            <TabsContent value="analytics">
+              <AnalyticsDashboard stats={stats} isLoading={isLoading} />
+            </TabsContent>
+
+            <TabsContent value="admins">
               <AdminManagement 
                 admins={pgAdmins} 
                 isLoading={isLoading} 
@@ -73,15 +80,14 @@ const SuperAdmin = () => {
                 onSelectionChange={setSelectedAdmins}
                 onAdminClick={setSelectedAdminForDetail}
               />
-            </div>
+            </TabsContent>
 
-            <div className="space-y-8">
-              <SuperAdminPricing />
-              <LiveActivityFeed />
-            </div>
-          </div>
-
-          <SuperAdminTable pgAdmins={pgAdmins} isLoading={isLoading} />
+            <TabsContent value="activity">
+              <div className="max-w-4xl mx-auto">
+                <LiveActivityFeed />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
         <AdminDetailModal
