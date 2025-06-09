@@ -1,23 +1,15 @@
 
 import { Badge } from "@/components/ui/badge";
-import { Shield, Menu } from "lucide-react";
+import { Shield } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import SuperAdminSidebar from "./SuperAdminSidebar";
 
 interface SuperAdminHeaderProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  onBulkOperationsClick: () => void;
 }
 
-const SuperAdminHeader = ({ activeTab, onTabChange, onBulkOperationsClick }: SuperAdminHeaderProps) => {
+const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => {
   const tabs = [
     { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview" },
     { id: "subscriptions", label: "Subscriptions", icon: "💳", shortLabel: "Subs" },
@@ -33,19 +25,6 @@ const SuperAdminHeader = ({ activeTab, onTabChange, onBulkOperationsClick }: Sup
         <div className="flex flex-col gap-4 lg:gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 lg:gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="p-2 hover:bg-slate-100">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuItem onClick={onBulkOperationsClick}>
-                    Admin Operations
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
               <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex-shrink-0">
                 <Shield className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
               </div>
@@ -66,7 +45,7 @@ const SuperAdminHeader = ({ activeTab, onTabChange, onBulkOperationsClick }: Sup
               <div className="text-xs lg:text-sm text-slate-500 hidden md:block">
                 Last updated: {new Date().toLocaleTimeString()}
               </div>
-              <SuperAdminSidebar className="ml-2" />
+              <SuperAdminSidebar />
             </div>
           </div>
 

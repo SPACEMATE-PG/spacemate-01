@@ -12,10 +12,8 @@ import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import AdminManagement from "@/components/admin/AdminManagement";
 import LiveActivityFeed from "@/components/admin/LiveActivityFeed";
 import AdminDetailModal from "@/components/admin/AdminDetailModal";
-import AdminBulkActions from "@/components/admin/AdminBulkActions";
 import { PGAdmin } from "@/hooks/usePGAdmins";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const SuperAdmin = () => {
   const { data: pgAdmins = [], isLoading, error, refetch } = usePGAdmins();
@@ -23,7 +21,6 @@ const SuperAdmin = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedAdmins, setSelectedAdmins] = useState<string[]>([]);
   const [selectedAdminForDetail, setSelectedAdminForDetail] = useState<PGAdmin | null>(null);
-  const [showBulkOperations, setShowBulkOperations] = useState(false);
 
   if (error) {
     return (
@@ -57,7 +54,6 @@ const SuperAdmin = () => {
         <SuperAdminHeader 
           activeTab={activeTab} 
           onTabChange={setActiveTab}
-          onBulkOperationsClick={() => setShowBulkOperations(true)}
         />
 
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-8">
@@ -106,19 +102,6 @@ const SuperAdmin = () => {
           isOpen={!!selectedAdminForDetail}
           onClose={() => setSelectedAdminForDetail(null)}
         />
-
-        <Dialog open={showBulkOperations} onOpenChange={setShowBulkOperations}>
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Bulk Admin Operations</DialogTitle>
-            </DialogHeader>
-            <AdminBulkActions
-              admins={pgAdmins}
-              selectedAdmins={selectedAdmins}
-              onSelectionChange={setSelectedAdmins}
-            />
-          </DialogContent>
-        </Dialog>
       </div>
     </ErrorBoundary>
   );
