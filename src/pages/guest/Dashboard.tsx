@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,11 +45,18 @@ const GuestDashboard = () => {
     if (!currentUser?.endDate) return 0;
     const endDate = new Date(currentUser.endDate);
     const diffTime = endDate.getTime() - today.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return days < 0 ? 0 : days;
   };
   
+  const isExpired = (() => {
+    if (!currentUser?.endDate) return false;
+    const endDate = new Date(currentUser.endDate);
+    return today > endDate;
+  })();
+  
   const daysLeft = calculateDaysLeft();
-  const totalDays = 30; // Assuming monthly subscription
+  const totalDays = currentUser?.joinDate && currentUser?.endDate ? Math.max(1, Math.ceil((new Date(currentUser.endDate).getTime() - new Date(currentUser.joinDate).getTime()) / (1000 * 60 * 60 * 24))) : 30;
   const progress = Math.max(0, Math.min(100, ((totalDays - daysLeft) / totalDays) * 100));
   
   useEffect(() => {
@@ -141,9 +147,9 @@ const GuestDashboard = () => {
             <div className="p-5">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm text-gray-500">Subscription period</span>
-                <span className="text-sm font-medium">{daysLeft} days left</span>
+                <span className={`text-sm font-medium ${isExpired ? 'text-red-500' : ''}`}>{isExpired ? 'Expired' : `${daysLeft} days left`}</span>
               </div>
-              <Progress value={progressValue} className="h-2" />
+              <Progress value={progressValue} className={`h-2 ${isExpired ? 'bg-red-200' : ''}`} />
               
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div className="text-sm">
@@ -155,6 +161,9 @@ const GuestDashboard = () => {
                   <p className="font-medium">{currentUser?.endDate}</p>
                 </div>
               </div>
+              {isExpired && (
+                <div className="mt-3 p-2 bg-red-50 text-red-600 rounded text-xs text-center border border-red-200">Your subscription has expired. Please contact admin to renew.</div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -213,7 +222,7 @@ const GuestDashboard = () => {
         </Card>
       )}
       
-      {pendingPayment && (
+      {pendingPayment ? (
         <Card className="border-none shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-amber-500">
           <CardHeader className="pb-2">
             <div className="flex justify-between items-start">
@@ -242,43 +251,67 @@ const GuestDashboard = () => {
             </Button>
           </CardContent>
         </Card>
+      ) : (
+        <Card className="border-none shadow-sm transition-shadow border-l-4 border-l-green-500">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center">
+              <CreditCard size={16} className="mr-2 text-green-500" />
+              All payments clear
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-gray-600">You have no pending payments.</p>
+          </CardContent>
+        </Card>
       )}
       
       <div className="mt-6">
         <h2 className="text-lg font-medium mb-3">Quick Actions</h2>
         <div className="grid grid-cols-4 gap-3">
           <button 
-            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow group"
             onClick={() => handleQuickAction("attendance")}
+            title="Mark your attendance for today"
+            aria-label="Attendance"
           >
-            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1">
+            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1 group-hover:bg-hostel-primary/10">
               <CalendarRange size={18} className="text-hostel-primary" />
             </div>
             <span className="text-xs text-center">Attendance</span>
           </button>
           <button 
-            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow group"
             onClick={() => handleQuickAction("laundry")}
+            title="Request laundry service"
+            aria-label="Laundry"
           >
-            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1">
+            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1 group-hover:bg-hostel-primary/10">
               <Clock size={18} className="text-hostel-primary" />
             </div>
             <span className="text-xs text-center">Laundry</span>
           </button>
           <button 
-            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow group"
             onClick={() => navigate("/guest/rooms")}
+            title="View your room details"
+            aria-label="My Room"
           >
-            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1">
+            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1 group-hover:bg-hostel-primary/10">
               <Home size={18} className="text-hostel-primary" />
             </div>
             <span className="text-xs text-center">My Room</span>
           </button>
           <button 
-            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
-            onClick={() => navigate("/guest/notifications")}
+            className="flex flex-col items-center bg-white p-3 rounded-lg border shadow-sm hover:shadow-md transition-shadow group"
+            onClick={() => {
+              // Mark notifications as read and navigate
+              userNotifications.forEach(n => n.read = true); // This should be replaced with actual state update or API call
+              navigate("/guest/notifications");
+            }}
+            title="View alerts and notifications"
+            aria-label="Alerts"
           >
-            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1 relative">
+            <div className="bg-hostel-muted w-10 h-10 rounded-full flex items-center justify-center mb-1 relative group-hover:bg-hostel-primary/10">
               <Bell size={18} className="text-hostel-primary" />
               {userNotifications.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">

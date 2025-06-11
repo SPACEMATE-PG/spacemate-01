@@ -33,6 +33,7 @@ import GuestRooms from "./pages/guest/Rooms";
 import GuestMeals from "./pages/guest/Meals";
 import GuestNotifications from "./pages/guest/Notifications";
 import GuestProfile from "./pages/guest/Profile";
+import GuestIndex from "./pages/guest/Index";
 
 // Public pages
 import PublicRooms from "./pages/public/Rooms";
@@ -146,6 +147,7 @@ const AppRoutes = () => (
           <Layout />
         </RequireAuth>
       }>
+        <Route index element={<GuestIndex />} />
         <Route path="rooms" element={<GuestRooms />} />
         <Route path="meals" element={<GuestMeals />} />
         <Route path="notifications" element={<GuestNotifications />} />
