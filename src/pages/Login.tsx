@@ -1,23 +1,22 @@
-
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Eye, EyeOff, User, Lock, Shield, Users, UserCheck, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, User, Lock, Shield, Users, UserCheck, ArrowLeft, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { AdminSubRole, UserRole } from "@/types";
-import PGSelector from "@/components/PGSelector";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 const Login = () => {
-  const [email, setEmail] = useState("vignesh2906vi@gmail.com");
-  const [password, setPassword] = useState("vignesh#@123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberPassword, setRememberPassword] = useState(false);
   const [selectedAdminSubRole, setSelectedAdminSubRole] = useState<AdminSubRole | null>(null);
-  const [selectedPGId, setSelectedPGId] = useState<string | null>(null);
-  const [showPGSelector, setShowPGSelector] = useState(false);
   const navigate = useNavigate();
   const { login, userRole } = useAuth();
   const { toast } = useToast();
@@ -30,8 +29,8 @@ const Login = () => {
       icon: Shield,
     },
     {
-      id: AdminSubRole.PG_MANAGER,
-      title: "PG Manager", 
+      id: AdminSubRole.PG_ADMIN,
+      title: "PG Admin", 
       description: "Full PG management control",
       icon: Users,
     },
@@ -49,7 +48,7 @@ const Login = () => {
 
     try {
       if (userRole === UserRole.ADMIN && selectedAdminSubRole) {
-        await login(email, password, UserRole.ADMIN, selectedAdminSubRole, selectedPGId || undefined);
+        await login(email, password, UserRole.ADMIN, selectedAdminSubRole);
         
         // Handle different admin sub-role redirections
         if (selectedAdminSubRole === AdminSubRole.SUPER_ADMIN) {
@@ -58,12 +57,12 @@ const Login = () => {
             description: "Welcome back, Super Admin!",
           });
           navigate("/super-admin", { replace: true });
-        } else if (selectedAdminSubRole === AdminSubRole.PG_MANAGER) {
+        } else if (selectedAdminSubRole === AdminSubRole.PG_ADMIN) {
           toast({
             title: "Login successful",
-            description: "Welcome back, PG Manager!",
+            description: "Welcome back, PG Admin!",
           });
-          navigate("/pg-manager", { replace: true });
+          navigate("/pg-admin", { replace: true });
         } else {
           toast({
             title: "Login successful",
@@ -72,13 +71,22 @@ const Login = () => {
           navigate("/admin", { replace: true });
         }
       } else {
-        await login(email, password, userRole, undefined, selectedPGId || undefined);
+        await login(email, password, userRole);
         toast({
           title: "Login successful",
           description: "Welcome back!",
         });
         const redirectPath = userRole === UserRole.PG_GUEST ? "/guest" : "/public";
         navigate(redirectPath, { replace: true });
+      }
+
+      // Save credentials if remember password is checked
+      if (rememberPassword) {
+        localStorage.setItem("rememberedEmail", email);
+        localStorage.setItem("rememberedPassword", password);
+      } else {
+        localStorage.removeItem("rememberedEmail");
+        localStorage.removeItem("rememberedPassword");
       }
     } catch (error) {
       toast({
@@ -92,43 +100,23 @@ const Login = () => {
     }
   };
 
-  const handleAdminSubRoleSelect = (subRole: AdminSubRole) => {
-    setSelectedAdminSubRole(subRole);
-    // Show PG selector for all roles that need PG association
-    if (subRole === AdminSubRole.PG_MANAGER || subRole === AdminSubRole.WARDEN) {
-      setShowPGSelector(true);
-    }
+  const handleGmailLogin = async () => {
+    // TODO: Implement Gmail OAuth login
+    toast({
+      title: "Coming soon",
+      description: "Gmail login will be available soon!",
+    });
   };
 
-  const handlePGSelect = (pgId: string) => {
-    setSelectedPGId(pgId);
-    setShowPGSelector(false);
+  const handleAdminSubRoleSelect = (subRole: AdminSubRole) => {
+    setSelectedAdminSubRole(subRole);
   };
 
   const handleBackToRoleSelection = () => {
     setSelectedAdminSubRole(null);
-    setSelectedPGId(null);
-    setShowPGSelector(false);
   };
 
-  const handleGuestPGSelection = () => {
-    setShowPGSelector(true);
-  };
-
-  // Show PG selector
-  if (showPGSelector) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 pt-safe pb-safe">
-        <PGSelector 
-          onPGSelect={handlePGSelect}
-          onBack={() => setShowPGSelector(false)}
-          userRole={userRole}
-        />
-      </div>
-    );
-  }
-
-  // Show admin sub-role selection first for admin users - Mobile optimized
+  // Show admin sub-role selection first for admin users
   if (userRole === UserRole.ADMIN && !selectedAdminSubRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4 pt-safe pb-safe">
@@ -162,7 +150,7 @@ const Login = () => {
               })}
             </div>
 
-            <div className="text-center mt-4">
+            <div className="mt-4 text-center">
               <button
                 type="button"
                 className="text-xs text-hostel-primary hover:text-hostel-secondary underline transition-colors"
@@ -183,12 +171,7 @@ const Login = () => {
         <CardHeader className="space-y-1 text-center bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white rounded-t-lg p-4">
           <CardTitle className="text-xl font-bold">Welcome Back</CardTitle>
           <CardDescription className="text-hostel-accent text-sm">
-            {userRole === UserRole.ADMIN ? `Admin Access - ${selectedAdminSubRole === AdminSubRole.SUPER_ADMIN ? 'Super Admin' : selectedAdminSubRole === AdminSubRole.PG_MANAGER ? 'PG Manager' : 'Warden'}` : userRole === UserRole.PG_GUEST ? "PG Guest Access" : "Public Access"}
-            {selectedPGId && (
-              <div className="text-xs mt-1 text-hostel-accent">
-                PG Selected: {selectedPGId}
-              </div>
-            )}
+            {userRole === UserRole.ADMIN ? `Admin Access - ${selectedAdminSubRole === AdminSubRole.SUPER_ADMIN ? 'Super Admin' : selectedAdminSubRole === AdminSubRole.PG_ADMIN ? 'PG Admin' : 'Warden'}` : userRole === UserRole.PG_GUEST ? "PG Guest Access" : "Public Access"}
           </CardDescription>
         </CardHeader>
 
@@ -216,7 +199,7 @@ const Login = () => {
                 </div>
               </div>
 
-              <div>
+              <div className="relative">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   Password
                 </label>
@@ -247,43 +230,44 @@ const Login = () => {
                   </button>
                 </div>
               </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberPassword}
+                  onCheckedChange={(checked) => setRememberPassword(checked as boolean)}
+                />
+                <Label htmlFor="remember" className="text-sm text-gray-600">
+                  Remember password
+                </Label>
+              </div>
             </div>
-
-            {/* PG Selection for guests */}
-            {userRole === UserRole.PG_GUEST && !selectedPGId && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGuestPGSelection}
-                className="w-full h-11 text-sm font-medium"
-              >
-                Select Your PG
-              </Button>
-            )}
-
-            {/* PG Selection for admin roles that need it */}
-            {userRole === UserRole.ADMIN && selectedAdminSubRole && 
-             (selectedAdminSubRole === AdminSubRole.PG_MANAGER || selectedAdminSubRole === AdminSubRole.WARDEN) && 
-             !selectedPGId && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setShowPGSelector(true)}
-                className="w-full h-11 text-sm font-medium"
-              >
-                Select Your PG
-              </Button>
-            )}
 
             <Button
               type="submit"
               className="w-full bg-hostel-primary hover:bg-hostel-secondary transition-all duration-300 h-11 text-sm font-medium"
-              disabled={isLoading || (userRole === UserRole.PG_GUEST && !selectedPGId) || 
-                       (userRole === UserRole.ADMIN && selectedAdminSubRole && 
-                        (selectedAdminSubRole === AdminSubRole.PG_MANAGER || selectedAdminSubRole === AdminSubRole.WARDEN) && 
-                        !selectedPGId)}
+              disabled={isLoading}
             >
               {isLoading ? "Processing..." : "Login"}
+            </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 text-sm font-medium"
+              onClick={handleGmailLogin}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Continue with Gmail
             </Button>
 
             <div className="flex justify-between items-center mt-3">

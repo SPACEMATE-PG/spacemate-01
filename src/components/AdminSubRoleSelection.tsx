@@ -1,4 +1,3 @@
-
 import { AdminSubRole } from "@/types";
 import { Shield, Users, UserCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,8 +17,8 @@ const AdminSubRoleSelection = ({ onSubRoleSelect, onBack }: AdminSubRoleSelectio
       details: "Monitor PG operations, access analytics, and manage application monetization"
     },
     {
-      id: AdminSubRole.PG_MANAGER,
-      title: "PG Manager", 
+      id: AdminSubRole.PG_ADMIN,
+      title: "PG Admin", 
       description: "Full PG management with complete administrative control",
       icon: Users,
       details: "Manage bookings, assets, staff, and all PG operations"

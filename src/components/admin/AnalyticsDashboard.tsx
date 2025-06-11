@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import { AdminStats } from "@/hooks/usePGAdmins";
 import AnalyticsHeader from "./AnalyticsHeader";
 import RevenueChart from "./RevenueChart";
@@ -12,8 +12,11 @@ interface AnalyticsDashboardProps {
 }
 
 const AnalyticsDashboard = ({ stats, isLoading }: AnalyticsDashboardProps) => {
+  const [timeRange, setTimeRange] = useState("6m");
+  const [filter, setFilter] = useState({}); // For future advanced filters
+
   // Mock data for charts - in production this would come from the API
-  const revenueData = [
+  const allRevenueData = [
     { month: "Jan", revenue: 45000, subscriptions: 12 },
     { month: "Feb", revenue: 52000, subscriptions: 15 },
     { month: "Mar", revenue: 48000, subscriptions: 14 },
@@ -21,6 +24,8 @@ const AnalyticsDashboard = ({ stats, isLoading }: AnalyticsDashboardProps) => {
     { month: "May", revenue: 55000, subscriptions: 16 },
     { month: "Jun", revenue: stats.monthlyRevenue, subscriptions: stats.activeSubscriptions },
   ];
+  // Filter data based on timeRange
+  const revenueData = timeRange === "3m" ? allRevenueData.slice(-3) : timeRange === "1y" ? allRevenueData : timeRange === "all" ? allRevenueData : allRevenueData.slice(-6);
 
   const subscriptionTierData = [
     { name: "Monthly", value: 45, color: "#3B82F6" },
@@ -38,9 +43,9 @@ const AnalyticsDashboard = ({ stats, isLoading }: AnalyticsDashboardProps) => {
     { day: "Sun", logins: 15, registrations: 2 },
   ];
 
-  const handleExportData = (type: string) => {
-    console.log(`Exporting ${type} data...`);
-    // Implementation for data export would go here
+  const handleExportData = (type, range) => {
+    // Export logic here (mocked)
+    alert(`Exporting ${type} data for ${range}`);
   };
 
   if (isLoading) {
@@ -55,13 +60,26 @@ const AnalyticsDashboard = ({ stats, isLoading }: AnalyticsDashboardProps) => {
 
   return (
     <div className="space-y-6">
-      <AnalyticsHeader onExportData={handleExportData} />
-
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <RevenueChart data={revenueData} growthRate={stats.growthRate} />
-        <SubscriptionChart data={subscriptionTierData} />
-        <ActivityChart data={activityData} />
-        <GrowthChart data={revenueData} />
+      <AnalyticsHeader 
+        onExportData={handleExportData}
+        timeRange={timeRange}
+        setTimeRange={setTimeRange}
+        filter={filter}
+        setFilter={setFilter}
+      />
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 overflow-x-auto">
+        <div className="min-w-0">
+          <RevenueChart data={revenueData} growthRate={stats.growthRate} />
+        </div>
+        <div className="min-w-0">
+          <SubscriptionChart data={subscriptionTierData} />
+        </div>
+        <div className="min-w-0">
+          <ActivityChart data={activityData} />
+        </div>
+        <div className="min-w-0">
+          <GrowthChart data={revenueData} />
+        </div>
       </div>
     </div>
   );

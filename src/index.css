@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -244,4 +243,98 @@ html, body {
 /* Mobile button optimizations */
 .mobile-btn {
   @apply min-h-[44px] flex items-center justify-center;
+}
+
+/* Mobile input fixes */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 0;
+  font-size: 16px !important;
+  line-height: normal;
+  color: #000000 !important; /* Force black text */
+  -webkit-text-fill-color: #000000 !important; /* Force black text fill for WebKit */
+  opacity: 1 !important;
+  background-color: #ffffff !important; /* Force white background */
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important; /* Force background white */
+  caret-color: #000000 !important; /* Ensure caret is visible and black */
+  -webkit-touch-callout: none; /* Prevent iOS callouts */
+  -webkit-user-select: text !important; /* Ensure text selection is enabled */
+  user-select: text !important; /* Ensure text selection is enabled for all browsers */
+  text-shadow: none !important; /* Prevent text shadows from hiding text */
+  text-indent: 0 !important; /* Prevent text indentation from hiding text */
+  letter-spacing: normal !important; /* Ensure normal letter spacing */
+  font-family: sans-serif !important; /* Use a generic system font to rule out font issues */
+  -webkit-background-clip: padding-box !important;
+  background-clip: padding-box !important;
+}
+
+/* Ensure user-select is explicitly set for input elements and their pseudo-elements */
+input, input::before, input::after {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Fix for iOS input zoom */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  select,
+  textarea,
+  input {
+    font-size: 16px !important;
+  }
+}
+
+/* Fix for Android input issues */
+input:focus {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Fix for special characters on mobile */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Ensure proper text rendering on mobile */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fix for input text color on mobile */
+input {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Fix for input background on mobile */
+input {
+  background-color: #ffffff !important;
+}
+
+/* Fix for input placeholder color */
+input::placeholder {
+  color: #666666 !important;
+  opacity: 1 !important;
+}
+
+/* Fix for input focus state */
+input:focus {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
 }

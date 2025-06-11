@@ -2,134 +2,126 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import { Menu, LayoutDashboard, Users, User, Settings, Info, LogOut, Home } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-const SuperAdminSidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
+import { Menu, Shield, CreditCard, BarChart3, LineChart, Users, Activity, Settings, Info, LogOut, Send } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
-  // Mock super admin data - replace with actual user data
+interface SuperAdminSidebarProps {
+  onTabChange: (tabId: string) => void;
+  activeTab?: string;
+}
+
+const navigationItems = [
+  { label: "Dashboard", icon: Shield, tab: "overview" },
+  { label: "Subscriptions", icon: CreditCard, tab: "subscriptions" },
+  { label: "Revenue", icon: BarChart3, tab: "revenue" },
+  { label: "Analytics", icon: LineChart, tab: "analytics" },
+  { label: "PG Admin Management", icon: Users, tab: "admins" },
+  { label: "Admin Operations", icon: Send, tab: "bulk-ops" },
+  { label: "Live Activity Feed", icon: Activity, tab: "activity" },
+];
+
+const SuperAdminSidebar = ({ onTabChange, activeTab }: SuperAdminSidebarProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  // Mock super admin data
   const superAdmin = {
     name: "Super Admin",
     email: "superadmin@spacemate.com",
-    avatar: "" // Add avatar URL if available
+    avatar: "",
+    role: "System Administrator"
   };
-  const navigationItems = [{
-    label: "Home",
-    icon: Home,
-    route: "/super-admin",
-    description: "Dashboard overview"
-  }, {
-    label: "Rooms",
-    icon: LayoutDashboard,
-    route: "/super-admin",
-    description: "Room management"
-  }, {
-    label: "Meals",
-    icon: Users,
-    route: "/super-admin",
-    description: "Meal services"
-  }, {
-    label: "Notifications",
-    icon: User,
-    route: "/super-admin",
-    description: "System notifications"
-  }, {
-    label: "Profile",
-    icon: User,
-    route: "/super-admin",
-    description: "Account settings"
-  }];
-  const bottomNavigationItems = [{
-    label: "About Space Mate",
-    icon: Info,
-    route: "/about",
-    description: "Learn more about SpaceMate"
-  }, {
-    label: "App Settings",
-    icon: Settings,
-    route: "/super-admin/settings",
-    description: "Application configuration"
-  }];
-  const handleNavigation = (route: string) => {
-    navigate(route);
-    setIsOpen(false);
-  };
-  const handleLogout = () => {
-    // Handle logout logic here
-    console.log("Logging out...");
-    navigate("/login");
-    setIsOpen(false);
-  };
-  return <Sheet open={isOpen} onOpenChange={setIsOpen}>
+
+  // Determine active tab from location hash or path (mocked for now)
+  // In a real app, you might sync this with the current tab state
+  // For now, highlight none as active
+
+  return (
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" className="p-2 hover:bg-slate-100 rounded-full text-right">
-          <Menu className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="p-2 rounded-full hover:bg-slate-100"
+        >
+          <Menu className="h-6 w-6" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-80 p-0 bg-white">
-        <div className="flex flex-col h-full">
-          {/* Header Section */}
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-6 text-white">
-            <div className="flex flex-col items-center text-center">
-              <Avatar className="h-16 w-16 mb-3 border-3 border-white/30">
-                <AvatarImage src={superAdmin.avatar} alt={superAdmin.name} />
-                <AvatarFallback className="bg-white/20 text-white text-lg font-bold">
-                  {superAdmin.name.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              <h3 className="font-bold text-lg">{superAdmin.name}</h3>
-              <p className="text-purple-100 text-sm">{superAdmin.email}</p>
-              <div className="mt-2 px-3 py-1 bg-white/20 rounded-full text-xs font-medium">
-                Room 101
-              </div>
-            </div>
-          </div>
+      <SheetContent side="right" className="w-[80%] sm:w-[350px] pt-safe flex flex-col">
+        {/* Profile Section */}
+        <div className="flex flex-col items-center py-6 border-b">
+          <Avatar className="h-20 w-20 mb-2">
+            <AvatarImage src={superAdmin.avatar} alt={superAdmin.name} />
+            <AvatarFallback className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xl">
+              SA
+            </AvatarFallback>
+          </Avatar>
+          <h2 className="font-bold text-xl mt-2">{superAdmin.name}</h2>
+          <p className="text-gray-500 text-sm">{superAdmin.email}</p>
+          <span className="text-xs bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full mt-2">{superAdmin.role}</span>
+        </div>
 
-          {/* Main Navigation Section */}
-          <div className="flex-1 overflow-y-auto bg-white">
-            <div className="p-4 space-y-1">
-              {navigationItems.map((item, index) => <button key={index} onClick={() => handleNavigation(item.route)} className="w-full flex items-center gap-4 p-3 rounded-lg text-left hover:bg-purple-50 transition-colors group">
-                  <div className="p-2 rounded-lg bg-purple-100 group-hover:bg-purple-200 transition-colors">
-                    <item.icon className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-900">{item.label}</p>
-                  </div>
-                </button>)}
-            </div>
+        {/* Navigation */}
+        <nav className="flex-1 py-4">
+          <ul className="space-y-1">
+            {navigationItems.map((item) => (
+              <li key={item.tab}>
+                <Button
+                  variant={activeTab === item.tab ? "default" : "ghost"}
+                  className={`w-full justify-start text-base py-6 flex items-center gap-3 transition-colors rounded-lg ${
+                    activeTab === item.tab
+                      ? "bg-indigo-600 text-white shadow-md"
+                      : "text-gray-600 hover:bg-indigo-50 hover:text-indigo-700"
+                  }`}
+                  onClick={() => {
+                    onTabChange(item.tab);
+                    setIsOpen(false);
+                  }}
+                >
+                  <item.icon size={20} className="mr-2" />
+                  {item.label}
+                </Button>
+              </li>
+            ))}
+            <li>
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-base py-6 text-red-500 hover:bg-red-50 hover:text-red-600 flex items-center gap-3"
+                onClick={() => {
+                  window.location.href = "/role-selection";
+                  setIsOpen(false);
+                }}
+              >
+                <LogOut size={20} className="mr-2" />
+                Logout
+              </Button>
+            </li>
+          </ul>
+        </nav>
 
-            <Separator className="mx-4 my-2" />
-
-            {/* Bottom Navigation */}
-            <div className="p-4 space-y-1">
-              {bottomNavigationItems.map((item, index) => <button key={index} onClick={() => handleNavigation(item.route)} className="w-full flex items-center gap-4 p-3 rounded-lg text-left hover:bg-gray-50 transition-colors group">
-                  <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-gray-200 transition-colors">
-                    <item.icon className="h-5 w-5 text-gray-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-700">{item.label}</p>
-                  </div>
-                </button>)}
-            </div>
-
-            <Separator className="mx-4 my-2" />
-
-            {/* Logout Section */}
-            <div className="p-4">
-              <button onClick={handleLogout} className="w-full flex items-center gap-4 p-3 rounded-lg text-left hover:bg-red-50 transition-colors group">
-                <div className="p-2 rounded-lg bg-red-100 group-hover:bg-red-200 transition-colors">
-                  <LogOut className="h-5 w-5 text-red-600" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-red-600">Logout</p>
-                </div>
-              </button>
-            </div>
+        {/* Bottom Info Section */}
+        <div className="pt-2 border-t">
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-gray-500 hover:text-indigo-600 flex items-center gap-2"
+          >
+            <Info size={16} className="mr-2" />
+            About Space Mate
+          </Button>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-start text-gray-500 hover:text-indigo-600 flex items-center gap-2"
+          >
+            <Settings size={16} className="mr-2" />
+            App Settings
+          </Button>
+          <div className="text-xs text-gray-400 mt-4 text-center pb-safe">
+            Space Mate v1.0.0
           </div>
         </div>
       </SheetContent>
-    </Sheet>;
+    </Sheet>
+  );
 };
+
 export default SuperAdminSidebar;

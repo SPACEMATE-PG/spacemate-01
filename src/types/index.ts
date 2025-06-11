@@ -6,7 +6,7 @@ export enum UserRole {
 
 export enum AdminSubRole {
   SUPER_ADMIN = "super_admin",
-  PG_MANAGER = "pg_manager", 
+  PG_ADMIN = "pg_admin", 
   WARDEN = "warden"
 }
 
@@ -15,12 +15,11 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
-  adminSubRole?: AdminSubRole; // Added for admin sub-roles
+  adminSubRole?: AdminSubRole;
   profileImage?: string;
   roomNumber?: string;
   joinDate?: string;
   endDate?: string;
-  pgId?: string; // Added for PG association
 }
 
 export interface Room {

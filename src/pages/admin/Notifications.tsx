@@ -1,163 +1,286 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { notifications } from "@/data/mockData";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { format } from "date-fns";
-import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  ArrowLeft, 
+  Bell, 
+  Search, 
+  Trash2, 
+  Check, 
+  AlertCircle, 
+  Info,
+  IndianRupee,
+  Wrench
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
-const AdminNotifications = () => {
-  const { toast } = useToast();
-  const [notificationType, setNotificationType] = useState<string>("all");
-  
-  const filteredNotifications = notificationType === "all" 
-    ? notifications 
-    : notifications.filter(notification => notification.type === notificationType);
-  
-  const handleSendNotification = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Notification Sent",
-      description: "Your notification has been sent to all PG residents.",
-    });
+// Mock data - replace with actual API data
+const mockNotifications = [
+  {
+    id: "NOT001",
+    type: "payment",
+    title: "Rent Payment Due",
+    message: "Rent payment for Room 101 is due in 2 days",
+    priority: "high",
+    status: "unread",
+    date: "2024-03-01",
+    recipient: "John Doe"
+  },
+  {
+    id: "NOT002",
+    type: "maintenance",
+    title: "Maintenance Request",
+    message: "New maintenance request for Room 102",
+    priority: "medium",
+    status: "read",
+    date: "2024-03-02",
+    recipient: "All Staff"
+  },
+  {
+    id: "NOT003",
+    type: "system",
+    title: "System Update",
+    message: "System maintenance scheduled for tomorrow",
+    priority: "low",
+    status: "unread",
+    date: "2024-03-03",
+    recipient: "All Users"
+  }
+];
+
+const Notifications = () => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showNewNotification, setShowNewNotification] = useState(false);
+
+  const handleBack = () => {
+    navigate("/pg-admin");
   };
-  
+
+  const handleNewNotification = () => {
+    setShowNewNotification(true);
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case "high":
+        return <Badge variant="destructive">High</Badge>;
+      case "medium":
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Medium</Badge>;
+      case "low":
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Low</Badge>;
+      default:
+        return <Badge variant="secondary">{priority}</Badge>;
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "payment":
+        return <IndianRupee className="h-4 w-4" />;
+      case "maintenance":
+        return <Wrench className="h-4 w-4" />;
+      case "system":
+        return <Info className="h-4 w-4" />;
+      default:
+        return <Bell className="h-4 w-4" />;
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Notification Management</h1>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Send New Notification</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSendNotification} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="title" className="text-sm font-medium">Notification Title</label>
-              <Input id="title" placeholder="Enter notification title" required />
+    <div className="space-y-6 p-4 sm:p-6">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="unread">Unread</TabsTrigger>
+          <TabsTrigger value="payment">Payments</TabsTrigger>
+          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search notifications..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
             </div>
-            
+            <Button
+              onClick={handleNewNotification}
+              className="bg-hostel-primary hover:bg-hostel-secondary"
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              New Notification
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {mockNotifications.map((notification) => (
+              <Card key={notification.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        {getTypeIcon(notification.type)}
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{notification.title}</h3>
+                        <p className="text-sm text-gray-500">{notification.message}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-xs text-gray-500">{notification.date}</span>
+                          <span className="text-xs text-gray-500">•</span>
+                          <span className="text-xs text-gray-500">{notification.recipient}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {getPriorityBadge(notification.priority)}
+                      {notification.status === "unread" && (
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          New
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="unread" className="space-y-4">
+          {/* Similar structure as "all" tab but filtered for unread notifications */}
+        </TabsContent>
+
+        <TabsContent value="payment" className="space-y-4">
+          {/* Similar structure as "all" tab but filtered for payment notifications */}
+        </TabsContent>
+
+        <TabsContent value="maintenance" className="space-y-4">
+          {/* Similar structure as "all" tab but filtered for maintenance notifications */}
+        </TabsContent>
+      </Tabs>
+
+      {/* New Notification Dialog */}
+      <Dialog open={showNewNotification} onOpenChange={setShowNewNotification}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Notification</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-medium">Message</label>
-              <Textarea id="message" placeholder="Enter your message" rows={4} required />
-            </div>
-            
-            <div className="space-y-2">
-              <label htmlFor="type" className="text-sm font-medium">Notification Type</label>
-              <Select defaultValue="announcement">
-                <SelectTrigger id="type">
+              <label className="text-sm font-medium">Notification Type</label>
+              <Select>
+                <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="meal">Meal</SelectItem>
                   <SelectItem value="payment">Payment</SelectItem>
-                  <SelectItem value="announcement">Announcement</SelectItem>
-                  <SelectItem value="service">Service</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
             <div className="space-y-2">
-              <label htmlFor="recipients" className="text-sm font-medium">Recipients</label>
-              <Select defaultValue="all">
-                <SelectTrigger id="recipients">
+              <label className="text-sm font-medium">Title</label>
+              <Input placeholder="Enter notification title" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Message</label>
+              <Input placeholder="Enter notification message" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Priority</label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Recipients</label>
+              <Select>
+                <SelectTrigger>
                   <SelectValue placeholder="Select recipients" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All PG Guests</SelectItem>
-                  <SelectItem value="specific">Select Specific Guests</SelectItem>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="staff">Staff Only</SelectItem>
+                  <SelectItem value="guests">Guests Only</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <input type="checkbox" id="requiresAction" className="mr-2" />
-                <label htmlFor="requiresAction" className="text-sm font-medium">Requires Action/Response</label>
-              </div>
-              <p className="text-xs text-gray-500">
-                If checked, the recipient will be asked to respond (e.g., confirming meal attendance).
-              </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowNewNotification(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-hostel-primary hover:bg-hostel-secondary"
+                onClick={() => setShowNewNotification(false)}
+              >
+                Send Notification
+              </Button>
             </div>
-            
-            <Button type="submit" className="w-full bg-hostel-primary hover:bg-hostel-secondary">
-              Send Notification
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Notifications</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <Select value={notificationType} onValueChange={setNotificationType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="meal">Meals</SelectItem>
-                <SelectItem value="payment">Payments</SelectItem>
-                <SelectItem value="announcement">Announcements</SelectItem>
-                <SelectItem value="service">Service</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
-          
-          <div className="space-y-4">
-            {filteredNotifications.map(notification => (
-              <div key={notification.id} className="border rounded-md p-4">
-                <div className="flex justify-between">
-                  <h3 className="font-medium">{notification.title}</h3>
-                  <span className="text-xs text-gray-500">
-                    {format(new Date(notification.createdAt), "MMM d, h:mm a")}
-                  </span>
-                </div>
-                <p className="text-gray-600 text-sm mt-1">{notification.message}</p>
-                <div className="mt-2 flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${getTypeStyles(notification.type)}`}>
-                      {notification.type}
-                    </span>
-                    {notification.requiresAction && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800">
-                        Requires Action
-                      </span>
-                    )}
-                  </div>
-                  {notification.requiresAction && (
-                    <button className="text-sm text-hostel-primary">View Responses</button>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-// Helper function to get styles based on notification type
-const getTypeStyles = (type: string) => {
-  switch (type) {
-    case "meal":
-      return "bg-green-100 text-green-800";
-    case "payment":
-      return "bg-blue-100 text-blue-800";
-    case "announcement":
-      return "bg-purple-100 text-purple-800";
-    case "service":
-      return "bg-orange-100 text-orange-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
-export default AdminNotifications;
+export default Notifications;

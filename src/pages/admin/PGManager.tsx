@@ -1,974 +1,552 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import AssetModal from "@/components/admin/AssetModal";
-import ServiceRequestModal from "@/components/admin/ServiceRequestModal";
 import { 
-  Building2, 
-  Bed, 
   Users, 
-  Settings, 
-  MessageSquare, 
-  Utensils, 
-  Calendar,
-  CheckCircle,
-  AlertCircle,
-  Star,
-  BarChart3,
-  Bell,
-  UserPlus,
-  Wrench,
-  Clock,
-  TrendingUp,
-  Search,
-  Filter,
-  Plus,
-  Edit,
-  Trash2,
-  Send,
+  Building2, 
+  IndianRupee, 
   Eye,
+  MoreVertical,
+  Menu,
   X,
-  Check,
-  AlertTriangle,
-  Wifi,
-  Droplets,
-  Zap
+  Home,
+  Bell,
+  LogOut,
+  Building,
+  ClipboardList,
+  ArrowUpRight,
+  Plus,
+  Shield,
+  MessageSquare,
+  Utensils,
+  Settings,
+  ToggleLeft,
+  ToggleRight
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuth } from "@/contexts/AuthContext";
+import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
+
+// Mock data for demonstration
+const mockData = {
+  pgDetails: {
+    name: "SpaceMate PG",
+    totalRooms: 24,
+    availableRooms: 4,
+    totalBeds: 48,
+    availableBeds: 8,
+    isAvailable: true,
+    facilities: ["WiFi", "AC", "Food", "Laundry", "Water Purifier"]
+  },
+  joiningRequests: [
+    {
+      id: "1",
+      name: "John Doe",
+      email: "john@example.com",
+      phone: "+91 9876543210",
+      roomType: "Double Sharing",
+      moveInDate: "2024-03-01",
+      status: "pending"
+    },
+    {
+      id: "2",
+      name: "Jane Smith",
+      email: "jane@example.com",
+      phone: "+91 9876543211",
+      roomType: "Single Sharing",
+      moveInDate: "2024-03-05",
+      status: "approved"
+    }
+  ],
+  serviceRequests: [
+    {
+      id: "1",
+      type: "Maintenance",
+      description: "AC not working",
+      status: "pending",
+      roomNumber: "101",
+      priority: "high",
+      requestedBy: 15 // number of users requesting
+    },
+    {
+      id: "2",
+      type: "Cleaning",
+      description: "Room cleaning required",
+      status: "in-progress",
+      roomNumber: "102",
+      priority: "medium",
+      requestedBy: 8
+    }
+  ],
+  messages: [
+    {
+      id: "1",
+      from: "Guest",
+      message: "When will the WiFi be fixed?",
+      timestamp: "2024-03-01 10:30",
+      status: "unread"
+    }
+  ],
+  foodFeedback: {
+    today: {
+      rating: 4.2,
+      totalResponses: 45,
+      comments: [
+        "Lunch was great!",
+        "Dinner could be better"
+      ]
+    }
+  }
+};
 
 const PGManager = () => {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isPGAvailable, setIsPGAvailable] = useState(mockData.pgDetails.isAvailable);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
-  const [pgAvailability, setPgAvailability] = useState(true);
-  const [pendingRequests, setPendingRequests] = useState(12);
-  const [serviceRequests, setServiceRequests] = useState(8);
-  const [unreadMessages, setUnreadMessages] = useState(5);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState("");
-  const [newMenuItems, setNewMenuItems] = useState({ breakfast: "", lunch: "", dinner: "" });
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
-  
-  // Modal states
-  const [assetModal, setAssetModal] = useState({ isOpen: false, type: 'add' as 'add' | 'manage' | 'schedule', asset: null });
-  const [serviceModal, setServiceModal] = useState({ isOpen: false, request: null as any });
+  const navigate = useNavigate();
+  const { logout, currentUser } = useAuth();
+  const isMobileView = useIsMobile();
 
-  // Real-time data simulation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.8) {
-        setUnreadMessages(prev => prev + 1);
+  // Core navigation items based on PG Admin responsibilities
+  const navigationItems = [
+    {
+      tab: "overview",
+      label: "Dashboard",
+      icon: Home,
+      path: "/pg-admin"
+    },
+    {
+      tab: "guests",
+      label: "Guests",
+      icon: Users,
+      path: "/pg-admin/guests"
+    },
+    {
+      tab: "rooms",
+      label: "Rooms",
+      icon: Building,
+      path: "/pg-admin/rooms"
+    },
+    {
+      tab: "requests",
+      label: "Requests",
+      icon: ClipboardList,
+      path: "/pg-admin/requests"
+    },
+    {
+      tab: "financial",
+      label: "Financial",
+      icon: IndianRupee,
+      path: "/pg-admin/financial"
+    },
+    {
+      tab: "notifications",
+      label: "Notifications",
+      icon: Bell,
+      path: "/pg-admin/notifications"
+    }
+  ];
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    navigate("/role-selection");
+  };
+
+  const handleNavigation = (path: string) => {
+    const tab = path.split("/").pop() || "overview";
+    setActiveTab(tab);
+    navigate(path);
+    setIsDrawerOpen(false);
+  };
+
+  const handlePGAvailability = (checked: boolean) => {
+    setIsPGAvailable(checked);
+    toast({
+      title: checked ? "PG is now available" : "PG is now fully booked",
+      description: checked ? "New bookings can be accepted" : "No new bookings will be accepted",
+    });
+  };
+
+  const handleRequestAction = (type: string, id: string, action: string) => {
+    switch (action) {
+      case "view":
+        navigate(`/pg-admin/${type}/${id}`);
+        break;
+      case "approve":
         toast({
-          title: "New Message",
-          description: "You have a new message from a resident",
+          title: "Request Approved",
+          description: `${type === "joining" ? "Joining" : "Service"} request has been approved`,
         });
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [toast]);
-
-  const handleAvailabilityToggle = () => {
-    setPgAvailability(!pgAvailability);
-    toast({
-      title: "PG Availability Updated",
-      description: `PG is now marked as ${!pgAvailability ? 'Available' : 'Fully Booked'}`,
-    });
-  };
-
-  const handleServiceRequestUpdate = (id: string, status: string, notes?: string) => {
-    setServiceRequests(prev => prev - 1);
-    console.log(`Service request ${id} updated to ${status}`, notes);
-  };
-
-  const handleJoiningRequest = (id: string, action: 'accept' | 'reject') => {
-    setPendingRequests(prev => prev - 1);
-    toast({
-      title: `Joining Request ${action.charAt(0).toUpperCase() + action.slice(1)}ed`,
-      description: `Request from applicant has been ${action}ed`,
-    });
-  };
-
-  const handleSendReply = (queryId: string) => {
-    if (!replyText.trim()) return;
-    
-    setUnreadMessages(prev => prev - 1);
-    setReplyingTo(null);
-    setReplyText("");
-    toast({
-      title: "Reply Sent",
-      description: "Your reply has been sent successfully",
-    });
-  };
-
-  const handleUpdateMenu = () => {
-    toast({
-      title: "Menu Updated",
-      description: "Weekly menu has been updated successfully",
-    });
-    setNewMenuItems({ breakfast: "", lunch: "", dinner: "" });
-  };
-
-  const toggleCardExpansion = (cardId: string) => {
-    setExpandedCards(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(cardId)) {
-        newSet.delete(cardId);
-      } else {
-        newSet.add(cardId);
-      }
-      return newSet;
-    });
-  };
-
-  // Tab configuration with icons and notifications
-  const tabConfig = [
-    { 
-      id: 'overview', 
-      label: 'Overview', 
-      icon: BarChart3, 
-      description: 'Dashboard analytics',
-      notificationCount: 0 
-    },
-    { 
-      id: 'assets', 
-      label: 'Assets', 
-      icon: Settings, 
-      description: 'Manage facilities',
-      notificationCount: 0 
-    },
-    { 
-      id: 'requests', 
-      label: 'Requests', 
-      icon: UserPlus, 
-      description: 'Joining applications',
-      notificationCount: pendingRequests 
-    },
-    { 
-      id: 'services', 
-      label: 'Services', 
-      icon: Wrench, 
-      description: 'Maintenance issues',
-      notificationCount: serviceRequests 
-    },
-    { 
-      id: 'meals', 
-      label: 'Meals', 
-      icon: Utensils, 
-      description: 'Food management',
-      notificationCount: 0 
-    },
-    { 
-      id: 'communication', 
-      label: 'Messages', 
-      icon: MessageSquare, 
-      description: 'Resident queries',
-      notificationCount: unreadMessages 
+        break;
+      case "reject":
+        toast({
+          title: "Request Rejected",
+          description: `${type === "joining" ? "Joining" : "Service"} request has been rejected`,
+        });
+        break;
+      default:
+        break;
     }
-  ];
-
-  const joiningRequests = [
-    { 
-      id: '1', 
-      name: 'Rahul Kumar', 
-      profession: 'Software Engineer', 
-      roomType: 'Single room', 
-      appliedTime: '2 hours ago', 
-      profileViews: 15,
-      profileScore: 85,
-      contactNumber: '+91 98765 43210',
-      emergencyContact: '+91 98765 43211'
-    },
-    { 
-      id: '2', 
-      name: 'Priya Sharma', 
-      profession: 'Marketing Manager', 
-      roomType: 'Shared room', 
-      appliedTime: '4 hours ago', 
-      profileViews: 8,
-      profileScore: 92,
-      contactNumber: '+91 98765 43212',
-      emergencyContact: '+91 98765 43213'
-    },
-    { 
-      id: '3', 
-      name: 'Amit Singh', 
-      profession: 'Data Analyst', 
-      roomType: 'Single room', 
-      appliedTime: '6 hours ago', 
-      profileViews: 12,
-      profileScore: 78,
-      contactNumber: '+91 98765 43214',
-      emergencyContact: '+91 98765 43215'
-    }
-  ];
-
-  const serviceRequestsData = [
-    { 
-      id: '1', 
-      asset: 'Washing Machine #2', 
-      issue: 'Not starting properly', 
-      requests: 8, 
-      priority: 'High', 
-      icon: Wrench, 
-      status: 'pending',
-      submittedBy: ['Rahul K.', 'Priya S.', 'Amit R.', 'Sneha P.', '4 others'],
-      description: 'The washing machine is not starting. Display shows error E02. Tried basic troubleshooting but issue persists.',
-      submittedAt: '2 hours ago'
-    },
-    { 
-      id: '2', 
-      asset: 'Water Purifier #3', 
-      issue: 'Low water pressure', 
-      requests: 5, 
-      priority: 'Medium', 
-      icon: Droplets, 
-      status: 'pending',
-      submittedBy: ['John D.', 'Sarah M.', 'Mike T.', '2 others'],
-      description: 'Water flow from the purifier has reduced significantly. Takes very long to fill a bottle.',
-      submittedAt: '4 hours ago'
-    },
-    { 
-      id: '3', 
-      asset: 'Wi-Fi Router #1', 
-      issue: 'Connectivity issues', 
-      requests: 12, 
-      priority: 'High', 
-      icon: Wifi, 
-      status: 'pending',
-      submittedBy: ['Alex K.', 'Nina P.', 'Tom B.', 'Lisa R.', '8 others'],
-      description: 'Internet keeps disconnecting frequently. Speed is also very slow during peak hours.',
-      submittedAt: '1 hour ago'
-    }
-  ];
-
-  const communicationData = [
-    { 
-      id: '1', 
-      user: 'Priya Sharma', 
-      message: 'Wi-Fi password not working in room 204', 
-      time: '2 hours ago', 
-      type: 'individual',
-      priority: 'medium',
-      resolved: false 
-    },
-    { 
-      id: '2', 
-      user: 'Amit Kumar', 
-      message: 'When will the washing machine be fixed?', 
-      time: '4 hours ago', 
-      type: 'individual',
-      priority: 'high',
-      resolved: false 
-    },
-    { 
-      id: '3', 
-      user: 'General Query', 
-      message: 'Water supply timing clarification needed', 
-      time: '1 day ago', 
-      type: 'general',
-      priority: 'low',
-      resolved: true 
-    }
-  ];
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-2 sm:p-4 lg:p-6">
-      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 sm:p-6 rounded-lg shadow-sm border">
-          <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
-              <Building2 className="h-6 w-6 sm:h-8 sm:w-8 mr-2 sm:mr-3 text-primary" />
-              PG Manager Dashboard
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="border-b sticky top-0 z-30 shadow-sm bg-white">
+        <div className="container mx-auto flex justify-between items-center h-16 px-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg">
+              SM
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-hostel-primary to-hostel-secondary bg-clip-text text-transparent">
+              Space Mate
             </h1>
-            <p className="text-gray-600 mt-1 text-sm sm:text-base">Real-time PG management and operations control</p>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-            <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-3">
+            {/* PG Availability Toggle */}
+            <div className="flex items-center gap-2 mr-4">
               <span className="text-sm font-medium">PG Status:</span>
+              <div className="flex items-center gap-2">
+                {isPGAvailable ? (
+                  <ToggleRight className="h-5 w-5 text-green-500" />
+                ) : (
+                  <ToggleLeft className="h-5 w-5 text-red-500" />
+                )}
               <Switch
-                checked={pgAvailability}
-                onCheckedChange={handleAvailabilityToggle}
+                  checked={isPGAvailable}
+                  onCheckedChange={handlePGAvailability}
                 className="data-[state=checked]:bg-green-500"
               />
-              <Badge 
-                className={pgAvailability ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}
-              >
-                {pgAvailability ? "Available" : "Fully Booked"}
-              </Badge>
+              </div>
             </div>
-            <div className="text-xs text-gray-500 flex items-center gap-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              Live
-            </div>
-          </div>
-        </div>
 
-        {/* Quick Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Card className="border-l-4 border-l-blue-500 hover:shadow-md transition-shadow">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-500">Total Rooms</p>
-                  <p className="text-xl sm:text-2xl font-bold">24</p>
-                  <p className="text-xs text-green-600">+2 this month</p>
+            {/* Desktop Profile */}
+            {!isMobileView && currentUser && (
+              <div className="flex items-center gap-3 mr-2">
+                <div className="text-right">
+                  <p className="font-medium">{currentUser.name}</p>
+                  <p className="text-xs text-gray-500">PG Admin</p>
                 </div>
-                <Bed className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-green-500 hover:shadow-md transition-shadow">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-500">Occupancy</p>
-                  <p className="text-xl sm:text-2xl font-bold">87%</p>
-                  <p className="text-xs text-green-600">+5% from last month</p>
+                <div className="h-9 w-9 rounded-full bg-hostel-primary text-white flex items-center justify-center">
+                  {currentUser.name.charAt(0)}
                 </div>
-                <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
               </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-amber-500 hover:shadow-md transition-shadow">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-500">Pending Requests</p>
-                  <p className="text-xl sm:text-2xl font-bold">{pendingRequests}</p>
-                  <p className="text-xs text-amber-600">Requires attention</p>
-                </div>
-                <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-amber-500" />
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="border-l-4 border-l-purple-500 hover:shadow-md transition-shadow">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs sm:text-sm font-medium text-gray-500">Service Requests</p>
-                  <p className="text-xl sm:text-2xl font-bold">{serviceRequests}</p>
-                  <p className="text-xs text-red-600">3 high priority</p>
-                </div>
-                <Wrench className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            )}
 
-        {/* Enhanced Tab Navigation */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-            <div className="border-b bg-gray-50/50 px-4 py-3">
-              <h3 className="text-sm font-medium text-gray-700">Management Sections</h3>
-            </div>
-            
-            <div className="p-2">
-              <TabsList className="w-full h-auto bg-transparent p-0 gap-1">
-                {tabConfig.map((tab) => {
-                  const IconComponent = tab.icon;
-                  return (
-                    <TabsTrigger 
-                      key={tab.id}
-                      value={tab.id} 
-                      className="flex-1 min-w-0 h-auto p-3 flex flex-col items-center gap-2 text-center transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground hover:bg-gray-100 rounded-lg border border-transparent data-[state=active]:border-primary data-[state=active]:shadow-sm"
-                    >
-                      <div className="flex items-center justify-center relative">
-                        <IconComponent className="h-5 w-5" />
-                        {tab.notificationCount > 0 && (
-                          <Badge 
-                            className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs bg-red-500 text-white border-2 border-white"
+            {/* Mobile Menu Button */}
+            <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[80%] sm:w-[350px] pt-safe">
+                <div className="h-full flex flex-col">
+                  {/* User Profile Section */}
+                  {currentUser && (
+                    <div className="flex flex-col items-center py-6 border-b">
+                      <div className="h-20 w-20 rounded-full bg-hostel-primary text-white flex items-center justify-center text-2xl mb-2">
+                        {currentUser.name.charAt(0)}
+                      </div>
+                      <h2 className="font-semibold text-lg">{currentUser.name}</h2>
+                      <p className="text-gray-500 text-sm">{currentUser.email}</p>
+                      <p className="text-sm bg-hostel-accent text-hostel-primary px-3 py-1 rounded-full mt-2">
+                        PG Admin
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Navigation Links */}
+                  <nav className="flex-1 py-4">
+                    <ul className="space-y-1">
+                      {navigationItems.map((item) => (
+                        <li key={item.tab}>
+                          <Button
+                            variant={activeTab === item.tab ? "default" : "ghost"}
+                            className={cn(
+                              "w-full justify-start text-base py-6",
+                              activeTab === item.tab
+                                ? "bg-hostel-primary text-white"
+                                : "text-gray-600 hover:bg-hostel-accent hover:text-hostel-primary"
+                            )}
+                            onClick={() => handleNavigation(item.path)}
                           >
-                            {tab.notificationCount > 99 ? '99+' : tab.notificationCount}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-center gap-0.5">
-                        <span className="text-xs font-medium leading-none">{tab.label}</span>
-                        {!isMobile && (
-                          <span className="text-xs text-gray-500 leading-none">{tab.description}</span>
-                        )}
-                      </div>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
+                            <item.icon size={18} className="mr-3" />
+                            {item.label}
+                          </Button>
+                        </li>
+                      ))}
+                      <li>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start text-base py-6 text-red-500 hover:bg-red-50 hover:text-red-600"
+                          onClick={handleLogout}
+                        >
+                          <LogOut size={18} className="mr-3" />
+                          Logout
+                        </Button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
+        </div>
+      </header>
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg sm:text-xl">
-                    <BarChart3 className="h-5 w-5 mr-2 text-hostel-primary" />
-                    Live Performance Analytics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                      <span className="text-sm font-medium">Revenue This Month</span>
-                      <span className="font-bold text-green-600 text-lg">₹2,45,000</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                      <span className="text-sm font-medium">New Joinings</span>
-                      <span className="font-bold text-blue-600">8 this month</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                      <span className="text-sm font-medium">Average Stay Duration</span>
-                      <span className="font-bold text-purple-600">8.5 months</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                      <span className="text-sm font-medium">Overall Satisfaction</span>
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                        <span className="font-bold text-yellow-600">4.3/5</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg sm:text-xl">
-                    <Bell className="h-5 w-5 mr-2 text-hostel-primary" />
-                    Live Activity Feed
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-64 overflow-y-auto">
-                    <div className="flex items-start space-x-3 p-2 bg-green-50 rounded-lg">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2 animate-pulse"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">New joining request from Rahul</p>
-                        <p className="text-xs text-gray-500">2 hours ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3 p-2 bg-blue-50 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Wi-Fi service request completed</p>
-                        <p className="text-xs text-gray-500">5 hours ago</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-3 p-2 bg-yellow-50 rounded-lg">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Food feedback: 4.2/5 rating</p>
-                        <p className="text-xs text-gray-500">1 day ago</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-6">
+        {/* Welcome Section */}
+        <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white p-6 rounded-lg shadow-md mb-6">
+          <div className="flex justify-between items-start">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Welcome back, {currentUser?.name?.split(" ")[0]}!</h2>
+              <p className="text-white/80">Manage your PG and handle guest requests efficiently.</p>
             </div>
-          </TabsContent>
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
+              <Bell size={20} />
+            </Button>
+          </div>
+        </div>
 
-          {/* Enhanced Asset Management Tab */}
-          <TabsContent value="assets" className="space-y-4 sm:space-y-6">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between text-lg sm:text-xl">
-                  <div className="flex items-center">
-                    <Settings className="h-5 w-5 mr-2 text-primary" />
-                    Real-time Asset Management
+        {/* PG Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Rooms</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{mockData.pgDetails.totalRooms}</h3>
+                  <p className="text-xs text-gray-500 mt-1">{mockData.pgDetails.availableRooms} rooms available</p>
+                </div>
+                <div className="p-2 bg-indigo-50 rounded-lg">
+                  <Building2 className="h-6 w-6 sm:h-8 sm:w-8 text-indigo-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Beds</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{mockData.pgDetails.totalBeds}</h3>
+                  <p className="text-xs text-gray-500 mt-1">{mockData.pgDetails.availableBeds} beds available</p>
+                </div>
+                <div className="p-2 bg-green-50 rounded-lg">
+                  <Users className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Today's Food Rating</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{mockData.foodFeedback.today.rating}/5</h3>
+                  <p className="text-xs text-gray-500 mt-1">{mockData.foodFeedback.today.totalResponses} responses</p>
+                </div>
+                <div className="p-2 bg-yellow-50 rounded-lg">
+                  <Utensils className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="flex items-center text-lg">
+                    <Users className="h-5 w-5 mr-2 text-indigo-600" />
+                    Recent Joining Requests
+                  </CardTitle>
+                  <CardDescription>New guest applications</CardDescription>
                   </div>
                   <Button 
+                  variant="ghost" 
                     size="sm" 
-                    onClick={() => setAssetModal({ isOpen: true, type: 'add', asset: null })}
-                    className="bg-primary hover:bg-primary/90"
+                  className="text-sm flex items-center gap-1"
+                  onClick={() => navigate("/pg-admin/guests/requests")}
                   >
-                    <Plus className="h-4 w-4 mr-1" />
-                    Add Asset
+                  View All <ArrowUpRight size={14} />
                   </Button>
-                </CardTitle>
+              </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="p-4 border rounded-lg hover:shadow-md transition-shadow bg-gradient-to-br from-blue-50 to-blue-100">
-                    <h3 className="font-semibold flex items-center mb-3">
-                      <Bed className="h-4 w-4 mr-2 text-blue-600" />
-                      Rooms & Beds
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Total Rooms:</span>
-                        <span className="font-medium">24</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Total Beds:</span>
-                        <span className="font-medium">48</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Available Beds:</span>
-                        <span className="font-medium text-green-600">6</span>
-                      </div>
-                    </div>
-                    <Button 
-                      size="sm" 
-                      className="mt-3 w-full"
-                      onClick={() => setAssetModal({ isOpen: true, type: 'manage', asset: { name: 'Room Management', type: 'room' } })}
-                    >
-                      <Edit className="h-3 w-3 mr-1" />
-                      Manage Rooms
-                    </Button>
-                  </div>
-                  
-                  <div className="p-4 border rounded-lg hover:shadow-md transition-shadow bg-gradient-to-br from-green-50 to-green-100">
-                    <h3 className="font-semibold flex items-center mb-3">
-                      <Wrench className="h-4 w-4 mr-2 text-green-600" />
-                      Facilities Status
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Washing Machines:</span>
-                        <div className="flex items-center">
-                          <span className="font-medium">3/4</span>
-                          <div className="w-2 h-2 bg-yellow-500 rounded-full ml-2"></div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Water Purifiers:</span>
-                        <div className="flex items-center">
-                          <span className="font-medium">5/6</span>
-                          <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Wi-Fi Points:</span>
-                        <div className="flex items-center">
-                          <span className="font-medium">11/12</span>
-                          <div className="w-2 h-2 bg-green-500 rounded-full ml-2"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <Button size="sm" className="mt-3 w-full">
-                      <Eye className="h-3 w-3 mr-1" />
-                      View Details
-                    </Button>
-                  </div>
-                  
-                  <div className="p-4 border rounded-lg hover:shadow-md transition-shadow bg-gradient-to-br from-purple-50 to-purple-100">
-                    <h3 className="font-semibold flex items-center mb-3">
-                      <Calendar className="h-4 w-4 mr-2 text-purple-600" />
-                      Maintenance Queue
-                    </h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Scheduled:</span>
-                        <span className="font-medium text-blue-600">3 items</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">In Progress:</span>
-                        <span className="font-medium text-yellow-600">2 items</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Completed Today:</span>
-                        <span className="font-medium text-green-600">5 items</span>
-                      </div>
-                    </div>
-                    <Button 
-                      size="sm" 
-                      className="mt-3 w-full"
-                      onClick={() => setAssetModal({ isOpen: true, type: 'schedule', asset: null })}
-                    >
-                      <Calendar className="h-3 w-3 mr-1" />
-                      View Schedule
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Enhanced Joining Requests Tab */}
-          <TabsContent value="requests" className="space-y-4 sm:space-y-6">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <div className="flex items-center">
-                    <UserPlus className="h-5 w-5 mr-2 text-primary" />
-                    Joining Requests
+              <div className="space-y-4">
+                {mockData.joiningRequests.map((request) => (
+                  <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <h3 className="font-medium">{request.name}</h3>
+                      <p className="text-sm text-gray-500">{request.roomType}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className="bg-amber-100 text-amber-700">{pendingRequests} Pending</Badge>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      Auto-refresh: 30s
-                    </div>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-4 flex flex-col sm:flex-row gap-2">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder="Search applicants..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-1" />
-                    Filter
-                  </Button>
-                </div>
-                
-                <div className="space-y-4">
-                  {joiningRequests.map((request) => (
-                    <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="font-medium text-lg">{request.name}</h4>
-                            <Badge variant="outline" className="text-xs bg-blue-50">
-                              {request.profileViews} views
+                      <Badge variant={request.status === "pending" ? "secondary" : "default"} className="ml-2">
+                        {request.status}
                             </Badge>
-                            <Badge className={`text-xs ${request.profileScore >= 90 ? 'bg-green-100 text-green-700' : 
-                              request.profileScore >= 80 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                              Score: {request.profileScore}%
-                            </Badge>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-600">
-                            <p><span className="font-medium">Profession:</span> {request.profession}</p>
-                            <p><span className="font-medium">Room Type:</span> {request.roomType}</p>
-                            <p><span className="font-medium">Applied:</span> {request.appliedTime}</p>
-                            <p><span className="font-medium">Contact:</span> {request.contactNumber}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
-                          <Button size="sm" variant="outline" className="flex-1 lg:flex-initial">
-                            <Eye className="h-3 w-3 mr-1" />
-                            View Profile
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
                           </Button>
-                          <Button 
-                            size="sm" 
-                            className="flex-1 lg:flex-initial bg-green-600 hover:bg-green-700"
-                            onClick={() => handleJoiningRequest(request.id, 'accept')}
-                          >
-                            <Check className="h-3 w-3 mr-1" />
-                            Accept
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="destructive"
-                            className="flex-1 lg:flex-initial"
-                            onClick={() => handleJoiningRequest(request.id, 'reject')}
-                          >
-                            <X className="h-3 w-3 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Enhanced Service Requests Tab */}
-          <TabsContent value="services" className="space-y-4 sm:space-y-6">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <div className="flex items-center">
-                    <Wrench className="h-5 w-5 mr-2 text-primary" />
-                    Service Requests
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-red-100 text-red-700">{serviceRequests} Pending</Badge>
-                    <Badge className="bg-yellow-100 text-yellow-700">3 High Priority</Badge>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      Live Updates
-                    </div>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {serviceRequestsData.map((request) => (
-                    <div key={request.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
-                         onClick={() => setServiceModal({ isOpen: true, request })}>
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div className="flex items-start gap-3 flex-1">
-                          <request.icon className="h-5 w-5 text-gray-600 mt-1 flex-shrink-0" />
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap mb-1">
-                              <h4 className="font-medium">{request.asset}</h4>
-                              <Badge className={
-                                request.priority === 'High' ? 'bg-red-100 text-red-700' :
-                                request.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-green-100 text-green-700'
-                              }>
-                                {request.priority}
-                              </Badge>
-                              <Badge variant="outline" className="text-xs">
-                                {request.requests} affected
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-2">{request.issue}</p>
-                            <div className="flex items-center gap-4 text-xs text-gray-500">
-                              <span>Submitted: {request.submittedAt}</span>
-                              <span>Status: {request.status}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2 w-full sm:w-auto">
-                          <Button 
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setServiceModal({ isOpen: true, request });
-                            }}
-                          >
-                            <Eye className="h-3 w-3 mr-1" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "view")}>
+                            <Eye className="mr-2 h-4 w-4" />
                             View Details
-                          </Button>
-                        </div>
+                          </DropdownMenuItem>
+                          {request.status === "pending" && (
+                            <>
+                              <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "approve")}>
+                                <Shield className="mr-2 h-4 w-4" />
+                                Approve
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "reject")}>
+                                <X className="mr-2 h-4 w-4" />
+                            Reject
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                       </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
 
-          {/* Enhanced Meal Management Tab */}
-          <TabsContent value="meals" className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg sm:text-xl">
-                    <Calendar className="h-5 w-5 mr-2 text-hostel-primary" />
-                    Live Menu Management
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="pb-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="flex items-center text-lg">
+                    <ClipboardList className="h-5 w-5 mr-2 text-yellow-600" />
+                    Service Requests
                   </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="p-3 border rounded bg-gradient-to-r from-orange-50 to-yellow-50">
-                      <h4 className="font-medium text-orange-800 mb-2">Today's Menu</h4>
-                      <div className="space-y-1 text-sm">
-                        <p><span className="font-medium">Breakfast:</span> Poha, Tea</p>
-                        <p><span className="font-medium">Lunch:</span> Dal, Rice, Sabji, Roti</p>
-                        <p><span className="font-medium">Dinner:</span> Rajma, Rice, Roti</p>
+                  <CardDescription>Maintenance and services</CardDescription>
                       </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <h5 className="font-medium">Update Menu Items</h5>
-                      <div className="space-y-2">
-                        <Input
-                          placeholder="Breakfast items..."
-                          value={newMenuItems.breakfast}
-                          onChange={(e) => setNewMenuItems(prev => ({...prev, breakfast: e.target.value}))}
-                        />
-                        <Input
-                          placeholder="Lunch items..."
-                          value={newMenuItems.lunch}
-                          onChange={(e) => setNewMenuItems(prev => ({...prev, lunch: e.target.value}))}
-                        />
-                        <Input
-                          placeholder="Dinner items..."
-                          value={newMenuItems.dinner}
-                          onChange={(e) => setNewMenuItems(prev => ({...prev, dinner: e.target.value}))}
-                        />
-                      </div>
-                    </div>
-                    
-                    <Button onClick={handleUpdateMenu} className="w-full bg-hostel-primary hover:bg-hostel-secondary">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Update Weekly Menu
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-sm flex items-center gap-1"
+                  onClick={() => navigate("/pg-admin/requests")}
+                >
+                  View All <ArrowUpRight size={14} />
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-lg sm:text-xl">
-                    <Star className="h-5 w-5 mr-2 text-hostel-primary" />
-                    Real-time Food Analytics
-                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                        <span className="text-sm font-medium">Breakfast Rating</span>
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                          <span className="font-bold text-green-600">4.2/5</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                        <span className="text-sm font-medium">Lunch Rating</span>
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                          <span className="font-bold text-green-600">4.5/5</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                        <span className="text-sm font-medium">Dinner Rating</span>
-                        <div className="flex items-center">
-                          <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                          <span className="font-bold text-yellow-600">4.1/5</span>
-                        </div>
-                      </div>
+                {mockData.serviceRequests.map((request) => (
+                  <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div>
+                      <h3 className="font-medium">{request.type}</h3>
+                      <p className="text-sm text-gray-500">Room {request.roomNumber} • {request.requestedBy} requests</p>
                     </div>
-                    
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <h5 className="font-medium text-sm mb-2 text-blue-800">Recent Live Feedback</h5>
-                      <div className="space-y-1 text-xs">
-                        <p className="text-blue-700">"Food quality has improved!" - 2 mins ago</p>
-                        <p className="text-blue-700">"Please add more variety in breakfast" - 5 mins ago</p>
-                        <p className="text-blue-700">"Lunch was excellent today!" - 10 mins ago</p>
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant={request.status === "pending" ? "secondary" : "default"}
+                        className={cn(
+                          "ml-2",
+                          request.priority === "high" && "bg-red-100 text-red-700"
+                        )}
+                      >
+                        {request.status}
+                      </Badge>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleRequestAction("service", request.id, "view")}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          {request.status === "pending" && (
+                            <>
+                              <DropdownMenuItem onClick={() => handleRequestAction("service", request.id, "approve")}>
+                                <Shield className="mr-2 h-4 w-4" />
+                                Approve
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleRequestAction("service", request.id, "reject")}>
+                                <X className="mr-2 h-4 w-4" />
+                                Reject
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
+                  </div>
+                ))}
                   </div>
                 </CardContent>
               </Card>
-            </div>
-          </TabsContent>
-
-          {/* Enhanced Communication Tab */}
-          <TabsContent value="communication" className="space-y-4 sm:space-y-6">
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                  <div className="flex items-center">
-                    <MessageSquare className="h-5 w-5 mr-2 text-hostel-primary" />
-                    Live Communication Hub
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-blue-100 text-blue-700 animate-pulse">{unreadMessages} Unread</Badge>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      Live
-                    </div>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {communicationData.map((query) => (
-                    <div key={query.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                      <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <h4 className="font-medium flex items-center flex-wrap gap-2">
-                            {query.user}
-                            <Badge 
-                              className={query.type === 'individual' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}
-                            >
-                              {query.type === 'individual' ? 'Private' : 'Public'}
-                            </Badge>
-                          </h4>
-                          <p className="text-sm text-gray-600 mt-1">{query.message}</p>
-                          <p className="text-xs text-gray-500 mt-1">{query.time}</p>
                         </div>
                         
-                        <div className="flex gap-2 w-full sm:w-auto">
-                          {replyingTo === query.id ? (
-                            <div className="flex flex-col gap-2 w-full sm:w-64">
-                              <Textarea
-                                placeholder="Type your reply..."
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                className="min-h-[60px] text-sm"
-                              />
-                              <div className="flex gap-2">
+        {/* Quick Actions */}
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900">Quick Actions</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <Button 
-                                  size="sm" 
-                                  onClick={() => handleSendReply(query.id)}
-                                  className="flex-1 bg-green-600 hover:bg-green-700"
-                                >
-                                  <Send className="h-3 w-3 mr-1" />
-                                  Send
+              variant="outline" 
+              className="h-auto py-6 flex flex-col items-center space-y-3 hover:bg-hostel-accent hover:text-hostel-primary transition-all duration-200 border-2 border-gray-100 hover:border-hostel-primary/20"
+              onClick={() => navigate("/pg-admin/guests/add")}
+            >
+              <div className="bg-hostel-muted w-12 h-12 rounded-full flex items-center justify-center">
+                <Users className="h-6 w-6 text-hostel-primary" />
+              </div>
+              <div className="text-center">
+                <span className="text-sm font-medium block">Add Guest</span>
+                <span className="text-xs text-gray-500 mt-1 block">Register new guest</span>
+              </div>
                                 </Button>
                                 <Button 
-                                  size="sm" 
                                   variant="outline"
-                                  onClick={() => {
-                                    setReplyingTo(null);
-                                    setReplyText("");
-                                  }}
-                                >
-                                  Cancel
-                                </Button>
+              className="h-auto py-6 flex flex-col items-center space-y-3 hover:bg-hostel-accent hover:text-hostel-primary transition-all duration-200 border-2 border-gray-100 hover:border-hostel-primary/20"
+              onClick={() => navigate("/pg-admin/pg-management")}
+            >
+              <div className="bg-hostel-muted w-12 h-12 rounded-full flex items-center justify-center">
+                <Building2 className="h-6 w-6 text-hostel-primary" />
                               </div>
-                            </div>
-                          ) : (
-                            <Button 
-                              size="sm"
-                              onClick={() => setReplyingTo(query.id)}
-                              className="bg-hostel-primary hover:bg-hostel-secondary"
-                            >
-                              <MessageSquare className="h-3 w-3 mr-1" />
-                              Reply
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+              <div className="text-center">
+                <span className="text-sm font-medium block">Manage PG</span>
+                <span className="text-xs text-gray-500 mt-1 block">Update PG details & facilities</span>
                 </div>
-                
-                <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-                  <h5 className="font-medium text-sm mb-2">Quick Actions</h5>
-                  <div className="flex flex-wrap gap-2">
-                    <Button size="sm" variant="outline">
-                      <Bell className="h-3 w-3 mr-1" />
-                      Send Announcement
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <Users className="h-3 w-3 mr-1" />
-                      Broadcast Message
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      Emergency Alert
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
-        {/* Modals */}
-        <AssetModal
-          isOpen={assetModal.isOpen}
-          onClose={() => setAssetModal({ isOpen: false, type: 'add', asset: null })}
-          type={assetModal.type}
-          asset={assetModal.asset}
-        />
-
-        <ServiceRequestModal
-          isOpen={serviceModal.isOpen}
-          onClose={() => setServiceModal({ isOpen: false, request: null })}
-          request={serviceModal.request}
-          onUpdateStatus={handleServiceRequestUpdate}
-        />
-      </div>
+      </main>
     </div>
   );
 };
