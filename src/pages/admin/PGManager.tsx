@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import PGAdminLayout from "@/components/admin/PGAdminLayout";
 
 // Mock data for demonstration
 const mockData = {
@@ -159,6 +160,46 @@ const PGManager = () => {
     }
   ];
 
+  // Only show the most important tabs on mobile
+  const mobileNavItems = [
+    {
+      tab: "overview",
+      label: "Dashboard",
+      icon: Home,
+      path: "/pg-admin"
+    },
+    {
+      tab: "guests",
+      label: "Guests",
+      icon: Users,
+      path: "/pg-admin/guests"
+    },
+    {
+      tab: "rooms",
+      label: "Rooms",
+      icon: Building,
+      path: "/pg-admin/rooms"
+    },
+    {
+      tab: "requests",
+      label: "Requests",
+      icon: ClipboardList,
+      path: "/pg-admin/requests"
+    },
+    {
+      tab: "financial",
+      label: "Financial",
+      icon: IndianRupee,
+      path: "/pg-admin/financial"
+    },
+    {
+      tab: "notifications",
+      label: "Notifications",
+      icon: Bell,
+      path: "/pg-admin/notifications"
+    }
+  ];
+
   const handleLogout = () => {
     logout();
     toast({
@@ -206,118 +247,9 @@ const PGManager = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="border-b sticky top-0 z-30 shadow-sm bg-white">
-        <div className="container mx-auto flex justify-between items-center h-16 px-4">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg">
-              SM
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-hostel-primary to-hostel-secondary bg-clip-text text-transparent">
-              Space Mate
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* PG Availability Toggle */}
-            <div className="flex items-center gap-2 mr-4">
-              <span className="text-sm font-medium">PG Status:</span>
-              <div className="flex items-center gap-2">
-                {isPGAvailable ? (
-                  <ToggleRight className="h-5 w-5 text-green-500" />
-                ) : (
-                  <ToggleLeft className="h-5 w-5 text-red-500" />
-                )}
-              <Switch
-                  checked={isPGAvailable}
-                  onCheckedChange={handlePGAvailability}
-                className="data-[state=checked]:bg-green-500"
-              />
-              </div>
-            </div>
-
-            {/* Desktop Profile */}
-            {!isMobileView && currentUser && (
-              <div className="flex items-center gap-3 mr-2">
-                <div className="text-right">
-                  <p className="font-medium">{currentUser.name}</p>
-                  <p className="text-xs text-gray-500">PG Admin</p>
-                </div>
-                <div className="h-9 w-9 rounded-full bg-hostel-primary text-white flex items-center justify-center">
-                  {currentUser.name.charAt(0)}
-                </div>
-              </div>
-            )}
-
-            {/* Mobile Menu Button */}
-            <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-              <SheetTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="p-2 rounded-full hover:bg-gray-100"
-                >
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[80%] sm:w-[350px] pt-safe">
-                <div className="h-full flex flex-col">
-                  {/* User Profile Section */}
-                  {currentUser && (
-                    <div className="flex flex-col items-center py-6 border-b">
-                      <div className="h-20 w-20 rounded-full bg-hostel-primary text-white flex items-center justify-center text-2xl mb-2">
-                        {currentUser.name.charAt(0)}
-                      </div>
-                      <h2 className="font-semibold text-lg">{currentUser.name}</h2>
-                      <p className="text-gray-500 text-sm">{currentUser.email}</p>
-                      <p className="text-sm bg-hostel-accent text-hostel-primary px-3 py-1 rounded-full mt-2">
-                        PG Admin
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Navigation Links */}
-                  <nav className="flex-1 py-4">
-                    <ul className="space-y-1">
-                      {navigationItems.map((item) => (
-                        <li key={item.tab}>
-                          <Button
-                            variant={activeTab === item.tab ? "default" : "ghost"}
-                            className={cn(
-                              "w-full justify-start text-base py-6",
-                              activeTab === item.tab
-                                ? "bg-hostel-primary text-white"
-                                : "text-gray-600 hover:bg-hostel-accent hover:text-hostel-primary"
-                            )}
-                            onClick={() => handleNavigation(item.path)}
-                          >
-                            <item.icon size={18} className="mr-3" />
-                            {item.label}
-                          </Button>
-                        </li>
-                      ))}
-                      <li>
-                        <Button
-                          variant="ghost"
-                          className="w-full justify-start text-base py-6 text-red-500 hover:bg-red-50 hover:text-red-600"
-                          onClick={handleLogout}
-                        >
-                          <LogOut size={18} className="mr-3" />
-                          Logout
-                        </Button>
-                      </li>
-                    </ul>
-                  </nav>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+    <PGAdminLayout>
+      {/* Main content of the PGManager page, excluding any duplicate header/nav */}
+      <main className="container mx-auto px-4 py-6 pb-24">
         {/* Welcome Section */}
         <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white p-6 rounded-lg shadow-md mb-6">
           <div className="flex justify-between items-start">
@@ -547,7 +479,7 @@ const PGManager = () => {
                   </div>
                 </div>
       </main>
-    </div>
+    </PGAdminLayout>
   );
 };
 

@@ -19,6 +19,7 @@ import Layout from "./components/Layout";
 // Admin pages
 import SuperAdmin from "./pages/admin/SuperAdmin";
 import PGManager from "./pages/admin/PGManager";
+import Warden from "./pages/admin/Warden";
 import AddGuest from "./pages/admin/AddGuest";
 import GuestsList from "./pages/admin/GuestsList";
 import RoomManagement from "./pages/admin/RoomManagement";
@@ -89,6 +90,18 @@ const RequirePGManager = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
+// Warden protection component
+const RequireWarden = ({ children }: { children: ReactNode }) => {
+  const { currentUser } = useAuth();
+  const location = useLocation();
+
+  if (!currentUser || currentUser.role !== UserRole.ADMIN || currentUser.adminSubRole !== AdminSubRole.WARDEN) {
+    return <Navigate to="/role-selection" state={{ from: location }} replace />;
+  }
+
+  return <>{children}</>;
+};
+
 const AppRoutes = () => (
   <BrowserRouter>
     <CapacitorBackHandler />
@@ -140,6 +153,48 @@ const AppRoutes = () => (
           <Reports />
         </RequirePGManager>
       } />
+
+      {/* Warden Routes */}
+      <Route
+        path="/warden"
+        element={
+          <RequireWarden>
+            <Warden />
+          </RequireWarden>
+        }
+      />
+      <Route
+        path="/warden/assets"
+        element={
+          <RequireWarden>
+            <Warden />
+          </RequireWarden>
+        }
+      />
+      <Route
+        path="/warden/requests"
+        element={
+          <RequireWarden>
+            <Warden />
+          </RequireWarden>
+        }
+      />
+      <Route
+        path="/warden/maintenance"
+        element={
+          <RequireWarden>
+            <Warden />
+          </RequireWarden>
+        }
+      />
+      <Route
+        path="/warden/notifications"
+        element={
+          <RequireWarden>
+            <Warden />
+          </RequireWarden>
+        }
+      />
 
       {/* Guest Routes */}
       <Route path="/guest" element={

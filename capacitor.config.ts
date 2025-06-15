@@ -8,20 +8,28 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     iosScheme: 'https',
     allowNavigation: ['*'],
-    cleartext: true
+    cleartext: true,
+    hostname: 'localhost'
   },
   android: {
     allowMixedContent: true,
     captureInput: true,
     webContentsDebuggingEnabled: true,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    hideLogs: false,
+    allowBackForwardNavigationGestures: true,
+    initialFocus: true,
+    useLegacyBridge: false
   },
   ios: {
     allowsLinkPreview: true,
     scrollEnabled: true,
     contentInset: 'automatic',
     allowsBackForwardNavigationGestures: true,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    hideLogs: false,
+    limitsNavigationsToAppBoundDomains: true,
+    preferredContentMode: 'mobile'
   },
   plugins: {
     Keyboard: {
@@ -30,14 +38,19 @@ const config: CapacitorConfig = {
       resizeOnFullScreen: true,
       keyboardAppearance: 'light',
       clearInputs: false,
-      scrollAssist: false,
+      scrollAssist: true,
       hideKeyboardAccessoryBar: false
     },
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: "#ffffff",
       splashFullScreen: true,
-      splashImmersive: true
+      splashImmersive: true,
+      showSpinner: true,
+      spinnerColor: "#999999"
+    },
+    App: {
+      backButtonBehavior: "history"
     }
   }
 };

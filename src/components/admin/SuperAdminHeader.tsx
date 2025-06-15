@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Shield, Send } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SuperAdminSidebar from "./SuperAdminSidebar";
+import { useEffect, useState } from "react";
 
 interface SuperAdminHeaderProps {
   activeTab: string;
@@ -9,6 +10,14 @@ interface SuperAdminHeaderProps {
 }
 
 const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const tabs = [
     { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview" },
     { id: "subscriptions", label: "Subscription Management", icon: "💳", shortLabel: "Subs" },
@@ -19,9 +28,17 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
     { id: "activity", label: "Live Activity", icon: "⚡", shortLabel: "Activity" }
   ];
 
+  // Only show the most important tabs on mobile
+  const mobileTabs = [
+    { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview" },
+    { id: "revenue", label: "Revenue", icon: "💰", shortLabel: "Revenue" },
+    { id: "admins", label: "PG Admin Management", icon: "👥", shortLabel: "Admins" },
+    { id: "activity", label: "Live Activity", icon: "⚡", shortLabel: "Activity" }
+  ];
+
   return (
     <>
-      {/* Header Bar */}
+      {/* Header Bar (always visible) */}
       <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6">
           <div className="flex items-center justify-between gap-4">
@@ -54,8 +71,8 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 pb-2">
         <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Super Admin Dashboard</h2>
       </div>
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2">
+      {/* Desktop Tabs */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2 hidden sm:block">
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-7 h-16 bg-slate-100 p-1 gap-2">
             {tabs.map((tab) => (
@@ -74,6 +91,23 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
           </TabsList>
         </Tabs>
       </div>
+      {/* Mobile Bottom Navigation */}
+      <nav className="sm:hidden bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 pb-safe z-30">
+        <div className="flex justify-around">
+          {mobileTabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`flex flex-col items-center py-3 px-3 flex-1 transition-colors ${
+                activeTab === tab.id ? "text-indigo-600" : "text-gray-500 hover:text-indigo-400"
+              }`}
+              onClick={() => onTabChange(tab.id)}
+            >
+              <span className={typeof tab.icon === 'string' ? 'text-2xl' : ''}>{tab.icon}</span>
+              <span className="text-xs mt-1">{tab.shortLabel}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </>
   );
 };

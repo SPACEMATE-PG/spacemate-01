@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,8 +8,31 @@ import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/components/ui/use-toast";
 import MealCard from "@/components/guest/MealCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { Utensils, Coffee, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { Utensils, Coffee, Calendar as CalendarIcon, ChevronLeft, ChevronRight, Clock, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+const StarRating = ({ value, onChange, size = 24, readOnly = false }: { value: number, onChange?: (v: number) => void, size?: number, readOnly?: boolean }) => (
+  <div className="flex gap-1">
+    {[1,2,3,4,5].map((star) => (
+      <button
+        key={star}
+        type="button"
+        disabled={readOnly}
+        onClick={() => !readOnly && onChange && onChange(star)}
+        className="focus:outline-none"
+        aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+      >
+        <Star
+          size={size}
+          className={star <= value ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}
+          strokeWidth={1.5}
+          fill={star <= value ? "#facc15" : "none"}
+        />
+      </button>
+    ))}
+  </div>
+);
 
 const GuestMeals = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -72,6 +94,22 @@ const GuestMeals = () => {
     return response ? response.response as "yes" | "no" : null;
   };
 
+  const [feedbackModal, setFeedbackModal] = useState<{ open: boolean, mealId: string | null }>({ open: false, mealId: null });
+  const [feedbacks, setFeedbacks] = useState<{ [mealId: string]: { rating: number, comment: string } }>({});
+  const [feedbackDraft, setFeedbackDraft] = useState<{ rating: number, comment: string }>({ rating: 0, comment: "" });
+
+  const openFeedback = (mealId: string) => {
+    setFeedbackDraft(feedbacks[mealId] || { rating: 0, comment: "" });
+    setFeedbackModal({ open: true, mealId });
+  };
+  const closeFeedback = () => setFeedbackModal({ open: false, mealId: null });
+  const submitFeedback = () => {
+    if (!feedbackModal.mealId) return;
+    setFeedbacks(prev => ({ ...prev, [feedbackModal.mealId!]: feedbackDraft }));
+    toast({ title: "Feedback Submitted", description: "Thank you for your feedback!" });
+    closeFeedback();
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
@@ -116,14 +154,64 @@ const GuestMeals = () => {
           
           {todaysMeals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {todaysMeals.map(meal => (
-                <MealCard
-                  key={meal.id}
-                  meal={meal}
-                  attendance={getUserResponse(meal.id)}
-                  onRespond={handleMealResponse}
-                />
-              ))}
+              {todaysMeals.map(meal => {
+                const feedback = feedbacks[meal.id];
+                return (
+                  <Card key={meal.id} className="overflow-hidden border border-hostel-primary/20">
+                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-hostel-primary/10 to-hostel-secondary/10">
+                      <div className="flex items-center gap-2">
+                        {meal.mealType === "breakfast" && <Coffee className="h-5 w-5 text-amber-500" />}
+                        {meal.mealType === "lunch" && <Utensils className="h-5 w-5 text-green-600" />}
+                        {meal.mealType === "dinner" && <Utensils className="h-5 w-5 text-purple-600" />}
+                        <span className="font-semibold capitalize">{meal.mealType}</span>
+                      </div>
+                      <span className="text-xs text-gray-500">{meal.isActive ? "Active" : "Inactive"}</span>
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="text-xs text-gray-500">{format(new Date(meal.date), "EEEE, MMM d")}</div>
+                        <div className="text-xs text-gray-500">{meal.mealType === "breakfast" ? "7:30-9:30" : meal.mealType === "lunch" ? "12:30-2:30" : "7:30-9:30"} AM/PM</div>
+                      </div>
+                      <div className="mb-2">
+                        <span className="font-medium text-sm">Menu: </span>
+                        <span className="text-sm text-gray-700">{meal.menu}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs text-gray-500">Your Feedback:</span>
+                        {feedback ? (
+                          <StarRating value={feedback.rating} readOnly />
+                        ) : (
+                          <span className="text-xs text-gray-400">No feedback yet</span>
+                        )}
+                        <Button size="sm" variant="outline" className="ml-auto" onClick={() => openFeedback(meal.id)}>
+                          {feedback ? "Edit" : "Give"} Feedback
+                        </Button>
+                      </div>
+                      {feedback && feedback.comment && (
+                        <div className="text-xs text-gray-500 italic">"{feedback.comment}"</div>
+                      )}
+                      <div className="flex gap-2 mt-2">
+                        <Button
+                          variant={getUserResponse(meal.id) === "yes" ? "default" : "outline"}
+                          size="sm"
+                          className={cn("flex-1", getUserResponse(meal.id) === "yes" ? "bg-green-600" : "")}
+                          onClick={() => handleMealResponse(meal.id, "yes")}
+                        >
+                          I'll attend
+                        </Button>
+                        <Button
+                          variant={getUserResponse(meal.id) === "no" ? "default" : "outline"}
+                          size="sm"
+                          className={cn("flex-1", getUserResponse(meal.id) === "no" ? "bg-red-600" : "")}
+                          onClick={() => handleMealResponse(meal.id, "no")}
+                        >
+                          Skip this meal
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           ) : (
             <Card className="bg-gray-50 border-dashed">
@@ -417,6 +505,32 @@ const GuestMeals = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Feedback Modal */}
+      <Dialog open={feedbackModal.open} onOpenChange={closeFeedback}>
+        <DialogContent className="max-w-xs w-full mx-auto">
+          <DialogHeader>
+            <DialogTitle>Meal Feedback</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-3 py-2">
+            <StarRating value={feedbackDraft.rating} onChange={r => setFeedbackDraft(d => ({ ...d, rating: r }))} />
+            <textarea
+              className="w-full border rounded-md p-2 text-sm"
+              rows={3}
+              placeholder="Add a comment (optional)"
+              value={feedbackDraft.comment}
+              onChange={e => setFeedbackDraft(d => ({ ...d, comment: e.target.value }))}
+            />
+            <Button
+              className="w-full bg-hostel-primary mt-2"
+              disabled={feedbackDraft.rating === 0}
+              onClick={submitFeedback}
+            >
+              Submit Feedback
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

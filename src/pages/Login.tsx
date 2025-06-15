@@ -68,7 +68,7 @@ const Login = () => {
             title: "Login successful",
             description: "Welcome back, Warden!",
           });
-          navigate("/admin", { replace: true });
+          navigate("/warden", { replace: true });
         }
       } else {
         await login(email, password, userRole);
