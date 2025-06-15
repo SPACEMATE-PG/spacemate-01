@@ -12,7 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import PGAdminLayout from "@/components/admin/PGAdminLayout";
 
 // Mock data - replace with actual API call
 const mockGuests = [
@@ -68,96 +67,108 @@ const GuestsList = () => {
   );
 
   return (
-    <PGAdminLayout>
-      <div className="space-y-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Guest List</CardTitle>
-            <Button
-              onClick={handleAddGuest}
-              className="bg-hostel-primary hover:bg-hostel-secondary"
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              Add Guest
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search guests..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </div>
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Room</TableHead>
-                    <TableHead>Room Type</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Move-in Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredGuests.map((guest) => (
-                    <TableRow key={guest.id}>
-                      <TableCell className="font-medium">{guest.name}</TableCell>
-                      <TableCell>{guest.room}</TableCell>
-                      <TableCell>{guest.roomType}</TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="text-sm">{guest.phone}</div>
-                          <div className="text-sm text-gray-500">{guest.email}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={guest.status === "active" ? "default" : "secondary"}
-                          className="bg-green-100 text-green-800"
-                        >
-                          {guest.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{guest.moveInDate}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditGuest(guest.id)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleDeleteGuest(guest.id)}
-                              className="text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-6 p-4 sm:p-6">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-2xl font-bold text-gray-900">Guest Management</h1>
       </div>
-    </PGAdminLayout>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Guest List</CardTitle>
+          <Button
+            onClick={handleAddGuest}
+            className="bg-hostel-primary hover:bg-hostel-secondary"
+          >
+            <UserPlus className="h-4 w-4 mr-2" />
+            Add Guest
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search guests..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Room</TableHead>
+                  <TableHead>Room Type</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Move-in Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredGuests.map((guest) => (
+                  <TableRow key={guest.id}>
+                    <TableCell className="font-medium">{guest.name}</TableCell>
+                    <TableCell>{guest.room}</TableCell>
+                    <TableCell>{guest.roomType}</TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <div className="text-sm">{guest.phone}</div>
+                        <div className="text-sm text-gray-500">{guest.email}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={guest.status === "active" ? "default" : "secondary"}
+                        className="bg-green-100 text-green-800"
+                      >
+                        {guest.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{guest.moveInDate}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEditGuest(guest.id)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteGuest(guest.id)}
+                            className="text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

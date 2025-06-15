@@ -30,7 +30,6 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import PGAdminLayout from "@/components/admin/PGAdminLayout";
 
 // Mock data - replace with actual API data
 const mockNotifications = [
@@ -107,108 +106,108 @@ const Notifications = () => {
   };
 
   return (
-    <PGAdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleBack}
-            className="hover:bg-gray-100"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
-        </div>
+    <div className="space-y-6 p-4 sm:p-6">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+      </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="unread">Unread</TabsTrigger>
-            <TabsTrigger value="payment">Payments</TabsTrigger>
-            <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="unread">Unread</TabsTrigger>
+          <TabsTrigger value="payment">Payments</TabsTrigger>
+          <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
-            <div className="flex justify-between items-center">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search notifications..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-              <Button
-                onClick={handleNewNotification}
-                className="bg-hostel-primary hover:bg-hostel-secondary"
-              >
-                <Bell className="h-4 w-4 mr-2" />
-                New Notification
-              </Button>
+        <TabsContent value="all" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+              <Input
+                placeholder="Search notifications..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
+              />
             </div>
+            <Button
+              onClick={handleNewNotification}
+              className="bg-hostel-primary hover:bg-hostel-secondary"
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              New Notification
+            </Button>
+          </div>
 
-            <div className="space-y-4">
-              {mockNotifications.map((notification) => (
-                <Card key={notification.id}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1">
-                          {getTypeIcon(notification.type)}
-                        </div>
-                        <div>
-                          <h3 className="font-medium">{notification.title}</h3>
-                          <p className="text-sm text-gray-500">{notification.message}</p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <span className="text-xs text-gray-500">{notification.date}</span>
-                            <span className="text-xs text-gray-500">•</span>
-                            <span className="text-xs text-gray-500">{notification.recipient}</span>
-                          </div>
-                        </div>
+          <div className="space-y-4">
+            {mockNotifications.map((notification) => (
+              <Card key={notification.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1">
+                        {getTypeIcon(notification.type)}
                       </div>
-                      <div className="flex items-center gap-2">
-                        {getPriorityBadge(notification.priority)}
-                        {notification.status === "unread" && (
-                          <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                            New
-                          </Badge>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                        >
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-red-500 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                      <div>
+                        <h3 className="font-medium">{notification.title}</h3>
+                        <p className="text-sm text-gray-500">{notification.message}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="text-xs text-gray-500">{notification.date}</span>
+                          <span className="text-xs text-gray-500">•</span>
+                          <span className="text-xs text-gray-500">{notification.recipient}</span>
+                        </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+                    <div className="flex items-center gap-2">
+                      {getPriorityBadge(notification.priority)}
+                      {notification.status === "unread" && (
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                          New
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-500 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
 
-          <TabsContent value="unread" className="space-y-4">
-            {/* Similar structure as "all" tab but filtered for unread notifications */}
-          </TabsContent>
+        <TabsContent value="unread" className="space-y-4">
+          {/* Similar structure as "all" tab but filtered for unread notifications */}
+        </TabsContent>
 
-          <TabsContent value="payment" className="space-y-4">
-            {/* Similar structure as "all" tab but filtered for payment notifications */}
-          </TabsContent>
+        <TabsContent value="payment" className="space-y-4">
+          {/* Similar structure as "all" tab but filtered for payment notifications */}
+        </TabsContent>
 
-          <TabsContent value="maintenance" className="space-y-4">
-            {/* Similar structure as "all" tab but filtered for maintenance notifications */}
-          </TabsContent>
-        </Tabs>
+        <TabsContent value="maintenance" className="space-y-4">
+          {/* Similar structure as "all" tab but filtered for maintenance notifications */}
+        </TabsContent>
+      </Tabs>
 
         {/* New Notification Dialog */}
         <Dialog open={showNewNotification} onOpenChange={setShowNewNotification}>
@@ -286,6 +285,78 @@ const Notifications = () => {
         </Dialog>
       </div>
     </PGAdminLayout>
+      {/* New Notification Dialog */}
+      <Dialog open={showNewNotification} onOpenChange={setShowNewNotification}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Notification</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Notification Type</label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="payment">Payment</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Title</label>
+              <Input placeholder="Enter notification title" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Message</label>
+              <Input placeholder="Enter notification message" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Priority</label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Recipients</label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select recipients" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  <SelectItem value="staff">Staff Only</SelectItem>
+                  <SelectItem value="guests">Guests Only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowNewNotification(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-hostel-primary hover:bg-hostel-secondary"
+                onClick={() => setShowNewNotification(false)}
+              >
+                Send Notification
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 
