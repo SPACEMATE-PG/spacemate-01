@@ -1,5 +1,6 @@
+
 import { Badge } from "@/components/ui/badge";
-import { Shield, Send } from "lucide-react";
+import { Shield } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SuperAdminSidebar from "./SuperAdminSidebar";
 
@@ -10,13 +11,13 @@ interface SuperAdminHeaderProps {
 
 const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => {
   const tabs = [
-    { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview" },
-    { id: "subscriptions", label: "Subscription Management", icon: "💳", shortLabel: "Subs" },
-    { id: "revenue", label: "Revenue", icon: "💰", shortLabel: "Revenue" },
-    { id: "analytics", label: "Data Analytics", icon: "📈", shortLabel: "Analytics" },
-    { id: "admins", label: "PG Admin Management", icon: "👥", shortLabel: "Admins" },
-    { id: "bulk-ops", label: "Admin Operations", icon: <Send className="h-6 w-6" />, shortLabel: "Admin Ops" },
-    { id: "activity", label: "Live Activity", icon: "⚡", shortLabel: "Activity" }
+    { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview", gradient: "from-blue-500 to-indigo-600" },
+    { id: "subscriptions", label: "Subscription Management", icon: "💳", shortLabel: "Subs", gradient: "from-green-500 to-emerald-600" },
+    { id: "revenue", label: "Revenue", icon: "💰", shortLabel: "Revenue", gradient: "from-yellow-500 to-amber-600" },
+    { id: "analytics", label: "Data Analytics", icon: "📈", shortLabel: "Analytics", gradient: "from-purple-500 to-violet-600" },
+    { id: "admins", label: "PG Admin Management", icon: "👥", shortLabel: "Admins", gradient: "from-cyan-500 to-blue-600" },
+    { id: "bulk-ops", label: "Admin Operations", icon: "⚙️", shortLabel: "Admin Ops", gradient: "from-orange-500 to-red-600" },
+    { id: "activity", label: "Live Activity", icon: "⚡", shortLabel: "Activity", gradient: "from-pink-500 to-rose-600" }
   ];
 
   return (
@@ -35,7 +36,7 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
                   Space Mate
                 </h1>
                 <p className="text-slate-600 text-xs sm:text-sm mt-1">
-                  Subscription & Revenue Management Portal
+                  Super Admin Dashboard
                 </p>
               </div>
               <Badge variant="outline" className="ml-4 bg-green-50 text-green-700 border-green-200 px-3 py-1 text-xs flex items-center">
@@ -50,25 +51,46 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
           </div>
         </div>
       </div>
-      {/* Large Page Title */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 pb-2">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Super Admin Dashboard</h2>
+
+      {/* Image Navigation - Desktop Only */}
+      <div className="hidden lg:block max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4">
+        <div className="grid grid-cols-7 gap-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`group relative overflow-hidden rounded-2xl transition-all duration-300 ${
+                activeTab === tab.id 
+                  ? 'ring-4 ring-indigo-200 scale-105 shadow-xl' 
+                  : 'hover:scale-102 hover:shadow-lg'
+              }`}
+            >
+              <div className={`bg-gradient-to-br ${tab.gradient} p-6 text-center`}>
+                <div className="text-4xl mb-2">{tab.icon}</div>
+                <h3 className="text-white font-semibold text-sm">{tab.label}</h3>
+              </div>
+              <div className={`absolute inset-0 bg-black transition-opacity duration-300 ${
+                activeTab === tab.id ? 'opacity-0' : 'opacity-0 group-hover:opacity-10'
+              }`} />
+            </button>
+          ))}
+        </div>
       </div>
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2">
+
+      {/* Tabs - Mobile/Tablet Only */}
+      <div className="lg:hidden max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2">
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-7 h-16 bg-slate-100 p-1 gap-2">
-            {tabs.map((tab) => (
+          <TabsList className="grid w-full grid-cols-4 h-16 bg-slate-100 p-1 gap-1">
+            {tabs.slice(0, 4).map((tab) => (
               <TabsTrigger 
                 key={tab.id} 
                 value={tab.id}
-                className="flex flex-col items-center justify-center gap-2 text-xs lg:text-sm font-medium data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 data-[state=active]:shadow-lg data-[state=active]:scale-110 transition-all px-1 lg:px-3 h-full"
+                className="flex flex-col items-center justify-center gap-1 text-xs font-medium data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 data-[state=active]:shadow-lg transition-all px-1 h-full"
               >
-                <span className={typeof tab.icon === 'string' ? 'text-2xl' : ''}>
-                  {tab.icon}
-                </span>
-                <span className="hidden sm:inline lg:hidden">{tab.shortLabel}</span>
-                <span className="hidden lg:inline">{tab.label}</span>
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-r ${tab.gradient} flex items-center justify-center`}>
+                  <span className="text-white text-lg">{tab.icon}</span>
+                </div>
+                <span className="hidden sm:inline">{tab.shortLabel}</span>
               </TabsTrigger>
             ))}
           </TabsList>
