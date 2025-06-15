@@ -1,6 +1,8 @@
+
 import { Badge } from "@/components/ui/badge";
-import { Shield, Send } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Shield, RefreshCw, Bell, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import SuperAdminSidebar from "./SuperAdminSidebar";
 import { useEffect, useState } from "react";
 
@@ -10,14 +12,6 @@ interface SuperAdminHeaderProps {
 }
 
 const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const tabs = [
     { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview" },
     { id: "subscriptions", label: "Subscription Management", icon: "💳", shortLabel: "Subs" },
@@ -28,17 +22,9 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
     { id: "activity", label: "Live Activity", icon: "⚡", shortLabel: "Activity" }
   ];
 
-  // Only show the most important tabs on mobile
-  const mobileTabs = [
-    { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview" },
-    { id: "revenue", label: "Revenue", icon: "💰", shortLabel: "Revenue" },
-    { id: "admins", label: "PG Admin Management", icon: "👥", shortLabel: "Admins" },
-    { id: "activity", label: "Live Activity", icon: "⚡", shortLabel: "Activity" }
-  ];
-
   return (
     <>
-      {/* Header Bar (always visible) */}
+      {/* Header Bar */}
       <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6">
           <div className="flex items-center justify-between gap-4">
@@ -59,11 +45,45 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
                 <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                 Online
               </Badge>
+              <Badge variant="outline" className="bg-blue-50/80 text-blue-700 border-blue-200 px-3 py-1.5 text-xs animate-fade-in">
+                v2.1.0
+              </Badge>
             </div>
-            {/* Menu Button on the right */}
-            <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
-              <SuperAdminSidebar onTabChange={onTabChange} activeTab={activeTab} />
+          </div>
+
+          {/* Search and Actions */}
+          <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+            <div className="hidden md:block relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search..."
+                className="pl-10 w-64 bg-white/70 border-gray-200/50 focus:bg-white transition-all duration-200"
+              />
             </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative hover:bg-indigo-50 transition-all duration-200"
+              onClick={() => onTabChange("activity")}
+            >
+              <Bell className="h-5 w-5 text-gray-600" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-xs text-white font-bold">3</span>
+              </div>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="hover:bg-indigo-50 transition-all duration-200"
+            >
+              <RefreshCw className={`h-5 w-5 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+
+            <SuperAdminSidebar onTabChange={onTabChange} activeTab={activeTab} />
           </div>
         </div>
       </div>
@@ -71,8 +91,8 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 pb-2">
         <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Super Admin Dashboard</h2>
       </div>
-      {/* Desktop Tabs */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2 hidden sm:block">
+      {/* Tabs */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2">
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-7 h-16 bg-slate-100 p-1 gap-2">
             {tabs.map((tab) => (
@@ -91,23 +111,6 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
           </TabsList>
         </Tabs>
       </div>
-      {/* Mobile Bottom Navigation */}
-      <nav className="sm:hidden bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 pb-safe z-30">
-        <div className="flex justify-around">
-          {mobileTabs.map((tab) => (
-            <button
-              key={tab.id}
-              className={`flex flex-col items-center py-3 px-3 flex-1 transition-colors ${
-                activeTab === tab.id ? "text-indigo-600" : "text-gray-500 hover:text-indigo-400"
-              }`}
-              onClick={() => onTabChange(tab.id)}
-            >
-              <span className={typeof tab.icon === 'string' ? 'text-2xl' : ''}>{tab.icon}</span>
-              <span className="text-xs mt-1">{tab.shortLabel}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
     </>
   );
 };
