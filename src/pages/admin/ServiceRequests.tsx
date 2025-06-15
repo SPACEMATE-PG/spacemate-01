@@ -29,6 +29,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import PGAdminLayout from "@/components/admin/PGAdminLayout";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Mock data - replace with actual API data
 const mockRequests = [
@@ -127,6 +133,18 @@ const ServiceRequests = () => {
   return (
     <PGAdminLayout>
       <div className="space-y-6">
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBack}
+            className="hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-2xl font-bold text-gray-900">Service Requests</h1>
+        </div>
+
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="flex flex-1 gap-4">
             <div className="relative flex-1 max-w-sm">

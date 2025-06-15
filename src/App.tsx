@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import RequireAuth from "./components/RequireAuth";
 import Layout from "./components/Layout";
+import PGAdminLayout from "./components/admin/PGAdminLayout";
 
 // Admin pages
 import SuperAdmin from "./pages/admin/SuperAdmin";
@@ -105,41 +106,17 @@ const AppRoutes = () => (
       } />
 
       {/* PG Manager Routes */}
-      <Route path="/pg-admin" element={
-        <RequirePGManager>
-          <PGManager />
-        </RequirePGManager>
-      } />
-      <Route path="/pg-admin/guests" element={
-        <RequirePGManager><GuestsList /></RequirePGManager>
-      } />
-      <Route path="/pg-admin/guests/add" element={
-        <RequirePGManager><AddGuest /></RequirePGManager>
-      } />
-      <Route path="/pg-admin/guests/requests" element={
-        <RequirePGManager><JoiningRequests /></RequirePGManager>
-      } />
-      <Route path="/pg-admin/rooms" element={
-        <RequirePGManager><RoomManagement /></RequirePGManager>
-      } />
-      <Route path="/pg-admin/requests" element={
-        <RequirePGManager><ServiceRequests /></RequirePGManager>
-      } />
-      <Route path="/pg-admin/financial" element={
-        <RequirePGManager>
-          <FinancialManagement />
-        </RequirePGManager>
-      } />
-      <Route path="/pg-admin/notifications" element={
-        <RequirePGManager>
-          <Notifications />
-        </RequirePGManager>
-      } />
-      <Route path="/pg-admin/reports" element={
-        <RequirePGManager>
-          <Reports />
-        </RequirePGManager>
-      } />
+      <Route path="/pg-admin" element={<RequirePGManager><PGAdminLayout /></RequirePGManager>}>
+        <Route index element={<PGManager />} />
+        <Route path="residents" element={<GuestsList />} />
+        <Route path="residents/add" element={<AddGuest />} />
+        <Route path="residents/requests" element={<JoiningRequests />} />
+        <Route path="rooms" element={<RoomManagement />} />
+        <Route path="requests" element={<ServiceRequests />} />
+        <Route path="payments" element={<FinancialManagement />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="reports" element={<Reports />} />
+      </Route>
 
       {/* Guest Routes */}
       <Route path="/guest" element={

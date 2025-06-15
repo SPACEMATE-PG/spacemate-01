@@ -25,7 +25,10 @@ import {
   Utensils,
   Settings,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  CheckCircle,
+  XCircle,
+  FileText
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -186,7 +189,7 @@ const PGManager = () => {
   const handleRequestAction = (type: string, id: string, action: string) => {
     switch (action) {
       case "view":
-        navigate(`/pg-admin/${type}/${id}`);
+        navigate(`/pg-admin/${type === "joining" ? "residents/requests" : "requests"}`);
         break;
       case "approve":
         toast({
@@ -202,6 +205,19 @@ const PGManager = () => {
         break;
       default:
         break;
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Pending</Badge>;
+      case "in-progress":
+        return <Badge variant="secondary" className="bg-blue-100 text-blue-800">In Progress</Badge>;
+      case "completed":
+        return <Badge variant="secondary" className="bg-green-100 text-green-800">Completed</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
@@ -229,11 +245,11 @@ const PGManager = () => {
                 ) : (
                   <ToggleLeft className="h-5 w-5 text-red-500" />
                 )}
-              <Switch
+                <Switch
                   checked={isPGAvailable}
                   onCheckedChange={handlePGAvailability}
-                className="data-[state=checked]:bg-green-500"
-              />
+                  className="data-[state=checked]:bg-green-500"
+                />
               </div>
             </div>
 
@@ -377,175 +393,197 @@ const PGManager = () => {
           </Card>
         </div>
 
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="flex items-center text-lg">
-                    <Users className="h-5 w-5 mr-2 text-indigo-600" />
-                    Recent Joining Requests
-                  </CardTitle>
-                  <CardDescription>New guest applications</CardDescription>
-                  </div>
-                  <Button 
-                  variant="ghost" 
-                    size="sm" 
-                  className="text-sm flex items-center gap-1"
-                  onClick={() => navigate("/pg-admin/guests/requests")}
-                  >
-                  View All <ArrowUpRight size={14} />
-                  </Button>
-              </div>
-              </CardHeader>
-              <CardContent>
-              <div className="space-y-4">
-                {mockData.joiningRequests.map((request) => (
-                  <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-medium">{request.name}</h3>
-                      <p className="text-sm text-gray-500">{request.roomType}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                      <Badge variant={request.status === "pending" ? "secondary" : "default"} className="ml-2">
-                        {request.status}
-                            </Badge>
+        {/* Quick Links / Navigation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+          {/* Guests Card */}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate("/pg-admin/residents")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Guests</CardTitle>
+              <Users className="h-6 w-6 text-indigo-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">Manage all resident profiles</p>
+            </CardContent>
+          </Card>
+
+          {/* Rooms Card */}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate("/pg-admin/rooms")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Rooms</CardTitle>
+              <Building className="h-6 w-6 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">View and assign rooms</p>
+            </CardContent>
+          </Card>
+
+          {/* Requests Card */}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate("/pg-admin/requests")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Requests</CardTitle>
+              <ClipboardList className="h-6 w-6 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">Handle service & joining requests</p>
+            </CardContent>
+          </Card>
+
+          {/* Financial Card */}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate("/pg-admin/payments")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Financial</CardTitle>
+              <IndianRupee className="h-6 w-6 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">Manage payments & expenses</p>
+            </CardContent>
+          </Card>
+
+          {/* Notifications Card */}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate("/pg-admin/notifications")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Notifications</CardTitle>
+              <Bell className="h-6 w-6 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">View alerts & announcements</p>
+            </CardContent>
+          </Card>
+
+          {/* Reports Card (New) */}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => navigate("/pg-admin/reports")}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-lg font-semibold">Reports</CardTitle>
+              <FileText className="h-6 w-6 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-500">Generate financial & occupancy reports</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Pending Requests Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Joining Requests</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/pg-admin/residents/requests")}
+              >
+                View All <ArrowUpRight className="h-4 w-4 ml-1" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {mockData.joiningRequests.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No pending joining requests.</p>
+              ) : (
+                <div className="space-y-4">
+                  {mockData.joiningRequests.slice(0, 3).map((request) => (
+                    <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+                      <div>
+                        <h3 className="font-medium">{request.name}</h3>
+                        <p className="text-sm text-gray-500">{request.roomType} - Move-in: {request.moveInDate}</p>
+                      </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "view")}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                            <Eye className="h-4 w-4 mr-2" /> View Details
                           </DropdownMenuItem>
-                          {request.status === "pending" && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "approve")}>
-                                <Shield className="mr-2 h-4 w-4" />
-                                Approve
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "reject")}>
-                                <X className="mr-2 h-4 w-4" />
-                            Reject
-                              </DropdownMenuItem>
-                            </>
-                          )}
+                          <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "approve")}>
+                            <CheckCircle className="h-4 w-4 mr-2" /> Approve
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleRequestAction("joining", request.id, "reject")}>
+                            <XCircle className="h-4 w-4 mr-2" /> Reject
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              )}
+            </CardContent>
+          </Card>
 
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="flex items-center text-lg">
-                    <ClipboardList className="h-5 w-5 mr-2 text-yellow-600" />
-                    Service Requests
-                  </CardTitle>
-                  <CardDescription>Maintenance and services</CardDescription>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Service Requests</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/pg-admin/requests")}
+              >
+                View All <ArrowUpRight className="h-4 w-4 ml-1" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {mockData.serviceRequests.length === 0 ? (
+                <p className="text-gray-500 text-center py-4">No pending service requests.</p>
+              ) : (
+                <div className="space-y-4">
+                  {mockData.serviceRequests.slice(0, 3).map((request) => (
+                    <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+                      <div>
+                        <h3 className="font-medium">{request.description}</h3>
+                        <p className="text-sm text-gray-500">Room: {request.roomNumber} - Priority: {request.priority}</p>
                       </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-sm flex items-center gap-1"
-                  onClick={() => navigate("/pg-admin/requests")}
-                >
-                  View All <ArrowUpRight size={14} />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                {mockData.serviceRequests.map((request) => (
-                  <div key={request.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h3 className="font-medium">{request.type}</h3>
-                      <p className="text-sm text-gray-500">Room {request.roomNumber} • {request.requestedBy} requests</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge 
-                        variant={request.status === "pending" ? "secondary" : "default"}
-                        className={cn(
-                          "ml-2",
-                          request.priority === "high" && "bg-red-100 text-red-700"
-                        )}
-                      >
-                        {request.status}
-                      </Badge>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button variant="ghost" size="icon">
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => handleRequestAction("service", request.id, "view")}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                            <Eye className="h-4 w-4 mr-2" /> View Details
                           </DropdownMenuItem>
-                          {request.status === "pending" && (
-                            <>
-                              <DropdownMenuItem onClick={() => handleRequestAction("service", request.id, "approve")}>
-                                <Shield className="mr-2 h-4 w-4" />
-                                Approve
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleRequestAction("service", request.id, "reject")}>
-                                <X className="mr-2 h-4 w-4" />
-                                Reject
-                              </DropdownMenuItem>
-                            </>
-                          )}
+                          <DropdownMenuItem onClick={() => handleRequestAction("service", request.id, "approve")}>
+                            <CheckCircle className="h-4 w-4 mr-2" /> Mark Completed
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Activity / Announcements Section (Optional, can be expanded) */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Messages</CardTitle>
+            <Button variant="outline" size="sm" onClick={() => navigate("/pg-admin/notifications")}>
+              View All <ArrowUpRight className="h-4 w-4 ml-1" />
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {mockData.messages.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No recent messages.</p>
+            ) : (
+              <div className="space-y-3">
+                {mockData.messages.map((message) => (
+                  <div key={message.id} className="flex items-center space-x-3">
+                    <MessageSquare className="h-5 w-5 text-gray-500" />
+                    <div className="flex-1">
+                      <p className="font-medium">{message.from}</p>
+                      <p className="text-sm text-gray-700">{message.message}</p>
+                      <p className="text-xs text-gray-500">{message.timestamp}</p>
+                    </div>
+                    {message.status === "unread" && <Badge className="bg-blue-100 text-blue-800">New</Badge>}
                   </div>
                 ))}
-                  </div>
-                </CardContent>
-              </Card>
-                        </div>
-                        
-        {/* Quick Actions */}
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-900">Quick Actions</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <Button 
-              variant="outline" 
-              className="h-auto py-6 flex flex-col items-center space-y-3 hover:bg-hostel-accent hover:text-hostel-primary transition-all duration-200 border-2 border-gray-100 hover:border-hostel-primary/20"
-              onClick={() => navigate("/pg-admin/guests/add")}
-            >
-              <div className="bg-hostel-muted w-12 h-12 rounded-full flex items-center justify-center">
-                <Users className="h-6 w-6 text-hostel-primary" />
               </div>
-              <div className="text-center">
-                <span className="text-sm font-medium block">Add Guest</span>
-                <span className="text-xs text-gray-500 mt-1 block">Register new guest</span>
-              </div>
-                                </Button>
-                                <Button 
-                                  variant="outline"
-              className="h-auto py-6 flex flex-col items-center space-y-3 hover:bg-hostel-accent hover:text-hostel-primary transition-all duration-200 border-2 border-gray-100 hover:border-hostel-primary/20"
-              onClick={() => navigate("/pg-admin/pg-management")}
-            >
-              <div className="bg-hostel-muted w-12 h-12 rounded-full flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-hostel-primary" />
-                              </div>
-              <div className="text-center">
-                <span className="text-sm font-medium block">Manage PG</span>
-                <span className="text-xs text-gray-500 mt-1 block">Update PG details & facilities</span>
-                </div>
-                    </Button>
-                  </div>
-                </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
