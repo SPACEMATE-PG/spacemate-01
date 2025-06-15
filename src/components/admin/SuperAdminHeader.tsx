@@ -4,45 +4,35 @@ import { Button } from "@/components/ui/button";
 import { Shield, RefreshCw, Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SuperAdminSidebar from "./SuperAdminSidebar";
-import { useEffect, useState } from "react";
 
 interface SuperAdminHeaderProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
-const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => {
-  const tabs = [
-    { id: "overview", label: "Overview", icon: "📊", shortLabel: "Overview" },
-    { id: "subscriptions", label: "Subscription Management", icon: "💳", shortLabel: "Subs" },
-    { id: "revenue", label: "Revenue", icon: "💰", shortLabel: "Revenue" },
-    { id: "analytics", label: "Data Analytics", icon: "📈", shortLabel: "Analytics" },
-    { id: "admins", label: "PG Admin Management", icon: "👥", shortLabel: "Admins" },
-    { id: "bulk-ops", label: "Admin Operations", icon: <Send className="h-6 w-6" />, shortLabel: "Admin Ops" },
-    { id: "activity", label: "Live Activity", icon: "⚡", shortLabel: "Activity" }
-  ];
-
+const SuperAdminHeader = ({ activeTab, onTabChange, onRefresh, isRefreshing }: SuperAdminHeaderProps) => {
   return (
-    <>
-      {/* Header Bar */}
-      <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6">
-          <div className="flex items-center justify-between gap-4">
-            {/* Logo and Title */}
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg flex-shrink-0">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
-              <div className="min-w-0">
-                <h1 className="text-2xl font-bold text-slate-900 bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">
-                  Space Mate
-                </h1>
-                <p className="text-slate-600 text-xs sm:text-sm mt-1">
-                  Subscription & Revenue Management Portal
-                </p>
-              </div>
-              <Badge variant="outline" className="ml-4 bg-green-50 text-green-700 border-green-200 px-3 py-1 text-xs flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+    <div className="bg-white/80 backdrop-blur-md border-b border-slate-200/50 shadow-lg sticky top-0 z-20 animate-slide-up">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-6">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo and Title */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="p-2.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-xl flex-shrink-0 shadow-lg animate-scale-in">
+              <Shield className="h-6 w-6 text-white drop-shadow-sm" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold text-slate-900 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Space Mate
+              </h1>
+              <p className="text-slate-600 text-xs sm:text-sm mt-1 font-medium">
+                Super Admin Dashboard
+              </p>
+            </div>
+            <div className="flex items-center gap-2 ml-4">
+              <Badge variant="outline" className="bg-green-50/80 text-green-700 border-green-200 px-3 py-1.5 text-xs flex items-center shadow-sm animate-fade-in">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
                 Online
               </Badge>
               <Badge variant="outline" className="bg-blue-50/80 text-blue-700 border-blue-200 px-3 py-1.5 text-xs animate-fade-in">
@@ -87,31 +77,7 @@ const SuperAdminHeader = ({ activeTab, onTabChange }: SuperAdminHeaderProps) => 
           </div>
         </div>
       </div>
-      {/* Large Page Title */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 pb-2">
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Super Admin Dashboard</h2>
-      </div>
-      {/* Tabs */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-2">
-        <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-7 h-16 bg-slate-100 p-1 gap-2">
-            {tabs.map((tab) => (
-              <TabsTrigger 
-                key={tab.id} 
-                value={tab.id}
-                className="flex flex-col items-center justify-center gap-2 text-xs lg:text-sm font-medium data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-700 data-[state=active]:shadow-lg data-[state=active]:scale-110 transition-all px-1 lg:px-3 h-full"
-              >
-                <span className={typeof tab.icon === 'string' ? 'text-2xl' : ''}>
-                  {tab.icon}
-                </span>
-                <span className="hidden sm:inline lg:hidden">{tab.shortLabel}</span>
-                <span className="hidden lg:inline">{tab.label}</span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
-    </>
+    </div>
   );
 };
 

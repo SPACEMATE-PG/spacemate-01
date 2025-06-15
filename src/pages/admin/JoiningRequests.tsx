@@ -49,7 +49,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
-import PGAdminLayout from "@/components/admin/PGAdminLayout";
 
 // Mock data - replace with actual API data
 const mockRequests = [
@@ -166,221 +165,232 @@ const JoiningRequests = () => {
   };
 
   return (
-    <PGAdminLayout>
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between gap-4">
-          <div className="flex flex-1 gap-4">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                placeholder="Search requests..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8"
-              />
-            </div>
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="single">Single Sharing</SelectItem>
-                <SelectItem value="double">Double Sharing</SelectItem>
-                <SelectItem value="triple">Triple Sharing</SelectItem>
-              </SelectContent>
-            </Select>
+    <div className="space-y-6 p-4 sm:p-6">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleBack}
+          className="hover:bg-gray-100"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-2xl font-bold text-gray-900">Joining Requests</h1>
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div className="flex flex-1 gap-4">
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+            <Input
+              placeholder="Search requests..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
           </div>
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="single">Single Sharing</SelectItem>
+              <SelectItem value="double">Double Sharing</SelectItem>
+              <SelectItem value="triple">Triple Sharing</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+      </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="pending">Pending</TabsTrigger>
-            <TabsTrigger value="approved">Approved</TabsTrigger>
-            <TabsTrigger value="rejected">Rejected</TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="pending">Pending</TabsTrigger>
+          <TabsTrigger value="approved">Approved</TabsTrigger>
+          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value={activeTab} className="space-y-4">
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Room Type</TableHead>
-                      <TableHead>Move-in Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+        <TabsContent value={activeTab} className="space-y-4">
+          <Card>
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Room Type</TableHead>
+                    <TableHead>Move-in Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredRequests.map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell className="font-medium">{request.id}</TableCell>
+                      <TableCell>{request.name}</TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          <div className="text-sm">{request.phone}</div>
+                          <div className="text-sm text-gray-500">{request.email}</div>
+                        </div>
+                      </TableCell>
+                      <TableCell>{request.roomType}</TableCell>
+                      <TableCell>{format(new Date(request.moveInDate), "MMM d, yyyy")}</TableCell>
+                      <TableCell>{getStatusBadge(request.status)}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleRequestAction(request.id, "view")}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            {request.status === "pending" && (
+                              <>
+                                <DropdownMenuItem onClick={() => handleRequestAction(request.id, "approve")}>
+                                  <Shield className="mr-2 h-4 w-4" />
+                                  Approve
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleRequestAction(request.id, "reject")}>
+                                  <X className="mr-2 h-4 w-4" />
+                                  Reject
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredRequests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-medium">{request.id}</TableCell>
-                        <TableCell>{request.name}</TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <div className="text-sm">{request.phone}</div>
-                            <div className="text-sm text-gray-500">{request.email}</div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{request.roomType}</TableCell>
-                        <TableCell>{format(new Date(request.moveInDate), "MMM d, yyyy")}</TableCell>
-                        <TableCell>{getStatusBadge(request.status)}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleRequestAction(request.id, "view")}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              {request.status === "pending" && (
-                                <>
-                                  <DropdownMenuItem onClick={() => handleRequestAction(request.id, "approve")}>
-                                    <Shield className="mr-2 h-4 w-4" />
-                                    Approve
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleRequestAction(request.id, "reject")}>
-                                    <X className="mr-2 h-4 w-4" />
-                                    Reject
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
-        {/* Request Details Dialog */}
-        <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Request Details</DialogTitle>
-              <DialogDescription>
-                View and manage joining request details
-              </DialogDescription>
-            </DialogHeader>
-            {selectedRequest && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500">Name</h4>
-                    <p className="mt-1">{selectedRequest.name}</p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500">Room Type</h4>
-                    <p className="mt-1">{selectedRequest.roomType}</p>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500">Contact</h4>
-                    <div className="mt-1 space-y-1">
-                      <p className="flex items-center">
-                        <Phone className="h-4 w-4 mr-2" />
-                        {selectedRequest.phone}
-                      </p>
-                      <p className="flex items-center">
-                        <Mail className="h-4 w-4 mr-2" />
-                        {selectedRequest.email}
-                      </p>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-500">Move-in Date</h4>
-                    <p className="mt-1 flex items-center">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {format(new Date(selectedRequest.moveInDate), "MMM d, yyyy")}
+      {/* Request Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Request Details</DialogTitle>
+            <DialogDescription>
+              View and manage joining request details
+            </DialogDescription>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Name</h4>
+                  <p className="mt-1">{selectedRequest.name}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Room Type</h4>
+                  <p className="mt-1">{selectedRequest.roomType}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Contact</h4>
+                  <div className="mt-1 space-y-1">
+                    <p className="flex items-center">
+                      <Phone className="h-4 w-4 mr-2" />
+                      {selectedRequest.phone}
+                    </p>
+                    <p className="flex items-center">
+                      <Mail className="h-4 w-4 mr-2" />
+                      {selectedRequest.email}
                     </p>
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500">Documents</h4>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {selectedRequest.documents.map((doc: string) => (
-                      <Badge key={doc} variant="secondary">
-                        {doc}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-500">Notes</h4>
-                  <p className="mt-1 text-sm text-gray-600">{selectedRequest.notes}</p>
+                  <h4 className="text-sm font-medium text-gray-500">Move-in Date</h4>
+                  <p className="mt-1 flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    {format(new Date(selectedRequest.moveInDate), "MMM d, yyyy")}
+                  </p>
                 </div>
               </div>
-            )}
-            <DialogFooter>
-              {selectedRequest?.status === "pending" && (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      handleRequestAction(selectedRequest.id, "reject");
-                      setShowDetailsDialog(false);
-                    }}
-                  >
-                    Reject
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      handleRequestAction(selectedRequest.id, "approve");
-                      setShowDetailsDialog(false);
-                    }}
-                  >
-                    Approve
-                  </Button>
-                </div>
-              )}
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Reject Request Dialog */}
-        <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Reject Request</DialogTitle>
-              <DialogDescription>
-                Please provide a reason for rejecting this request
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Reason for Rejection</label>
-                <Input
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  placeholder="Enter reason for rejection..."
-                  className="mt-1"
-                />
+                <h4 className="text-sm font-medium text-gray-500">Documents</h4>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  {selectedRequest.documents.map((doc: string) => (
+                    <Badge key={doc} variant="secondary">
+                      {doc}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-500">Notes</h4>
+                <p className="mt-1 text-sm text-gray-600">{selectedRequest.notes}</p>
               </div>
             </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleReject}>
-                Reject Request
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </PGAdminLayout>
+          )}
+          <DialogFooter>
+            {selectedRequest?.status === "pending" && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    handleRequestAction(selectedRequest.id, "reject");
+                    setShowDetailsDialog(false);
+                  }}
+                >
+                  Reject
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleRequestAction(selectedRequest.id, "approve");
+                    setShowDetailsDialog(false);
+                  }}
+                >
+                  Approve
+                </Button>
+              </div>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Request Dialog */}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Request</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for rejecting this request
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Reason for Rejection</label>
+              <Input
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Enter reason for rejection..."
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleReject}>
+              Reject Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 };
 
