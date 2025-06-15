@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,17 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { z } from "zod";
-
-const assetSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  type: z.string().min(1, "Type is required"),
-  location: z.string().min(1, "Location is required"),
-  status: z.enum(["active", "inactive", "maintenance"]),
-  description: z.string().optional(),
-  capacity: z.string().optional(),
-  maintenanceDate: z.string().optional(),
-});
 
 interface AssetModalProps {
   isOpen: boolean;
@@ -36,73 +26,28 @@ const AssetModal = ({ isOpen, onClose, type, asset }: AssetModalProps) => {
     capacity: asset?.capacity || '',
     maintenanceDate: asset?.maintenanceDate || ''
   });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const validateForm = () => {
-    try {
-      assetSchema.parse(formData);
-      setErrors({});
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            newErrors[err.path[0].toString()] = err.message;
-          }
-        });
-        setErrors(newErrors);
-      }
-      return false;
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      toast({
-        title: "Validation Error",
-        description: "Please check the form for errors",
-        variant: "destructive",
-      });
-      return;
+    let message = '';
+    switch (type) {
+      case 'add':
+        message = `New asset "${formData.name}" added successfully`;
+        break;
+      case 'manage':
+        message = `Asset "${formData.name}" updated successfully`;
+        break;
+      case 'schedule':
+        message = `Maintenance scheduled for "${formData.name}"`;
+        break;
     }
 
-    setIsSubmitting(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      let message = '';
-      switch (type) {
-        case 'add':
-          message = `New asset "${formData.name}" added successfully`;
-          break;
-        case 'manage':
-          message = `Asset "${formData.name}" updated successfully`;
-          break;
-        case 'schedule':
-          message = `Maintenance scheduled for "${formData.name}"`;
-          break;
-      }
-
-      toast({
-        title: "Success",
-        description: message,
-      });
-      onClose();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save asset. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    toast({
+      title: "Success",
+      description: message,
+    });
+    onClose();
   };
 
   const getTitle = () => {
@@ -130,9 +75,7 @@ const AssetModal = ({ isOpen, onClose, type, asset }: AssetModalProps) => {
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g., Washing Machine #1"
                 required
-                className={errors.name ? "border-red-500" : ""}
               />
-              {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
@@ -147,7 +90,6 @@ const AssetModal = ({ isOpen, onClose, type, asset }: AssetModalProps) => {
                   <SelectItem value="utility">Utility</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.type && <p className="text-sm text-red-500">{errors.type}</p>}
             </div>
           </div>
           
@@ -159,9 +101,7 @@ const AssetModal = ({ isOpen, onClose, type, asset }: AssetModalProps) => {
                 value={formData.location}
                 onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                 placeholder="e.g., Floor 2, Room 201"
-                className={errors.location ? "border-red-500" : ""}
               />
-              {errors.location && <p className="text-sm text-red-500">{errors.location}</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="capacity">Capacity</Label>
@@ -202,8 +142,8 @@ const AssetModal = ({ isOpen, onClose, type, asset }: AssetModalProps) => {
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save"}
+            <Button type="submit">
+              {type === 'add' ? 'Add Asset' : type === 'manage' ? 'Update Asset' : 'Schedule'}
             </Button>
           </div>
         </form>

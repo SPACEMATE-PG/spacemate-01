@@ -1,4 +1,4 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -18,13 +18,10 @@ import {
   Settings,
   Building2,
   AlertCircle,
-  CheckCircle,
-  FileText
+  CheckCircle
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import ErrorBoundary from "@/components/admin/ErrorBoundary";
 
 interface WardenLayoutProps {
   children: ReactNode;
@@ -33,10 +30,9 @@ interface WardenLayoutProps {
 const navigationItems = [
   { tab: "overview", label: "Dashboard", icon: Home, path: "/warden" },
   { tab: "assets", label: "Assets", icon: Building2, path: "/warden/assets" },
-  { tab: "requests", label: "Requests", icon: FileText, path: "/warden/requests" },
+  { tab: "requests", label: "Requests", icon: ClipboardList, path: "/warden/requests" },
   { tab: "maintenance", label: "Maintenance", icon: Wrench, path: "/warden/maintenance" },
-  { tab: "notifications", label: "Notifications", icon: Bell, path: "/warden/notifications" },
-  { tab: "settings", label: "Settings", icon: Settings, path: "/warden/settings" }
+  { tab: "notifications", label: "Notifications", icon: Bell, path: "/warden/notifications" }
 ];
 
 const WardenLayout = ({ children }: WardenLayoutProps) => {
@@ -46,15 +42,6 @@ const WardenLayout = ({ children }: WardenLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate loading state
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Determine active tab from path
   const activeTab = navigationItems.find(item => location.pathname === item.path)?.tab || "overview";
@@ -65,46 +52,22 @@ const WardenLayout = ({ children }: WardenLayoutProps) => {
   };
 
   const handleLogout = () => {
-    try {
-      logout();
-      toast({
-        title: "Logged out successfully",
-        description: "You have been logged out of your account",
-      });
-      navigate("/role-selection");
-      setIsDrawerOpen(false);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to logout. Please try again.",
-        variant: "destructive",
-      });
-    }
+    logout();
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account",
+    });
+    navigate("/role-selection");
+    setIsDrawerOpen(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-          <div className="container flex h-16 items-center justify-between px-4">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-10 w-10 rounded-full" />
-          </div>
-        </header>
-        <main className="container mx-auto p-4">
-          <Skeleton className="h-[calc(100vh-8rem)] w-full" />
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-          <div className="container flex h-16 items-center justify-between px-4">
-            <span className="text-lg font-bold tracking-tight text-gray-900">Warden Dashboard</span>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+        <div className="container flex h-16 items-center justify-between px-4">
+          <h1 className="text-xl font-semibold text-gray-900">Warden Dashboard</h1>
+          <div className="flex items-center gap-4">
             <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden">
@@ -187,40 +150,44 @@ const WardenLayout = ({ children }: WardenLayoutProps) => {
                 </div>
               </SheetContent>
             </Sheet>
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={currentUser?.profileImage} />
+              <AvatarFallback>{currentUser?.name?.charAt(0)}</AvatarFallback>
+            </Avatar>
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-6 pb-24 animate-fade-in">
-          {children}
-        </main>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-6 pb-24 animate-fade-in">
+        {children}
+      </main>
 
-        {/* Mobile Bottom Navigation */}
-        {isMobile && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-50 pb-safe">
-            <div className="grid grid-cols-5 h-16">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
-                  <button
-                    key={item.tab}
-                    onClick={() => handleNavigation(item.path)}
-                    className={cn(
-                      "flex flex-col items-center justify-center gap-1",
-                      isActive ? "text-hostel-primary" : "text-gray-500"
-                    )}
-                  >
-                    <Icon size={20} />
-                    <span className="text-xs">{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+      {/* Mobile Bottom Navigation */}
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t z-50 pb-safe">
+          <div className="grid grid-cols-5 h-16">
+            {navigationItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+              return (
+                <button
+                  key={item.tab}
+                  onClick={() => handleNavigation(item.path)}
+                  className={cn(
+                    "flex flex-col items-center justify-center gap-1",
+                    isActive ? "text-hostel-primary" : "text-gray-500"
+                  )}
+                >
+                  <Icon size={20} />
+                  <span className="text-xs">{item.label}</span>
+                </button>
+              );
+            })}
           </div>
-        )}
-      </div>
-    </ErrorBoundary>
+        </div>
+      )}
+    </div>
   );
 };
 

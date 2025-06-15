@@ -1,11 +1,11 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Clock, AlertTriangle, User, Loader2 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CheckCircle, Clock, AlertTriangle, User } from "lucide-react";
 
 interface ServiceRequest {
   id: string;
@@ -23,55 +23,35 @@ interface ServiceRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
   request: ServiceRequest | null;
-  onUpdateStatus: (id: string, status: string, notes?: string) => Promise<void>;
+  onUpdateStatus: (id: string, status: string, notes?: string) => void;
 }
 
 const ServiceRequestModal = ({ isOpen, onClose, request, onUpdateStatus }: ServiceRequestModalProps) => {
   const { toast } = useToast();
   const [notes, setNotes] = useState("");
   const [selectedAction, setSelectedAction] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!request) return null;
 
-  const handleActionConfirm = async () => {
-    if (!selectedAction) {
-      toast({
-        title: "No Action Selected",
-        description: "Please select an action to perform.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleActionConfirm = () => {
+    if (!selectedAction) return;
     
-    setIsSubmitting(true);
-    try {
-      await onUpdateStatus(request.id, selectedAction, notes);
-      setNotes("");
-      setSelectedAction("");
-      onClose();
-      
-      const actionMessages = {
-        acknowledged: "Service request acknowledged",
-        'in-progress': "Service request marked as in progress", 
-        completed: "Service request completed",
-        rejected: "Service request rejected"
-      };
-      
-      toast({
-        title: "Status Updated",
-        description: actionMessages[selectedAction as keyof typeof actionMessages],
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update request status. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    onUpdateStatus(request.id, selectedAction, notes);
+    setNotes("");
+    setSelectedAction("");
+    onClose();
+    
+    const actionMessages = {
+      acknowledged: "Service request acknowledged",
+      'in-progress': "Service request marked as in progress", 
+      completed: "Service request completed",
+      rejected: "Service request rejected"
+    };
+    
+    toast({
+      title: "Status Updated",
+      description: actionMessages[selectedAction as keyof typeof actionMessages],
+    });
   };
 
   const getPriorityColor = (priority: string) => {
@@ -93,90 +73,114 @@ const ServiceRequestModal = ({ isOpen, onClose, request, onUpdateStatus }: Servi
     }
   };
 
-  if (isLoading) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <Skeleton className="h-6 w-48" />
-          </DialogHeader>
-          <div className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Service Request Details</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            Service Request Details
+            {getStatusIcon(request.status)}
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">{request.asset}</h3>
-            <Badge className={getPriorityColor(request.priority)}>
-              {request.priority} Priority
-            </Badge>
-          </div>
-          
-          <div className="space-y-2">
-            <p className="text-sm text-gray-500">Issue</p>
-            <p>{request.issue}</p>
+        
+        <div className="space-y-6">
+          {/* Request Overview */}
+          <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+            <div className="flex justify-between items-start">
+              <h3 className="font-semibold text-lg">{request.asset}</h3>
+              <Badge className={getPriorityColor(request.priority)}>
+                {request.priority} Priority
+              </Badge>
+            </div>
+            <p className="text-gray-700">{request.issue}</p>
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              <span className="flex items-center gap-1">
+                <User className="h-4 w-4" />
+                {request.requests} residents affected
+              </span>
+              <span>Submitted: {request.submittedAt}</span>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm text-gray-500">Description</p>
-            <p>{request.description}</p>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-sm text-gray-500">Submitted By</p>
+          {/* Affected Residents */}
+          <div>
+            <h4 className="font-medium mb-2">Affected Residents:</h4>
             <div className="flex flex-wrap gap-2">
-              {request.submittedBy.map((user, index) => (
-                <Badge key={index} variant="outline" className="flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  {user}
+              {request.submittedBy.map((resident, index) => (
+                <Badge key={index} variant="outline" className="bg-blue-50">
+                  {resident}
                 </Badge>
               ))}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-sm text-gray-500">Notes</p>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any additional notes..."
-              className="min-h-[100px]"
-            />
+          {/* Detailed Description */}
+          <div>
+            <h4 className="font-medium mb-2">Description:</h4>
+            <p className="text-gray-700 bg-gray-50 p-3 rounded">{request.description}</p>
           </div>
 
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
+          {/* Action Selection */}
+          <div className="space-y-3">
+            <h4 className="font-medium">Update Status:</h4>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                variant={selectedAction === 'acknowledged' ? 'default' : 'outline'}
+                onClick={() => setSelectedAction('acknowledged')}
+                className="justify-start"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Acknowledge
+              </Button>
+              <Button
+                variant={selectedAction === 'in-progress' ? 'default' : 'outline'}
+                onClick={() => setSelectedAction('in-progress')}
+                className="justify-start"
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Start Work
+              </Button>
+              <Button
+                variant={selectedAction === 'completed' ? 'default' : 'outline'}
+                onClick={() => setSelectedAction('completed')}
+                className="justify-start"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Complete
+              </Button>
+              <Button
+                variant={selectedAction === 'rejected' ? 'destructive' : 'outline'}
+                onClick={() => setSelectedAction('rejected')}
+                className="justify-start"
+              >
+                Not Feasible
+              </Button>
+            </div>
+          </div>
+
+          {/* Notes */}
+          {selectedAction && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Resolution Notes:</label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Add notes about the resolution, parts used, time taken, etc..."
+                rows={3}
+              />
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button
-              onClick={handleActionConfirm}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                "Update Status"
-              )}
-            </Button>
+            {selectedAction && (
+              <Button onClick={handleActionConfirm}>
+                Confirm {selectedAction.replace('-', ' ')}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
