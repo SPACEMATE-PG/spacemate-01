@@ -57,7 +57,7 @@ const SuperAdmin = () => {
           onTabChange={setActiveTab}
         />
 
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-8 pb-24">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-8 pb-32">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsContent value="overview" className="mt-0">
               <SuperAdminOverview 
@@ -102,9 +102,9 @@ const SuperAdmin = () => {
           </Tabs>
         </div>
 
-        {/* Bottom Navigation */}
-        <nav className="bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 pb-safe z-30 lg:hidden">
-          <div className="grid grid-cols-4 gap-1">
+        {/* Bottom Navigation - All Screen Sizes */}
+        <nav className="bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 pb-safe z-30">
+          <div className="grid grid-cols-4 gap-1 py-2">
             <button
               className={`flex flex-col items-center py-3 px-2 transition-colors ${
                 activeTab === "overview"
