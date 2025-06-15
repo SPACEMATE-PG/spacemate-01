@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { AdminStats } from "@/hooks/usePGAdmins";
 import AnalyticsHeader from "./AnalyticsHeader";
@@ -62,10 +63,6 @@ const AnalyticsDashboard = ({ stats, isLoading }: AnalyticsDashboardProps) => {
     <div className="space-y-6">
       <AnalyticsHeader 
         onExportData={handleExportData}
-        timeRange={timeRange}
-        setTimeRange={setTimeRange}
-        filter={filter}
-        setFilter={setFilter}
       />
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 overflow-x-auto">
         <div className="min-w-0">
