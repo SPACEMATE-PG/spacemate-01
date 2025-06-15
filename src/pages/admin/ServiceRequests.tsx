@@ -18,6 +18,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -245,6 +246,9 @@ const ServiceRequests = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Service Request</DialogTitle>
+              <DialogDescription>
+                Submit a new service request for maintenance or other services.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

@@ -32,6 +32,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import PGAdminLayout from "@/components/admin/PGAdminLayout";
 
@@ -396,6 +397,9 @@ const Reports = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Generate Report</DialogTitle>
+              <DialogDescription>
+                Generate a report in your preferred format.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">

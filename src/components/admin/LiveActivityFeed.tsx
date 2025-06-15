@@ -1,9 +1,10 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Zap, Activity } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useActivityFeed } from "@/hooks/useActivityFeed";
 import ActivityFeedControls from "./ActivityFeedControls";
 import ActivityItem from "./ActivityItem";
+import { Badge } from "@/components/ui/badge";
 
 const LiveActivityFeed = () => {
   const {
@@ -18,10 +19,18 @@ const LiveActivityFeed = () => {
   const isMobile = useIsMobile();
 
   return (
-    <Card className={`border-slate-200 ${isMobile ? 'bg-white/90 shadow-lg rounded-xl' : ''}`}>
-      <CardHeader className={`bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-100 rounded-t-lg ${isMobile ? 'sticky top-0 z-10' : ''}`}>
-        <div className="flex items-center gap-3 mb-3">
-          <Zap className="h-5 w-5 text-yellow-600" />
+    <Card className="shadow-lg rounded-xl overflow-hidden bg-white animate-fade-in-up">
+      <CardHeader className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-800">
+            <Zap className="h-6 w-6 text-indigo-500" /> Live Activity Feed
+            <Badge className={`${isLive ? 'bg-green-100 text-green-700 animate-pulse' : 'bg-gray-100 text-gray-700'} ml-3`}>
+              {isLive ? 'Live' : 'Paused'}
+            </Badge>
+            <Badge variant="outline" className="bg-slate-50 text-xs ml-2">
+              {activities.length} Items
+            </Badge>
+          </CardTitle>
           <ActivityFeedControls
             filter={filter}
             setFilter={setFilter}
@@ -35,27 +44,27 @@ const LiveActivityFeed = () => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className={`${isMobile ? 'max-h-96' : 'max-h-[32rem]'} overflow-y-auto`}> 
-          {activities.length === 0 ? (
+        <div className={`overflow-y-auto ${isMobile ? 'max-h-[70vh]' : 'max-h-[600px]'}`}>
+          {isLoading ? (
             <div className="p-8 text-center">
-              <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No activities found</p>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading activities...</p>
+            </div>
+          ) : activities.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <Activity className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-lg font-semibold">No recent activities</p>
+              <p className="text-sm text-gray-400">Your activity feed is currently empty. Check back later!</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-gray-100">
               {activities.map((activity, index) => (
-                <div
+                <ActivityItem
                   key={activity.id}
-                  className={`p-4 hover:bg-slate-50 transition-colors ${
-                    index === 0 ? 'bg-blue-50 border-l-4 border-blue-500' : ''
-                  } ${isMobile ? 'px-2 py-3' : ''}`}
-                >
-                  <ActivityItem
-                    activity={activity}
-                    isLatest={index === 0}
-                    isMobile={isMobile}
-                  />
-                </div>
+                  activity={activity}
+                  isLatest={index === 0}
+                  isMobile={isMobile}
+                />
               ))}
             </div>
           )}

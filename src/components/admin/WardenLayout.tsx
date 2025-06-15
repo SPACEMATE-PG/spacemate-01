@@ -64,9 +64,16 @@ const WardenLayout = ({ children }: WardenLayoutProps) => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <h1 className="text-xl font-semibold text-gray-900">Warden Dashboard</h1>
+      <header className="border-b sticky top-0 z-30 shadow-sm bg-white">
+        <div className="container mx-auto flex justify-between items-center h-16 px-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-r from-hostel-primary to-hostel-secondary text-white w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg">
+              SM
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-hostel-primary to-hostel-secondary bg-clip-text text-transparent">
+              Space Mate
+            </h1>
+          </div>
           <div className="flex items-center gap-4">
             <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
               <SheetTrigger asChild>
@@ -150,10 +157,6 @@ const WardenLayout = ({ children }: WardenLayoutProps) => {
                 </div>
               </SheetContent>
             </Sheet>
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={currentUser?.profileImage} />
-              <AvatarFallback>{currentUser?.name?.charAt(0)}</AvatarFallback>
-            </Avatar>
           </div>
         </div>
       </header>

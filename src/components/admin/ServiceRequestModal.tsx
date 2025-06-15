@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,6 +80,9 @@ const ServiceRequestModal = ({ isOpen, onClose, request, onUpdateStatus }: Servi
             Service Request Details
             {getStatusIcon(request.status)}
           </DialogTitle>
+          <DialogDescription>
+            View and manage service request details and status.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">

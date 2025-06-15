@@ -1,9 +1,7 @@
-
 import { AdminStats } from "@/hooks/usePGAdmins";
 import SuperAdminMetrics from "./SuperAdminMetrics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { 
   FileText, 
   Users, 
@@ -17,8 +15,7 @@ import {
   ArrowRight,
   Zap,
   Target,
-  Globe,
-  Clock
+  Globe
 } from "lucide-react";
 
 interface SuperAdminOverviewProps {
@@ -29,31 +26,31 @@ interface SuperAdminOverviewProps {
 
 const SuperAdminOverview = ({ stats, isLoading, onTabChange }: SuperAdminOverviewProps) => {
   return (
-    <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="mb-8 text-center lg:text-left">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div>
-            <h2 className="text-4xl font-bold text-slate-900 mb-3 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Welcome Back, Super Admin
-            </h2>
-            <p className="text-slate-600 text-lg">
-              Here's what's happening with your platform today
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 text-sm">
-              <Clock className="h-4 w-4 mr-2" />
-              Last updated: Just now
-            </Badge>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-10 p-4 lg:p-8 rounded-lg animate-fade-in-up">
+      {/* Welcome & Overview Section (Re-imagined) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="col-span-1 md:col-span-2 lg:col-span-4 bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl overflow-hidden relative group">
+          <div className="absolute inset-0 bg-pattern opacity-10 group-hover:opacity-20 transition-opacity duration-300"></div>
+          <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between z-10 relative">
+            <div className="text-center sm:text-left mb-4 sm:mb-0">
+              <h2 className="text-3xl sm:text-4xl font-extrabold mb-1">
+                Welcome Back, Super Admin!
+              </h2>
+              <p className="text-indigo-100 text-lg opacity-90">
+                Here's a quick look at your platform's performance.
+              </p>
+            </div>
+            <Button 
+              variant="secondary" 
+              className="bg-white text-indigo-700 hover:bg-indigo-100 transition-colors"
+              onClick={() => onTabChange("analytics")}
+            >
+              View Full Analytics <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
 
-      <SuperAdminMetrics stats={stats} isLoading={isLoading} />
-      
-      {/* Enhanced Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Enhanced Quick Stats */}
         <Card className="border-0 shadow-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:shadow-2xl transition-all duration-500 hover:scale-105 animate-fade-in">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -62,7 +59,7 @@ const SuperAdminOverview = ({ stats, isLoading, onTabChange }: SuperAdminOvervie
                   <Building2 className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-white">{stats.totalPGs}</p>
+                  <p className="text-3xl font-bold text-white">{isLoading ? '...' : stats.totalPGs}</p>
                   <p className="text-blue-100 text-sm font-medium">Total Properties</p>
                 </div>
               </div>
@@ -84,14 +81,14 @@ const SuperAdminOverview = ({ stats, isLoading, onTabChange }: SuperAdminOvervie
                   <DollarSign className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-white">₹{(stats.monthlyRevenue / 1000).toFixed(0)}K</p>
+                  <p className="text-3xl font-bold text-white">{isLoading ? '...' : `₹${(stats.monthlyRevenue / 1000).toFixed(0)}K`}</p>
                   <p className="text-emerald-100 text-sm font-medium">Monthly Revenue</p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="flex items-center text-green-200 bg-green-500/20 rounded-full px-3 py-1">
                   <TrendingUp className="h-4 w-4 mr-1" />
-                  <span className="text-sm font-medium">+{stats.growthRate}%</span>
+                  <span className="text-sm font-medium">+{isLoading ? '...' : stats.growthRate}%</span>
                 </div>
               </div>
             </div>
@@ -106,14 +103,14 @@ const SuperAdminOverview = ({ stats, isLoading, onTabChange }: SuperAdminOvervie
                   <Users className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-white">{stats.activeSubscriptions}</p>
+                  <p className="text-3xl font-bold text-white">{isLoading ? '...' : stats.activeSubscriptions}</p>
                   <p className="text-purple-100 text-sm font-medium">Active Subscriptions</p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="flex items-center text-green-200 bg-green-500/20 rounded-full px-3 py-1">
                   <CheckCircle className="h-4 w-4 mr-1" />
-                  <span className="text-sm font-medium">{stats.conversionRate}%</span>
+                  <span className="text-sm font-medium">{isLoading ? '...' : stats.conversionRate}%</span>
                 </div>
               </div>
             </div>
@@ -121,7 +118,7 @@ const SuperAdminOverview = ({ stats, isLoading, onTabChange }: SuperAdminOvervie
         </Card>
       </div>
       
-      {/* Enhanced Action Cards */}
+      {/* Quick Actions & System Health */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50 hover:shadow-xl transition-all duration-300 group">
           <CardHeader className="pb-3">
@@ -198,77 +195,76 @@ const SuperAdminOverview = ({ stats, isLoading, onTabChange }: SuperAdminOvervie
             </div>
             <div className="flex justify-between items-center p-3 bg-white/50 rounded-lg">
               <span className="text-green-700 font-medium">Uptime</span>
-              <span className="text-green-600 font-bold">99.9%</span>
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-green-600" />
+                <span className="text-green-600 font-bold text-sm">99.9%</span>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-xl transition-all duration-300">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-yellow-50 to-orange-50 hover:shadow-xl transition-all duration-300">
           <CardHeader className="pb-3">
-            <CardTitle className="text-purple-800 text-lg font-bold flex items-center gap-2">
-              <div className="p-2 bg-purple-500 rounded-lg">
-                <Activity className="h-5 w-5 text-white" />
+            <CardTitle className="text-orange-800 text-lg font-bold flex items-center gap-2">
+              <div className="p-2 bg-orange-500 rounded-lg">
+                <AlertTriangle className="h-5 w-5 text-white" />
               </div>
-              Live Activity
+              Alerts & Warnings
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center gap-3 p-2 bg-white/50 rounded-lg">
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-              <span className="text-purple-700 text-sm font-medium">5 new subscriptions today</span>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-3 bg-orange-50/50 rounded-lg">
+              <span className="text-orange-700 font-medium">New Issues</span>
+              <span className="text-orange-600 font-bold text-sm">2</span>
             </div>
-            <div className="flex items-center gap-3 p-2 bg-white/50 rounded-lg">
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-              <span className="text-purple-700 text-sm font-medium">3 admin logins in last hour</span>
-            </div>
-            <div className="flex items-center gap-3 p-2 bg-white/50 rounded-lg">
-              <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-              <span className="text-purple-700 text-sm font-medium">12 support tickets resolved</span>
+            <div className="flex justify-between items-center p-3 bg-orange-50/50 rounded-lg">
+              <span className="text-orange-700 font-medium">Pending Actions</span>
+              <span className="text-orange-600 font-bold text-sm">5</span>
             </div>
             <Button 
               variant="ghost" 
               size="sm"
-              className="w-full justify-center text-purple-700 hover:text-purple-900 hover:bg-purple-100 p-3 h-auto mt-3 group/btn"
+              className="w-full justify-between text-orange-700 hover:text-orange-900 hover:bg-orange-100 p-4 h-auto group/btn"
               onClick={() => onTabChange("activity")}
             >
-              <Activity className="h-4 w-4 mr-2" />
-              <span className="font-medium">View Live Activity</span>
-              <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+              <div className="flex items-center gap-3">
+                <Activity className="h-5 w-5" />
+                <span className="font-medium">View Activity Log</span>
+              </div>
+              <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
             </Button>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-red-50 hover:shadow-xl transition-all duration-300">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 to-rose-50 hover:shadow-xl transition-all duration-300">
           <CardHeader className="pb-3">
-            <CardTitle className="text-orange-800 text-lg font-bold flex items-center gap-2">
-              <div className="p-2 bg-orange-500 rounded-lg">
-                <Globe className="h-5 w-5 text-white" />
+            <CardTitle className="text-rose-800 text-lg font-bold flex items-center gap-2">
+              <div className="p-2 bg-rose-500 rounded-lg">
+                <CreditCard className="h-5 w-5 text-white" />
               </div>
-              Alerts & Operations
+              Subscription Health
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center gap-3 p-2 bg-white/50 rounded-lg">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span className="text-orange-700 text-sm font-medium">No critical alerts</span>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center p-3 bg-rose-50/50 rounded-lg">
+              <span className="text-rose-700 font-medium">Expired This Month</span>
+              <span className="text-rose-600 font-bold text-sm">{stats.expiredSubscriptions}</span>
             </div>
-            <div className="flex items-center gap-3 p-2 bg-white/50 rounded-lg">
-              <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
-              <span className="text-orange-700 text-sm font-medium">2 pending reviews</span>
-            </div>
-            <div className="flex items-center gap-3 p-2 bg-white/50 rounded-lg">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span className="text-orange-700 text-sm font-medium">System backup complete</span>
+            <div className="flex justify-between items-center p-3 bg-rose-50/50 rounded-lg">
+              <span className="text-rose-700 font-medium">Cancellations</span>
+              <span className="text-rose-600 font-bold text-sm">{stats.cancellations}</span>
             </div>
             <Button 
               variant="ghost" 
               size="sm"
-              className="w-full justify-center text-orange-700 hover:text-orange-900 hover:bg-orange-100 p-3 h-auto mt-3 group/btn"
-              onClick={() => onTabChange("bulk-ops")}
+              className="w-full justify-between text-rose-700 hover:text-rose-900 hover:bg-rose-100 p-4 h-auto group/btn"
+              onClick={() => onTabChange("subscriptions")}
             >
-              <AlertTriangle className="h-4 w-4 mr-2" />
-              <span className="font-medium">Bulk Operations</span>
-              <ArrowRight className="h-4 w-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5" />
+                <span className="font-medium">Manage Subscriptions</span>
+              </div>
+              <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
             </Button>
           </CardContent>
         </Card>

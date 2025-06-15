@@ -33,6 +33,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -618,6 +619,9 @@ const FinancialManagement = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Record New Payment</DialogTitle>
+              <DialogDescription>
+                Record a new payment from a resident.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">

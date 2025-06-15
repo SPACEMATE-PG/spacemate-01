@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { usePGAdmins, useAdminStats } from "@/hooks/usePGAdmins";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -166,7 +165,7 @@ const SuperAdmin = () => {
               <Users className={`h-5 w-5 transition-all duration-300 ${
                 activeTab === "admins" ? "animate-bounce-subtle" : ""
               }`} />
-              <span className="text-xs font-medium">Admins</span>
+              <span className="text-xs font-medium">PG</span>
               {activeTab === "admins" && (
                 <div className="absolute -top-1 w-8 h-1 bg-indigo-600 rounded-full animate-scale-in" />
               )}
@@ -220,7 +219,7 @@ const SuperAdmin = () => {
               <Settings className={`h-5 w-5 transition-all duration-300 ${
                 activeTab === "bulk-ops" ? "animate-bounce-subtle" : ""
               }`} />
-              <span className="text-xs font-medium">Settings</span>
+              <span className="text-xs font-medium">Admin</span>
               {activeTab === "bulk-ops" && (
                 <div className="absolute -top-1 w-8 h-1 bg-indigo-600 rounded-full animate-scale-in" />
               )}

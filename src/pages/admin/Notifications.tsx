@@ -28,6 +28,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import PGAdminLayout from "@/components/admin/PGAdminLayout";
 
@@ -214,6 +215,9 @@ const Notifications = () => {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Notification</DialogTitle>
+              <DialogDescription>
+                Create and send a new notification to residents.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">

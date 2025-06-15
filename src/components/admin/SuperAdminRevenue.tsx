@@ -1,8 +1,8 @@
-
 import { AdminStats } from "@/hooks/usePGAdmins";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RevenueChart from "./RevenueChart";
 import GrowthChart from "./GrowthChart";
+import { DollarSign, TrendingUp, BarChart2, Zap } from "lucide-react";
 
 interface SuperAdminRevenueProps {
   stats: AdminStats;
@@ -21,80 +21,109 @@ const SuperAdminRevenue = ({ stats, isLoading }: SuperAdminRevenueProps) => {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 lg:p-8">
         <div className="animate-pulse">
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-24 bg-gray-200 rounded mb-4"></div>
+          <div className="h-96 bg-gray-200 rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-green-200 bg-green-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-green-800 text-sm font-medium">Total Revenue</CardTitle>
+    <div className="space-y-8 p-4 lg:p-8">
+      {/* Revenue Metric Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-xl transition-all duration-300">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <CardTitle className="text-white text-sm font-medium">Total Revenue</CardTitle>
+            <DollarSign className="h-5 w-5 text-white/70" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-700">${stats.totalRevenue.toLocaleString()}</div>
-            <p className="text-green-600 text-sm mt-1">+12% from last month</p>
+            <div className="text-3xl font-bold text-white">₹{stats.totalRevenue.toLocaleString()}</div>
+            <p className="text-green-100 text-xs mt-1">+12% from last period</p>
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200 bg-blue-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-blue-800 text-sm font-medium">Monthly Revenue</CardTitle>
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white hover:shadow-xl transition-all duration-300">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <CardTitle className="text-white text-sm font-medium">Monthly Revenue</CardTitle>
+            <BarChart2 className="h-5 w-5 text-white/70" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-700">${stats.monthlyRevenue.toLocaleString()}</div>
-            <p className="text-blue-600 text-sm mt-1">Current month</p>
+            <div className="text-3xl font-bold text-white">₹{stats.monthlyRevenue.toLocaleString()}</div>
+            <p className="text-blue-100 text-xs mt-1">Current month's earnings</p>
           </CardContent>
         </Card>
 
-        <Card className="border-purple-200 bg-purple-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-purple-800 text-sm font-medium">Average Revenue</CardTitle>
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:shadow-xl transition-all duration-300">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <CardTitle className="text-white text-sm font-medium">Average Revenue</CardTitle>
+            <TrendingUp className="h-5 w-5 text-white/70" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-700">${(stats.totalRevenue / 6).toFixed(0)}</div>
-            <p className="text-purple-600 text-sm mt-1">Per month</p>
+            <div className="text-3xl font-bold text-white">₹{(stats.totalRevenue / 6).toFixed(0)}</div>
+            <p className="text-purple-100 text-xs mt-1">Average per month</p>
           </CardContent>
         </Card>
 
-        <Card className="border-orange-200 bg-orange-50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-orange-800 text-sm font-medium">Growth Rate</CardTitle>
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-500 to-yellow-600 text-white hover:shadow-xl transition-all duration-300">
+          <CardHeader className="pb-3 flex flex-row items-center justify-between">
+            <CardTitle className="text-white text-sm font-medium">Growth Rate</CardTitle>
+            <Zap className="h-5 w-5 text-white/70" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-700">{stats.growthRate}%</div>
-            <p className="text-orange-600 text-sm mt-1">Year over year</p>
+            <div className="text-3xl font-bold text-white">{stats.growthRate}%</div>
+            <p className="text-orange-100 text-xs mt-1">Year over year growth</p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Charts Section */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <RevenueChart data={revenueData} growthRate={stats.growthRate} />
-        <GrowthChart data={revenueData} />
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Monthly Revenue Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <RevenueChart data={revenueData} growthRate={stats.growthRate} />
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Subscription Growth</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <GrowthChart data={revenueData} />
+          </CardContent>
+        </Card>
       </div>
 
-      <Card>
+      {/* Revenue Breakdown Section */}
+      <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle>Revenue Breakdown</CardTitle>
+          <CardTitle>Revenue Breakdown by Source</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center p-3 border rounded-lg">
-              <span className="font-medium">Monthly Subscriptions</span>
-              <span className="text-green-600 font-semibold">${(stats.monthlyRevenue * 0.7).toFixed(0)}</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Monthly Subscriptions */}
+            <div className="p-4 border rounded-lg bg-blue-50/50 flex flex-col items-center justify-center text-center">
+              <DollarSign className="h-8 w-8 text-blue-600 mb-2" />
+              <span className="text-xl font-bold text-blue-800">₹{(stats.monthlyRevenue * 0.7).toFixed(0)}</span>
+              <p className="text-sm text-blue-600">Monthly Subscriptions</p>
             </div>
-            <div className="flex justify-between items-center p-3 border rounded-lg">
-              <span className="font-medium">Annual Subscriptions</span>
-              <span className="text-blue-600 font-semibold">${(stats.monthlyRevenue * 0.25).toFixed(0)}</span>
+            {/* Annual Subscriptions */}
+            <div className="p-4 border rounded-lg bg-green-50/50 flex flex-col items-center justify-center text-center">
+              <DollarSign className="h-8 w-8 text-green-600 mb-2" />
+              <span className="text-xl font-bold text-green-800">₹{(stats.monthlyRevenue * 0.25).toFixed(0)}</span>
+              <p className="text-sm text-green-600">Annual Subscriptions</p>
             </div>
-            <div className="flex justify-between items-center p-3 border rounded-lg">
-              <span className="font-medium">Add-on Services</span>
-              <span className="text-purple-600 font-semibold">${(stats.monthlyRevenue * 0.05).toFixed(0)}</span>
+            {/* Add-on Services */}
+            <div className="p-4 border rounded-lg bg-purple-50/50 flex flex-col items-center justify-center text-center">
+              <DollarSign className="h-8 w-8 text-purple-600 mb-2" />
+              <span className="text-xl font-bold text-purple-800">₹{(stats.monthlyRevenue * 0.05).toFixed(0)}</span>
+              <p className="text-sm text-purple-600">Add-on Services</p>
             </div>
           </div>
         </CardContent>

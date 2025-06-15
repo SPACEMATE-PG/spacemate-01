@@ -103,7 +103,7 @@ const RequireWarden = ({ children }: { children: ReactNode }) => {
 };
 
 const AppRoutes = () => (
-  <BrowserRouter>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <CapacitorBackHandler />
     <Routes>
       <Route path="/" element={<SplashScreen />} />

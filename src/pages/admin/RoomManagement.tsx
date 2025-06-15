@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import PGAdminLayout from "@/components/admin/PGAdminLayout";
 
@@ -292,6 +293,9 @@ const RoomManagement = () => {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add New Room</DialogTitle>
+                <DialogDescription>
+                  Add a new room to the hostel with its details and pricing.
+                </DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">

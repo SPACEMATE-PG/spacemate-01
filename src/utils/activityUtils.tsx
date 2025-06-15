@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Activity,
@@ -12,17 +11,17 @@ import {
 export const getActivityIcon = (type: string) => {
   switch (type) {
     case "payment":
-      return <DollarSign className="h-4 w-4 text-green-600" />;
+      return DollarSign;
     case "registration":
-      return <UserPlus className="h-4 w-4 text-blue-600" />;
+      return UserPlus;
     case "login":
-      return <Users className="h-4 w-4 text-purple-600" />;
+      return Users;
     case "subscription":
-      return <CreditCard className="h-4 w-4 text-indigo-600" />;
+      return CreditCard;
     case "property":
-      return <Building2 className="h-4 w-4 text-orange-600" />;
+      return Building2;
     default:
-      return <Activity className="h-4 w-4 text-gray-600" />;
+      return Activity;
   }
 };
 
