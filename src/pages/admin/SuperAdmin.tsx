@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { usePGAdmins, useAdminStats } from "@/hooks/usePGAdmins";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Home, Users, TrendingUp, Settings, Bell } from "lucide-react";
 import ErrorBoundary from "@/components/admin/ErrorBoundary";
 import SuperAdminHeader from "@/components/admin/SuperAdminHeader";
 import SuperAdminOverview from "@/components/admin/SuperAdminOverview";
@@ -57,7 +57,7 @@ const SuperAdmin = () => {
           onTabChange={setActiveTab}
         />
 
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-8 pb-32">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-8 pb-24">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsContent value="overview" className="mt-0">
               <SuperAdminOverview 
@@ -102,107 +102,67 @@ const SuperAdmin = () => {
           </Tabs>
         </div>
 
-        {/* Bottom Navigation - All Screen Sizes */}
-        <nav className="bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 pb-safe z-30">
-          <div className="grid grid-cols-4 gap-1 py-2">
+        {/* Bottom Navigation - Clean Design Like Guest Page */}
+        <nav className="bg-white shadow-lg border-t fixed bottom-0 left-0 right-0 z-30">
+          <div className="grid grid-cols-5 h-16">
             <button
-              className={`flex flex-col items-center py-3 px-2 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-1 transition-colors ${
                 activeTab === "overview"
                   ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-500 hover:text-indigo-500"
+                  : "text-gray-500 hover:text-indigo-500 hover:bg-gray-50"
               }`}
               onClick={() => setActiveTab("overview")}
             >
-              <div className="w-8 h-8 mb-1 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-                <span className="text-white text-lg">📊</span>
-              </div>
-              <span className="text-xs font-medium">Overview</span>
+              <Home className="h-5 w-5" />
+              <span className="text-xs font-medium">Home</span>
             </button>
             
             <button
-              className={`flex flex-col items-center py-3 px-2 transition-colors ${
-                activeTab === "subscriptions"
-                  ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-500 hover:text-indigo-500"
-              }`}
-              onClick={() => setActiveTab("subscriptions")}
-            >
-              <div className="w-8 h-8 mb-1 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
-                <span className="text-white text-lg">💳</span>
-              </div>
-              <span className="text-xs font-medium">Subs</span>
-            </button>
-            
-            <button
-              className={`flex flex-col items-center py-3 px-2 transition-colors ${
-                activeTab === "revenue"
-                  ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-500 hover:text-indigo-500"
-              }`}
-              onClick={() => setActiveTab("revenue")}
-            >
-              <div className="w-8 h-8 mb-1 rounded-lg bg-gradient-to-r from-yellow-500 to-amber-600 flex items-center justify-center">
-                <span className="text-white text-lg">💰</span>
-              </div>
-              <span className="text-xs font-medium">Revenue</span>
-            </button>
-            
-            <button
-              className={`flex flex-col items-center py-3 px-2 transition-colors ${
-                activeTab === "analytics"
-                  ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-500 hover:text-indigo-500"
-              }`}
-              onClick={() => setActiveTab("analytics")}
-            >
-              <div className="w-8 h-8 mb-1 rounded-lg bg-gradient-to-r from-purple-500 to-violet-600 flex items-center justify-center">
-                <span className="text-white text-lg">📈</span>
-              </div>
-              <span className="text-xs font-medium">Analytics</span>
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-1 border-t pt-2">
-            <button
-              className={`flex flex-col items-center py-2 px-2 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-1 transition-colors ${
                 activeTab === "admins"
                   ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-500 hover:text-indigo-500"
+                  : "text-gray-500 hover:text-indigo-500 hover:bg-gray-50"
               }`}
               onClick={() => setActiveTab("admins")}
             >
-              <div className="w-7 h-7 mb-1 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 flex items-center justify-center">
-                <span className="text-white text-sm">👥</span>
-              </div>
+              <Users className="h-5 w-5" />
               <span className="text-xs font-medium">Admins</span>
             </button>
             
             <button
-              className={`flex flex-col items-center py-2 px-2 transition-colors ${
-                activeTab === "bulk-ops"
+              className={`flex flex-col items-center justify-center gap-1 transition-colors ${
+                activeTab === "revenue"
                   ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-500 hover:text-indigo-500"
+                  : "text-gray-500 hover:text-indigo-500 hover:bg-gray-50"
               }`}
-              onClick={() => setActiveTab("bulk-ops")}
+              onClick={() => setActiveTab("revenue")}
             >
-              <div className="w-7 h-7 mb-1 rounded-lg bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center">
-                <span className="text-white text-sm">⚙️</span>
-              </div>
-              <span className="text-xs font-medium">Ops</span>
+              <TrendingUp className="h-5 w-5" />
+              <span className="text-xs font-medium">Revenue</span>
             </button>
             
             <button
-              className={`flex flex-col items-center py-2 px-2 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-1 transition-colors ${
                 activeTab === "activity"
                   ? "text-indigo-600 bg-indigo-50"
-                  : "text-gray-500 hover:text-indigo-500"
+                  : "text-gray-500 hover:text-indigo-500 hover:bg-gray-50"
               }`}
               onClick={() => setActiveTab("activity")}
             >
-              <div className="w-7 h-7 mb-1 rounded-lg bg-gradient-to-r from-pink-500 to-rose-600 flex items-center justify-center">
-                <span className="text-white text-sm">⚡</span>
-              </div>
+              <Bell className="h-5 w-5" />
               <span className="text-xs font-medium">Activity</span>
+            </button>
+            
+            <button
+              className={`flex flex-col items-center justify-center gap-1 transition-colors ${
+                activeTab === "bulk-ops"
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-500 hover:text-indigo-500 hover:bg-gray-50"
+              }`}
+              onClick={() => setActiveTab("bulk-ops")}
+            >
+              <Settings className="h-5 w-5" />
+              <span className="text-xs font-medium">Settings</span>
             </button>
           </div>
         </nav>
