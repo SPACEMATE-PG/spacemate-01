@@ -28,19 +28,148 @@ AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <AlertDialogPortal>
-    <AlertDialogOverlay />
-    <AlertDialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
-        className
-      )}
-      {...props}
-    />
-  </AlertDialogPortal>
-))
+>(({ className, children, ...props }, ref) => {
+  // Generate unique IDs for accessibility
+  const titleId = React.useId();
+  const descriptionId = React.useId();
+  
+  // Analyze children to find title and description
+  const childArray = React.Children.toArray(children);
+  
+  // Check for AlertDialogTitle component
+  const hasAlertDialogTitle = childArray.some(child => {
+    if (!React.isValidElement(child)) return false;
+    
+    // Direct AlertDialogTitle
+    if (child.type === AlertDialogTitle) return true;
+    
+    // AlertDialogTitle inside AlertDialogHeader
+    if (child.type === AlertDialogHeader && child.props.children) {
+      const headerChildren = React.Children.toArray(child.props.children);
+      return headerChildren.some(headerChild => 
+        React.isValidElement(headerChild) && headerChild.type === AlertDialogTitle
+      );
+    }
+    
+    // Check for nested components that might contain AlertDialogTitle
+    if (child.props && child.props.children) {
+      const nestedChildren = React.Children.toArray(child.props.children);
+      return nestedChildren.some(nestedChild => 
+        React.isValidElement(nestedChild) && 
+        (nestedChild.type === AlertDialogTitle || 
+         (nestedChild.type === AlertDialogHeader && 
+          React.Children.toArray(nestedChild.props?.children || []).some(
+            headerChild => React.isValidElement(headerChild) && headerChild.type === AlertDialogTitle
+          ))
+        )
+      );
+    }
+    
+    return false;
+  });
+  
+  // Check for AlertDialogDescription component
+  const hasAlertDialogDescription = childArray.some(child => {
+    if (!React.isValidElement(child)) return false;
+    
+    // Direct AlertDialogDescription
+    if (child.type === AlertDialogDescription) return true;
+    
+    // AlertDialogDescription inside AlertDialogHeader
+    if (child.type === AlertDialogHeader && child.props.children) {
+      const headerChildren = React.Children.toArray(child.props.children);
+      return headerChildren.some(headerChild => 
+        React.isValidElement(headerChild) && headerChild.type === AlertDialogDescription
+      );
+    }
+    
+    // Check for nested components that might contain AlertDialogDescription
+    if (child.props && child.props.children) {
+      const nestedChildren = React.Children.toArray(child.props.children);
+      return nestedChildren.some(nestedChild => 
+        React.isValidElement(nestedChild) && 
+        (nestedChild.type === AlertDialogDescription || 
+         (nestedChild.type === AlertDialogHeader && 
+          React.Children.toArray(nestedChild.props?.children || []).some(
+            headerChild => React.isValidElement(headerChild) && headerChild.type === AlertDialogDescription
+          ))
+        )
+      );
+    }
+    
+    return false;
+  });
+  
+  // Create a VisuallyHidden component for accessibility
+  const VisuallyHidden = ({ children }: { children: React.ReactNode }) => (
+    <span
+      className="absolute w-[1px] h-[1px] p-0 -m-[1px] overflow-hidden whitespace-nowrap border-0"
+    >
+      {children}
+    </span>
+  );
+
+  return (
+    <AlertDialogPortal>
+      <AlertDialogOverlay />
+      <AlertDialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+          className
+        )}
+        aria-labelledby={titleId}
+        aria-describedby={hasAlertDialogDescription ? descriptionId : undefined}
+        {...props}
+      >
+        {!hasAlertDialogTitle && (
+          <VisuallyHidden>
+            <AlertDialogTitle id={titleId}>Alert Dialog</AlertDialogTitle>
+          </VisuallyHidden>
+        )}
+        
+        {!hasAlertDialogDescription && (
+          <VisuallyHidden>
+            <AlertDialogDescription id={descriptionId}>Alert dialog content</AlertDialogDescription>
+          </VisuallyHidden>
+        )}
+        
+        {/* Enhance children with IDs for accessibility */}
+        {React.Children.map(children, child => {
+          if (!React.isValidElement(child)) return child;
+          
+          if (child.type === AlertDialogTitle) {
+            return React.cloneElement(child, { id: titleId });
+          }
+          
+          if (child.type === AlertDialogDescription) {
+            return React.cloneElement(child, { id: descriptionId });
+          }
+          
+          if (child.type === AlertDialogHeader) {
+            return React.cloneElement(child, {}, 
+              React.Children.map(child.props.children, headerChild => {
+                if (!React.isValidElement(headerChild)) return headerChild;
+                
+                if (headerChild.type === AlertDialogTitle) {
+                  return React.cloneElement(headerChild, { id: titleId });
+                }
+                
+                if (headerChild.type === AlertDialogDescription) {
+                  return React.cloneElement(headerChild, { id: descriptionId });
+                }
+                
+                return headerChild;
+              })
+            );
+          }
+          
+          return child;
+        })}
+      </AlertDialogPrimitive.Content>
+    </AlertDialogPortal>
+  );
+})
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName
 
 const AlertDialogHeader = ({

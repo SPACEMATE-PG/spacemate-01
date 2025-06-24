@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, Outlet } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import { Toaster as Sonner } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
@@ -16,8 +16,7 @@ import NotFound from "./pages/NotFound";
 import RequireAuth from "./components/RequireAuth";
 import Layout from "./components/Layout";
 import PGAdminLayout from "./components/admin/PGAdminLayout";
-
-// Admin pages
+import WardenLayout from "./components/admin/WardenLayout";
 import SuperAdmin from "./pages/admin/SuperAdmin";
 import PGManager from "./pages/admin/PGManager";
 import AddGuest from "./pages/admin/AddGuest";
@@ -28,6 +27,16 @@ import FinancialManagement from "./pages/admin/FinancialManagement";
 import Notifications from "./pages/admin/Notifications";
 import Reports from "./pages/admin/Reports";
 import JoiningRequests from "./pages/admin/JoiningRequests";
+import FoodManagement from "./pages/admin/FoodManagement";
+import SubscriptionPayment from "./pages/admin/SubscriptionPayment";
+import SuperAdminSettings from "./pages/admin/SuperAdminSettings";
+
+// New imports for sub-pages
+import WardenDashboard from "./pages/admin/WardenDashboard";
+import WardenAssets from "./pages/admin/WardenAssets";
+import WardenRequests from "./pages/admin/WardenRequests";
+import WardenMaintenance from "./pages/admin/WardenMaintenance";
+import WardenNotifications from "./pages/admin/WardenNotifications";
 
 // Guest pages
 import GuestRooms from "./pages/guest/Rooms";
@@ -41,6 +50,20 @@ import PublicRooms from "./pages/public/Rooms";
 import RoomDetails from "./pages/public/RoomDetails";
 import BookingForm from "./pages/public/BookingForm";
 import Payment from "./pages/public/Payment";
+
+// Warden protection component
+const RequireWarden = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated, userRole, adminSubRole } = useAuth();
+  
+  console.log("RequireWarden check - isAuthenticated:", isAuthenticated, "userRole:", userRole, "adminSubRole:", adminSubRole);
+  
+  if (!isAuthenticated || userRole !== UserRole.ADMIN || adminSubRole !== AdminSubRole.WARDEN) {
+    console.error("Warden access denied - isAuthenticated:", isAuthenticated, "userRole:", userRole, "adminSubRole:", adminSubRole);
+    return <Navigate to="/role-selection" replace />;
+  }
+  
+  return children;
+};
 
 const queryClient = new QueryClient();
 
@@ -72,7 +95,10 @@ const CapacitorBackHandler = () => {
 const RequireSuperAdmin = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated, userRole, adminSubRole } = useAuth();
   
+  console.log("RequireSuperAdmin check - isAuthenticated:", isAuthenticated, "userRole:", userRole, "adminSubRole:", adminSubRole);
+  
   if (!isAuthenticated || userRole !== UserRole.ADMIN || adminSubRole !== AdminSubRole.SUPER_ADMIN) {
+    console.error("Super Admin access denied - isAuthenticated:", isAuthenticated, "userRole:", userRole, "adminSubRole:", adminSubRole);
     return <Navigate to="/role-selection" replace />;
   }
   
@@ -83,7 +109,10 @@ const RequireSuperAdmin = ({ children }: { children: JSX.Element }) => {
 const RequirePGManager = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated, userRole, adminSubRole } = useAuth();
   
+  console.log("RequirePGManager check - isAuthenticated:", isAuthenticated, "userRole:", userRole, "adminSubRole:", adminSubRole);
+  
   if (!isAuthenticated || userRole !== UserRole.ADMIN || adminSubRole !== AdminSubRole.PG_ADMIN) {
+    console.error("PG Manager access denied - isAuthenticated:", isAuthenticated, "userRole:", userRole, "adminSubRole:", adminSubRole);
     return <Navigate to="/role-selection" replace />;
   }
   
@@ -104,6 +133,11 @@ const AppRoutes = () => (
           <SuperAdmin />
         </RequireSuperAdmin>
       } />
+      <Route path="/super-admin/settings" element={
+        <RequireSuperAdmin>
+          <SuperAdminSettings />
+        </RequireSuperAdmin>
+      } />
 
       {/* PG Manager Routes */}
       <Route path="/pg-admin" element={<RequirePGManager><PGAdminLayout /></RequirePGManager>}>
@@ -114,8 +148,10 @@ const AppRoutes = () => (
         <Route path="rooms" element={<RoomManagement />} />
         <Route path="requests" element={<ServiceRequests />} />
         <Route path="payments" element={<FinancialManagement />} />
+        <Route path="subscription" element={<SubscriptionPayment />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="reports" element={<Reports />} />
+        <Route path="food" element={<FoodManagement />} />
       </Route>
 
       {/* Guest Routes */}
@@ -139,6 +175,15 @@ const AppRoutes = () => (
         <Route path="payment/:id" element={<Payment />} />
       </Route>
 
+      {/* Warden Routes */}
+      <Route path="/warden" element={<RequireWarden><WardenLayout /></RequireWarden>}>
+        <Route index element={<WardenDashboard />} />
+        <Route path="assets" element={<WardenAssets />} />
+        <Route path="requests" element={<WardenRequests />} />
+        <Route path="maintenance" element={<WardenMaintenance />} />
+        <Route path="notifications" element={<WardenNotifications />} />
+      </Route>
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   </BrowserRouter>
@@ -150,7 +195,9 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <AppRoutes />
+        <div className="overflow-x-hidden">
+          <AppRoutes />
+        </div>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

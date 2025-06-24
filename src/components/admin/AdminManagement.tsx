@@ -247,8 +247,6 @@ const AdminManagement = ({
             <DropdownMenuItem onClick={() => { setSortBy("name"); setSortOrder("desc"); }}>Name (Z-A)</DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setSortBy("monthlyRevenue"); setSortOrder("asc"); }}>Revenue (Low to High)</DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setSortBy("monthlyRevenue"); setSortOrder("desc"); }}>Revenue (High to Low)</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { setSortBy("subscriptionStatus"); setSortOrder("asc"); }}>Status (A-Z)</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { setSortBy("subscriptionStatus"); setSortOrder("desc"); }}>Status (Z-A)</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -83,29 +83,48 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<UserRole>(UserRole.PUBLIC);
-  const [adminSubRole, setAdminSubRoleState] = useState<AdminSubRole | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem("currentUser");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  
+  const [userRole, setUserRole] = useState<UserRole>(() => {
+    const storedRole = localStorage.getItem("userRole");
+    return storedRole ? storedRole as UserRole : UserRole.PUBLIC;
+  });
+  
+  const [adminSubRole, setAdminSubRoleState] = useState<AdminSubRole | null>(() => {
+    const storedSubRole = localStorage.getItem("adminSubRole");
+    return storedSubRole ? storedSubRole as AdminSubRole : null;
+  });
+  
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem("isAuthenticated") === "true";
+  });
 
   // Check for remembered credentials on mount
   useEffect(() => {
     const rememberedEmail = localStorage.getItem("rememberedEmail");
     const rememberedPassword = localStorage.getItem("rememberedPassword");
+    const rememberedRole = localStorage.getItem("rememberedRole") as UserRole | null;
+    const rememberedSubRole = localStorage.getItem("rememberedSubRole") as AdminSubRole | null;
     
-    if (rememberedEmail && rememberedPassword) {
+    if (rememberedEmail && rememberedPassword && rememberedRole) {
       // Auto-login with remembered credentials
-      login(rememberedEmail, rememberedPassword, UserRole.ADMIN, AdminSubRole.PG_ADMIN)
+      login(rememberedEmail, rememberedPassword, rememberedRole, rememberedSubRole || undefined)
         .catch(() => {
           // Clear remembered credentials if login fails
           localStorage.removeItem("rememberedEmail");
           localStorage.removeItem("rememberedPassword");
+          localStorage.removeItem("rememberedRole");
+          localStorage.removeItem("rememberedSubRole");
         });
     }
   }, []);
 
   const login = async (email: string, password: string, role: UserRole, adminSubRole?: AdminSubRole) => {
     try {
+      console.log("AuthContext.login called with:", { email, role, adminSubRole });
       // Default credentials for testing
       const defaultCredentials: DefaultCredentials = {
         [UserRole.ADMIN]: {
@@ -134,11 +153,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               break;
             default:
               throw new Error("Invalid admin sub-role");
-    }
-      setCurrentUser(user);
+          }
+          console.log("Setting user state for admin:", { user, role, adminSubRole });
+          setCurrentUser(user);
           setIsAuthenticated(true);
-      setUserRole(role);
+          setUserRole(role);
           setAdminSubRoleState(adminSubRole);
+          
+          // Persist authentication state
+          localStorage.setItem("currentUser", JSON.stringify(user));
+          localStorage.setItem("userRole", role);
+          localStorage.setItem("adminSubRole", adminSubRole);
+          localStorage.setItem("isAuthenticated", "true");
+          console.log("Authentication state saved to localStorage");
           return;
         }
       } else {
@@ -151,9 +178,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             role: role,
             profileImage: "/placeholder.svg"
           };
+          console.log("Setting user state for non-admin:", { user, role });
           setCurrentUser(user);
           setIsAuthenticated(true);
           setUserRole(role);
+          
+          // Persist authentication state
+          localStorage.setItem("currentUser", JSON.stringify(user));
+          localStorage.setItem("userRole", role);
+          localStorage.setItem("isAuthenticated", "true");
+          console.log("Authentication state saved to localStorage");
           return;
         }
       }
@@ -170,9 +204,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserRole(UserRole.PUBLIC);
     setAdminSubRoleState(null);
     setIsAuthenticated(false);
+    
+    // Clear all auth-related items from localStorage
     localStorage.removeItem("currentUser");
     localStorage.removeItem("userRole");
     localStorage.removeItem("adminSubRole");
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("rememberedEmail");
+    localStorage.removeItem("rememberedPassword");
+    localStorage.removeItem("rememberedRole");
+    localStorage.removeItem("rememberedSubRole");
+    
     console.log("User logged out");
   };
 

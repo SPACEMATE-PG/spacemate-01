@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { usePGAdmins, useAdminStats } from "@/hooks/usePGAdmins";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle, Home, Users, TrendingUp, Settings, Bell, RefreshCw } from "lucide-react";
+import { AlertCircle, Home, Users, TrendingUp, Settings, Bell, RefreshCw, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import ErrorBoundary from "@/components/admin/ErrorBoundary";
@@ -92,6 +92,25 @@ const SuperAdmin = () => {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 lg:py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsContent value="overview" className="mt-0 animate-slide-up">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <Card className="hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-blue-800">Manage Subscriptions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-blue-600 mb-2">
+                      Manage all subscription plans, view payments, and track subscriptions for PG admins.
+                    </p>
+                    <Button 
+                      onClick={() => setActiveTab("subscriptions")} 
+                      className="bg-blue-600 hover:bg-blue-700"
+                      size="sm"
+                    >
+                      Go to Subscription Management
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
               <SuperAdminOverview 
                 stats={stats} 
                 isLoading={isLoading} 
@@ -135,8 +154,8 @@ const SuperAdmin = () => {
         </div>
 
         {/* Enhanced Bottom Navigation with Badges */}
-        <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200/50 shadow-2xl z-30">
-          <div className="grid grid-cols-5 h-16">
+        <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200/50 shadow-2xl z-30 md:hidden">
+          <div className="grid grid-cols-6 h-16">
             <button
               onClick={() => setActiveTab("overview")}
               className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative ${
@@ -184,6 +203,23 @@ const SuperAdmin = () => {
               }`} />
               <span className="text-xs font-medium">Revenue</span>
               {activeTab === "revenue" && (
+                <div className="absolute -top-1 w-8 h-1 bg-indigo-600 rounded-full animate-scale-in" />
+              )}
+            </button>
+            
+            <button
+              onClick={() => setActiveTab("analytics")}
+              className={`flex flex-col items-center justify-center gap-1 transition-all duration-300 relative ${
+                activeTab === "analytics"
+                  ? "text-indigo-600 bg-gradient-to-t from-indigo-50 to-transparent scale-105"
+                  : "text-gray-500 hover:text-indigo-500 hover:bg-gray-50/50 hover:scale-105"
+              }`}
+            >
+              <BarChart className={`h-5 w-5 transition-all duration-300 ${
+                activeTab === "analytics" ? "animate-bounce-subtle" : ""
+              }`} />
+              <span className="text-xs font-medium">Analytics</span>
+              {activeTab === "analytics" && (
                 <div className="absolute -top-1 w-8 h-1 bg-indigo-600 rounded-full animate-scale-in" />
               )}
             </button>

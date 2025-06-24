@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,6 +26,7 @@ export interface AdminStats {
   customerSatisfaction: number;
   conversionRate: number;
   growthRate: number;
+  pendingRequests: number;
 }
 
 // Mock API functions - in production these would be real API calls
@@ -161,6 +161,9 @@ export const useAdminStats = (admins: PGAdmin[]): AdminStats => {
   const totalRevenue = monthlyRevenue * 6; // Calculate total revenue for 6 months
   const activeSubscriptions = admins.filter(admin => admin.subscriptionStatus === "active").length;
 
+  // TODO: Replace with real pending requests logic
+  const pendingRequests = 5;
+
   return {
     totalPGs,
     activePGs,
@@ -170,5 +173,6 @@ export const useAdminStats = (admins: PGAdmin[]): AdminStats => {
     customerSatisfaction: 89, // Mock data
     conversionRate: 67, // Mock data
     growthRate: 12, // Mock data
+    pendingRequests,
   };
 };

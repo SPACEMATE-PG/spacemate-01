@@ -106,24 +106,16 @@ const SuperAdminRevenue = ({ stats, isLoading }: SuperAdminRevenueProps) => {
           <CardTitle>Revenue Breakdown by Source</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Monthly Subscriptions */}
-            <div className="p-4 border rounded-lg bg-blue-50/50 flex flex-col items-center justify-center text-center">
-              <DollarSign className="h-8 w-8 text-blue-600 mb-2" />
-              <span className="text-xl font-bold text-blue-800">₹{(stats.monthlyRevenue * 0.7).toFixed(0)}</span>
-              <p className="text-sm text-blue-600">Monthly Subscriptions</p>
+            <div className="flex flex-col items-center justify-center text-center rounded-2xl p-6 bg-blue-50/60 border border-blue-100 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer">
+              <span className="text-2xl md:text-3xl font-extrabold text-blue-700">₹{(stats.monthlyRevenue * 0.7).toFixed(0)}</span>
+              <p className="text-base md:text-lg font-medium text-blue-700 mt-1">Monthly Subscriptions</p>
             </div>
             {/* Annual Subscriptions */}
-            <div className="p-4 border rounded-lg bg-green-50/50 flex flex-col items-center justify-center text-center">
-              <DollarSign className="h-8 w-8 text-green-600 mb-2" />
-              <span className="text-xl font-bold text-green-800">₹{(stats.monthlyRevenue * 0.25).toFixed(0)}</span>
-              <p className="text-sm text-green-600">Annual Subscriptions</p>
-            </div>
-            {/* Add-on Services */}
-            <div className="p-4 border rounded-lg bg-purple-50/50 flex flex-col items-center justify-center text-center">
-              <DollarSign className="h-8 w-8 text-purple-600 mb-2" />
-              <span className="text-xl font-bold text-purple-800">₹{(stats.monthlyRevenue * 0.05).toFixed(0)}</span>
-              <p className="text-sm text-purple-600">Add-on Services</p>
+            <div className="flex flex-col items-center justify-center text-center rounded-2xl p-6 bg-green-50/60 border border-green-100 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer">
+              <span className="text-2xl md:text-3xl font-extrabold text-green-700">₹{(stats.monthlyRevenue * 0.25).toFixed(0)}</span>
+              <p className="text-base md:text-lg font-medium text-green-700 mt-1">Annual Subscriptions</p>
             </div>
           </div>
         </CardContent>

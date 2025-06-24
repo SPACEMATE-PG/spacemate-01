@@ -19,15 +19,16 @@ const LiveActivityFeed = () => {
   const isMobile = useIsMobile();
 
   return (
-    <Card className="shadow-lg rounded-xl overflow-hidden bg-white animate-fade-in-up">
-      <CardHeader className="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-xl font-bold text-slate-800">
-            <Zap className="h-6 w-6 text-indigo-500" /> Live Activity Feed
-            <Badge className={`${isLive ? 'bg-green-100 text-green-700 animate-pulse' : 'bg-gray-100 text-gray-700'} ml-3`}>
+    <Card className="shadow-xl rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/80 to-indigo-50/80 animate-fade-in-up">
+      <CardHeader className="px-6 py-5 border-b border-gray-100 bg-white/80">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-8">
+          <CardTitle className="flex items-center gap-3 text-2xl font-extrabold text-slate-900 tracking-tight">
+            <Zap className="h-7 w-7 text-indigo-500 drop-shadow" />
+            Live Activity Feed
+            <Badge className={`${isLive ? 'bg-green-100 text-green-700 animate-pulse' : 'bg-gray-100 text-gray-700'} ml-2 px-3 py-1 rounded-full font-semibold text-xs shadow-sm`}>
               {isLive ? 'Live' : 'Paused'}
             </Badge>
-            <Badge variant="outline" className="bg-slate-50 text-xs ml-2">
+            <Badge variant="outline" className="bg-slate-50 text-slate-700 text-xs ml-2 px-2 py-1 rounded-full font-medium border border-slate-200">
               {activities.length} Items
             </Badge>
           </CardTitle>
@@ -44,7 +45,7 @@ const LiveActivityFeed = () => {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className={`overflow-y-auto ${isMobile ? 'max-h-[70vh]' : 'max-h-[600px]'}`}>
+        <div className={`overflow-y-auto ${isMobile ? 'max-h-[70vh]' : 'max-h-[600px]'} bg-white/80`}>
           {isLoading ? (
             <div className="p-8 text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
