@@ -189,6 +189,7 @@
 /* Mobile input adjustments */
 input, select, textarea {
   font-size: 16px; /* Prevents iOS zoom on focus */
+  font-family: inherit;
 }
 
 /* Remove tap highlight on mobile */
@@ -245,7 +246,7 @@ html, body {
   @apply min-h-[44px] flex items-center justify-center;
 }
 
-/* Mobile input fixes */
+/* Mobile input fixes - Improved for better readability */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -256,27 +257,18 @@ input[type="search"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  border-radius: 0;
+  border-radius: 8px;
   font-size: 16px !important;
-  line-height: normal;
-  color: #000000 !important; /* Force black text */
-  -webkit-text-fill-color: #000000 !important; /* Force black text fill for WebKit */
+  line-height: 1.5;
+  font-family: inherit;
+  color: #333333 !important; 
+  background-color: #ffffff !important;
+  -webkit-text-fill-color: #333333 !important;
   opacity: 1 !important;
-  background-color: #ffffff !important; /* Force white background */
-  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important; /* Force background white */
-  caret-color: #000000 !important; /* Ensure caret is visible and black */
-  -webkit-touch-callout: none; /* Prevent iOS callouts */
-  -webkit-user-select: text !important; /* Ensure text selection is enabled */
-  user-select: text !important; /* Ensure text selection is enabled for all browsers */
-  text-shadow: none !important; /* Prevent text shadows from hiding text */
-  text-indent: 0 !important; /* Prevent text indentation from hiding text */
-  letter-spacing: normal !important; /* Ensure normal letter spacing */
-  font-family: sans-serif !important; /* Use a generic system font to rule out font issues */
-  -webkit-background-clip: padding-box !important;
-  background-clip: padding-box !important;
+  -webkit-box-shadow: none;
 }
 
-/* Ensure user-select is explicitly set for input elements and their pseudo-elements */
+/* Ensure user-select is explicitly set for input elements */
 input, input::before, input::after {
   -webkit-user-select: text !important;
   user-select: text !important;
@@ -288,6 +280,7 @@ input, input::before, input::after {
   textarea,
   input {
     font-size: 16px !important;
+    font-family: inherit;
   }
 }
 
@@ -295,46 +288,53 @@ input, input::before, input::after {
 input:focus {
   outline: none;
   -webkit-tap-highlight-color: transparent;
-  -webkit-user-select: text;
-  user-select: text;
 }
 
-/* Fix for special characters on mobile */
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus {
-  -webkit-user-select: text;
-  user-select: text;
-  -webkit-text-fill-color: #000000 !important;
-}
-
-/* Ensure proper text rendering on mobile */
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-/* Fix for input text color on mobile */
+/* Fix for input text color */
 input {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: #333333 !important;
+  -webkit-text-fill-color: #333333 !important;
 }
 
-/* Fix for input background on mobile */
+/* Fix for input background */
 input {
   background-color: #ffffff !important;
 }
 
-/* Fix for input placeholder color */
-input::placeholder {
-  color: #666666 !important;
-  opacity: 1 !important;
+/* Fix for input placeholder text style */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: #6B7280 !important;
+  opacity: 0.8 !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
 }
 
 /* Fix for input focus state */
 input:focus {
   background-color: #ffffff !important;
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  color: #333333 !important;
+  -webkit-text-fill-color: #333333 !important;
+}
+
+/* Additional placeholder style enhancement for webkit browsers */
+::-webkit-input-placeholder {
+  text-transform: none !important;
+  font-family: inherit !important;
+}
+
+/* Placeholder text for Mozilla */
+::-moz-placeholder {
+  text-transform: none !important;
+  font-family: inherit !important;
+}
+
+/* Placeholder text for Microsoft Edge */
+:-ms-input-placeholder {
+  text-transform: none !important;
+  font-family: inherit !important;
 }

@@ -29,7 +29,8 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         style={{
           WebkitUserModify: "read-write-plaintext-only", // Ensure text is editable
           WebkitTapHighlightColor: "transparent",
-          // Add more styles here if needed
+          fontFamily: "inherit",
+          ...props.style,
         }}
       />
     )
