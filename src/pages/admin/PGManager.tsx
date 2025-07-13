@@ -36,7 +36,8 @@ import {
   ShieldCheck,
   Calendar,
   AlertCircle,
-  Utensils
+  Utensils,
+  Wrench
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -51,6 +52,7 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Mock data for demonstration
 const mockData = {
@@ -61,7 +63,11 @@ const mockData = {
     totalBeds: 48,
     availableBeds: 8,
     isAvailable: true,
-    facilities: ["WiFi", "AC", "Food", "Laundry", "Water Purifier"]
+    facilities: ["WiFi", "AC", "Food", "Laundry", "Water Purifier"],
+    totalResidents: 20,
+    monthlyRevenue: 150000,
+    pendingRequests: 10,
+    urgentRequests: 3
   },
   joiningRequests: [
     {
@@ -71,7 +77,10 @@ const mockData = {
       phone: "+91 9876543210",
       roomType: "Double Sharing",
       moveInDate: "2024-03-01",
-      status: "pending"
+      status: "pending",
+      avatar: "https://via.placeholder.com/50",
+      preferredRoom: "Room 101",
+      requestDate: "2024-02-28"
     },
     {
       id: "2",
@@ -80,7 +89,10 @@ const mockData = {
       phone: "+91 9876543211",
       roomType: "Single Sharing",
       moveInDate: "2024-03-05",
-      status: "approved"
+      status: "approved",
+      avatar: "https://via.placeholder.com/50",
+      preferredRoom: "Room 102",
+      requestDate: "2024-02-25"
     }
   ],
   serviceRequests: [
@@ -178,6 +190,26 @@ const mockData = {
       date: "2024-04-01",
       time: "11:00"
     }
+  ],
+  recentActivities: [
+    {
+      id: "a1",
+      type: "check-in",
+      description: "New resident, John Doe, checked in.",
+      time: "2 hours ago"
+    },
+    {
+      id: "a2",
+      type: "payment",
+      description: "Payment received from Michael Peterson for March rent.",
+      time: "1 day ago"
+    },
+    {
+      id: "a3",
+      type: "maintenance",
+      description: "AC unit in Room 101 reported as non-functional.",
+      time: "2 days ago"
+    }
   ]
 };
 
@@ -188,7 +220,7 @@ const PGManager = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { logout, currentUser } = useAuth();
-  const isMobileView = useIsMobile();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
 
   // Load dashboard data
@@ -303,19 +335,19 @@ const PGManager = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 bg-white p-4 rounded-lg shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold">PG Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">PG Dashboard</h1>
           <p className="text-muted-foreground">
             Welcome back, {currentUser?.name}
           </p>
-            </div>
-        <div className="flex items-center gap-4">
+        </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">PG Status:</span>
-                <Switch
-                  checked={isPGAvailable}
-                  onCheckedChange={handlePGAvailability}
+            <span className="text-sm font-medium">PG Status:</span>
+            <Switch
+              checked={isPGAvailable}
+              onCheckedChange={handlePGAvailability}
             />
             <span className={cn(
               "text-sm",
@@ -324,224 +356,188 @@ const PGManager = () => {
               {isPGAvailable ? "Available" : "Not Available"}
             </span>
           </div>
-          <Button onClick={goToJoiningRequests} size="sm">
+          <Button onClick={() => navigate("/pg-admin/residents/requests")} size="sm">
             <Plus className="h-4 w-4 mr-1" /> New Request
           </Button>
         </div>
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={goToGuests}>
-          <CardContent className="pt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Residents</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-muted-foreground">Total Residents</span>
-                <span className="text-2xl font-bold">
-                  {mockData.pgDetails.totalBeds - mockData.pgDetails.availableBeds}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  of {mockData.pgDetails.totalBeds} beds
-                </span>
-              </div>
-              <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
+              <div className="text-2xl font-bold">{mockData.pgDetails.totalResidents}</div>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </div>
-            <Progress 
-              value={occupancyPercent} 
-              className={cn(
-                "mt-4",
-                occupancyPercent > 90 ? "[&>div]:bg-red-500" :
-                occupancyPercent > 75 ? "[&>div]:bg-orange-500" :
-                "[&>div]:bg-green-500"
-              )}
-            />
-            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-              <span>Occupancy {occupancyPercent}%</span>
-              <span>{mockData.pgDetails.availableBeds} beds available</span>
-                </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {mockData.pgDetails.availableBeds} beds available
+            </p>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={goToRooms}>
-          <CardContent className="pt-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Occupancy Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-muted-foreground">Rooms</span>
-                <span className="text-2xl font-bold">
-                  {mockData.pgDetails.totalRooms - mockData.pgDetails.availableRooms}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  of {mockData.pgDetails.totalRooms} total
-                </span>
+              <div className="text-2xl font-bold">{occupancyPercent}%</div>
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="mt-2">
+              <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-green-500 rounded-full transition-all duration-500"
+                  style={{ width: `${occupancyPercent}%` }}
+                />
               </div>
-              <div className="h-12 w-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-purple-600" />
-          </div>
-        </div>
-            <Progress 
-              value={((mockData.pgDetails.totalRooms - mockData.pgDetails.availableRooms) / mockData.pgDetails.totalRooms) * 100} 
-              className="mt-4 [&>div]:bg-purple-500"
-            />
-            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-              <span>Occupied Rooms</span>
-              <span>{mockData.pgDetails.availableRooms} available</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={goToServiceRequests}>
-          <CardContent className="pt-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Revenue</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-muted-foreground">Active Requests</span>
-                <span className="text-2xl font-bold">{mockData.serviceRequests.length}</span>
-                <span className="text-sm text-muted-foreground">
-                  {mockData.serviceRequests.filter(r => r.priority === "high").length} high priority
-                </span>
-              </div>
-              <div className="h-12 w-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <ClipboardList className="h-6 w-6 text-amber-600" />
-          </div>
-        </div>
-            <div className="mt-4 space-y-2">
-              {mockData.serviceRequests.slice(0, 2).map(request => (
-                <div key={request.id} className="flex items-center justify-between text-sm">
-                  <span className="truncate flex-1">{request.description}</span>
-                  <Badge variant="outline" className={cn(
-                    request.priority === "high" ? "bg-red-100 text-red-800" :
-                    request.priority === "medium" ? "bg-amber-100 text-amber-800" :
-                    "bg-green-100 text-green-800"
-                  )}>
-                    {request.priority}
-                  </Badge>
-                </div>
-              ))}
-              </div>
-            </CardContent>
-          </Card>
+              <div className="text-2xl font-bold">₹{mockData.pgDetails.monthlyRevenue.toLocaleString()}</div>
+              <IndianRupee className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-green-600 mt-2">
+              +5% from last month
+            </p>
+          </CardContent>
+        </Card>
 
-        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={goToPayments}>
-          <CardContent className="pt-4">
-              <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-muted-foreground">Recent Payments</span>
-                <span className="text-2xl font-bold">
-                  ₹{mockData.recentPayments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  Last 7 days
-                </span>
-                </div>
-              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                <IndianRupee className="h-6 w-6 text-green-600" />
-              </div>
-                </div>
-            <div className="mt-4 space-y-2">
-              {mockData.recentPayments.slice(0, 2).map(payment => (
-                <div key={payment.id} className="flex items-center justify-between text-sm">
-                  <span className="truncate flex-1">{payment.resident}</span>
-                  <Badge variant={payment.status === "completed" ? "outline" : "secondary"}>
-                    ₹{payment.amount.toLocaleString()}
-                  </Badge>
-                </div>
-              ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Requests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div className="text-2xl font-bold">{mockData.pgDetails.pendingRequests}</div>
+              <ClipboardList className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <p className="text-xs text-amber-600 mt-2">
+              {mockData.pgDetails.urgentRequests} urgent requests
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Recent Activity and Quick Actions */}
+      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Service Requests */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Service Requests</CardTitle>
-              <Button variant="outline" size="sm" onClick={goToServiceRequests}>
+              <Button variant="outline" size="sm" onClick={() => navigate("/pg-admin/requests")}>
                 View All
               </Button>
             </div>
             <CardDescription>Recent maintenance and service requests</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-              {mockData.serviceRequests.map(request => (
-                <div key={request.id} className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className={cn(
-                      "mt-1 h-2 w-2 rounded-full",
-                      request.priority === "high" ? "bg-red-500" :
-                      request.priority === "medium" ? "bg-amber-500" :
-                      "bg-green-500"
-                    )} />
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px]">
+              <div className="space-y-4">
+                {mockData.serviceRequests.map(request => (
+                  <div key={request.id} className="flex items-start justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className="flex items-start gap-3">
+                      <div className={cn(
+                        "mt-1 h-2 w-2 rounded-full",
+                        request.priority === "high" ? "bg-red-500" :
+                        request.priority === "medium" ? "bg-amber-500" :
+                        "bg-green-500"
+                      )} />
                       <div>
-                      <p className="font-medium">{request.description}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Room {request.roomNumber} • {request.requestTime}
-                      </p>
+                        <p className="font-medium">{request.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Room {request.roomNumber} • {request.requestTime}
+                        </p>
+                      </div>
                     </div>
+                    <Badge variant="outline" className={cn(
+                      request.status === "pending" ? "bg-amber-100 text-amber-800" :
+                      request.status === "in-progress" ? "bg-blue-100 text-blue-800" :
+                      "bg-green-100 text-green-800"
+                    )}>
+                      {request.status}
+                    </Badge>
                   </div>
-                  <Badge variant="outline" className={cn(
-                    request.status === "pending" ? "bg-amber-100 text-amber-800" :
-                    request.status === "in-progress" ? "bg-blue-100 text-blue-800" :
-                    "bg-green-100 text-green-800"
-                  )}>
-                    {request.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-            </CardContent>
-          </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
 
         {/* Joining Requests */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Joining Requests</CardTitle>
-              <Button variant="outline" size="sm" onClick={goToJoiningRequests}>
+              <Button variant="outline" size="sm" onClick={() => navigate("/pg-admin/residents/requests")}>
                 View All
               </Button>
             </div>
             <CardDescription>Recent accommodation requests</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-              {mockData.joiningRequests.map(request => (
-                <div key={request.id} className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback>
-                        {request.name.split(" ").map(n => n[0]).join("")}
-                      </AvatarFallback>
-                    </Avatar>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="h-[300px]">
+              <div className="space-y-4">
+                {mockData.joiningRequests.map(request => (
+                  <div key={request.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={request.avatar} />
+                        <AvatarFallback>{request.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
                       <div>
-                      <p className="font-medium">{request.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {request.roomType} • Move in: {new Date(request.moveInDate).toLocaleDateString()}
-                      </p>
+                        <p className="font-medium">{request.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {request.preferredRoom} • {request.requestDate}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                        onClick={() => handleRequestAction(request.id, "approve")}
+                      >
+                        <CheckCircle className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => handleRequestAction(request.id, "reject")}
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  <Badge variant={request.status === "pending" ? "secondary" : "outline"}>
-                    {request.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-            </CardContent>
-          </Card>
-        </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Additional Information */}
+      {/* Additional Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Food Feedback */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Food Feedback</CardTitle>
-              <Button variant="outline" size="sm" onClick={goToFoodManagement}>
+              <Button variant="outline" size="sm" onClick={() => navigate("/pg-admin/food")}>
                 Manage
               </Button>
             </div>
@@ -558,7 +554,12 @@ const PGManager = () => {
               {mockData.foodFeedback.today.breakdown.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div className="text-sm font-medium w-3">{item.rating}</div>
-                  <Progress value={(item.count / mockData.foodFeedback.today.totalResponses) * 100} />
+                  <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-purple-500 rounded-full transition-all duration-500"
+                      style={{ width: `${(item.count / mockData.foodFeedback.today.totalResponses) * 100}%` }}
+                    />
+                  </div>
                   <div className="text-sm text-muted-foreground w-8">{item.count}</div>
                 </div>
               ))}
@@ -570,79 +571,59 @@ const PGManager = () => {
         <Card>
           <CardHeader>
             <CardTitle>Upcoming Events</CardTitle>
-            <CardDescription>Scheduled activities and events</CardDescription>
+            <CardDescription>Scheduled activities and maintenance</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mockData.upcomingEvents.map(event => (
-                <div key={event.id} className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-12 text-center">
-                    <div className="text-2xl font-bold">
-                      {new Date(event.date).getDate()}
+            <ScrollArea className="h-[250px]">
+              <div className="space-y-4">
+                {mockData.upcomingEvents.map((event, index) => (
+                  <div key={index} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className="flex flex-col items-center justify-center bg-purple-100 text-purple-600 rounded-lg p-2 w-12">
+                      <span className="text-sm font-semibold">{event.date.split(' ')[0]}</span>
+                      <span className="text-xs">{event.date.split(' ')[1]}</span>
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(event.date).toLocaleString('default', { month: 'short' })}
+                    <div>
+                      <p className="font-medium">{event.title}</p>
+                      <p className="text-sm text-muted-foreground">{event.time}</p>
                     </div>
-                  </div>
-                  <div>
-                    <p className="font-medium">{event.title}</p>
-                    <p className="text-sm text-muted-foreground">{event.time}</p>
-                  </div>
                   </div>
                 ))}
               </div>
+            </ScrollArea>
           </CardContent>
         </Card>
 
-        {/* Quick Links */}
+        {/* Recent Activities */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Frequently used features</CardDescription>
+            <CardTitle>Recent Activities</CardTitle>
+            <CardDescription>Latest updates and changes</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <Button
-                variant="outline"
-                className="h-24 flex flex-col items-center justify-center gap-2"
-                onClick={goToGuests}
-              >
-                <Users className="h-6 w-6" />
-                <span>Add Resident</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-24 flex flex-col items-center justify-center gap-2"
-                onClick={goToServiceRequests}
-              >
-                <ClipboardList className="h-6 w-6" />
-                <span>New Request</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-24 flex flex-col items-center justify-center gap-2"
-                onClick={goToFoodManagement}
-              >
-                <Utensils className="h-6 w-6" />
-                <span>Manage Food</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-24 flex flex-col items-center justify-center gap-2"
-                onClick={goToPayments}
-              >
-                <IndianRupee className="h-6 w-6" />
-                <span>Record Payment</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="h-24 flex flex-col items-center justify-center gap-2"
-                onClick={goToReports}
-              >
-                <FileText className="h-6 w-6" />
-                <span>Generate Report</span>
-              </Button>
-            </div>
+            <ScrollArea className="h-[250px]">
+              <div className="space-y-4">
+                {mockData.recentActivities.map((activity, index) => (
+                  <div key={index} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div className={cn(
+                      "p-2 rounded-full",
+                      activity.type === "check-in" ? "bg-green-100 text-green-600" :
+                      activity.type === "check-out" ? "bg-red-100 text-red-600" :
+                      activity.type === "payment" ? "bg-blue-100 text-blue-600" :
+                      "bg-gray-100 text-gray-600"
+                    )}>
+                      {activity.type === "check-in" && <Users className="h-4 w-4" />}
+                      {activity.type === "check-out" && <LogOut className="h-4 w-4" />}
+                      {activity.type === "payment" && <IndianRupee className="h-4 w-4" />}
+                      {activity.type === "maintenance" && <Wrench className="h-4 w-4" />}
+                    </div>
+                    <div>
+                      <p className="font-medium">{activity.description}</p>
+                      <p className="text-sm text-muted-foreground">{activity.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       </div>

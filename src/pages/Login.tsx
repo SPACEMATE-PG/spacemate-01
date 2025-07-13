@@ -167,13 +167,13 @@ const Login = () => {
       if (userRole === UserRole.ADMIN) {
         switch (selectedAdminSubRole) {
           case AdminSubRole.SUPER_ADMIN:
-            navigate("/admin/superadmin", { replace: true });
+            navigate("/super-admin", { replace: true });
             break;
           case AdminSubRole.PG_ADMIN:
-            navigate("/admin/dashboard", { replace: true });
+            navigate("/pg-admin", { replace: true });
             break;
           case AdminSubRole.WARDEN:
-            navigate("/admin/warden", { replace: true });
+            navigate("/warden", { replace: true });
             break;
           default:
             navigate("/admin", { replace: true });

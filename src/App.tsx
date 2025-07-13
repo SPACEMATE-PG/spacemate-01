@@ -30,6 +30,12 @@ import JoiningRequests from "./pages/admin/JoiningRequests";
 import FoodManagement from "./pages/admin/FoodManagement";
 import SubscriptionPayment from "./pages/admin/SubscriptionPayment";
 import SuperAdminSettings from "./pages/admin/SuperAdminSettings";
+import PGAdminSettings from "./pages/admin/PGAdminSettings";
+import PGAdminHelp from "./pages/admin/PGAdminHelp";
+import PGAdminAbout from "./pages/admin/PGAdminAbout";
+import Security from "./pages/admin/Security";
+import Messages from "./pages/admin/Messages";
+import Expenses from "./pages/admin/Expenses";
 
 // New imports for sub-pages
 import WardenDashboard from "./pages/admin/WardenDashboard";
@@ -140,18 +146,23 @@ const AppRoutes = () => (
       } />
 
       {/* PG Manager Routes */}
-      <Route path="/pg-admin" element={<RequirePGManager><PGAdminLayout /></RequirePGManager>}>
+      <Route path="/pg-admin" element={<PGAdminLayout />}>
         <Route index element={<PGManager />} />
-        <Route path="residents" element={<GuestsList />} />
-        <Route path="residents/add" element={<AddGuest />} />
         <Route path="residents/requests" element={<JoiningRequests />} />
+        <Route path="residents" element={<GuestsList />} />
         <Route path="rooms" element={<RoomManagement />} />
+        <Route path="food" element={<FoodManagement />} />
         <Route path="requests" element={<ServiceRequests />} />
         <Route path="payments" element={<FinancialManagement />} />
-        <Route path="subscription" element={<SubscriptionPayment />} />
-        <Route path="notifications" element={<Notifications />} />
         <Route path="reports" element={<Reports />} />
-        <Route path="food" element={<FoodManagement />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="settings" element={<PGAdminSettings />} />
+        <Route path="help" element={<PGAdminHelp />} />
+        <Route path="about" element={<PGAdminAbout />} />
+        {/* New Routes */}
+        <Route path="security" element={<Security />} />
+        <Route path="messages" element={<Messages />} />
+        <Route path="expenses" element={<Expenses />} />
       </Route>
 
       {/* Guest Routes */}
@@ -181,6 +192,7 @@ const AppRoutes = () => (
         <Route path="assets" element={<WardenAssets />} />
         <Route path="requests" element={<WardenRequests />} />
         <Route path="maintenance" element={<WardenMaintenance />} />
+        <Route path="messages" element={<Messages />} />
         <Route path="notifications" element={<WardenNotifications />} />
       </Route>
 

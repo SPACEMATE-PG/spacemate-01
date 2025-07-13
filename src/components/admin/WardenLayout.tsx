@@ -17,7 +17,8 @@ import {
   Info,
   Settings,
   Building2,
-  ChevronLeft
+  ChevronLeft,
+  MessageSquare
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -26,6 +27,7 @@ const navigationItems = [
   { tab: "assets", label: "Assets", icon: Building2, path: "/warden/assets" },
   { tab: "requests", label: "Requests", icon: ClipboardList, path: "/warden/requests" },
   { tab: "maintenance", label: "Maintenance", icon: Wrench, path: "/warden/maintenance" },
+  { tab: "messages", label: "Messages", icon: MessageSquare, path: "/warden/messages" },
   { tab: "notifications", label: "Notifications", icon: Bell, path: "/warden/notifications" }
 ];
 

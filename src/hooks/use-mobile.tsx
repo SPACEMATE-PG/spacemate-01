@@ -1,19 +1,43 @@
-import * as React from "react"
+import { useState, useEffect } from 'react';
 
-const MOBILE_BREAKPOINT = 768
+export const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  return !!isMobile
-}
+  return isMobile;
+};
+
+export const useBreakpoint = () => {
+  const [breakpoint, setBreakpoint] = useState({
+    sm: window.innerWidth >= 640,
+    md: window.innerWidth >= 768,
+    lg: window.innerWidth >= 1024,
+    xl: window.innerWidth >= 1280,
+    '2xl': window.innerWidth >= 1536
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setBreakpoint({
+        sm: window.innerWidth >= 640,
+        md: window.innerWidth >= 768,
+        lg: window.innerWidth >= 1024,
+        xl: window.innerWidth >= 1280,
+        '2xl': window.innerWidth >= 1536
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return breakpoint;
+};
