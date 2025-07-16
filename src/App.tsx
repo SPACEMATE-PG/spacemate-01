@@ -5,57 +5,72 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserRole, AdminSubRole } from "./types";
-import { useEffect } from "react";
+import { useEffect, Suspense, lazy } from "react";
 import { App as CapApp } from "@capacitor/app";
+import ErrorBoundary from "./components/ErrorBoundary";
 
-// Pages
-import SplashScreen from "./pages/SplashScreen";
-import RoleSelection from "./pages/RoleSelection";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
-import RequireAuth from "./components/RequireAuth";
-import Layout from "./components/Layout";
-import PGAdminLayout from "./components/admin/PGAdminLayout";
-import WardenLayout from "./components/admin/WardenLayout";
-import SuperAdmin from "./pages/admin/SuperAdmin";
-import PGManager from "./pages/admin/PGManager";
-import AddGuest from "./pages/admin/AddGuest";
-import GuestsList from "./pages/admin/GuestsList";
-import RoomManagement from "./pages/admin/RoomManagement";
-import ServiceRequests from "./pages/admin/ServiceRequests";
-import FinancialManagement from "./pages/admin/FinancialManagement";
-import Notifications from "./pages/admin/Notifications";
-import Reports from "./pages/admin/Reports";
-import JoiningRequests from "./pages/admin/JoiningRequests";
-import FoodManagement from "./pages/admin/FoodManagement";
-import SubscriptionPayment from "./pages/admin/SubscriptionPayment";
-import SuperAdminSettings from "./pages/admin/SuperAdminSettings";
-import PGAdminSettings from "./pages/admin/PGAdminSettings";
-import PGAdminHelp from "./pages/admin/PGAdminHelp";
-import PGAdminAbout from "./pages/admin/PGAdminAbout";
-import Security from "./pages/admin/Security";
-import Messages from "./pages/admin/Messages";
-import Expenses from "./pages/admin/Expenses";
+// Lazy load pages
+const SplashScreen = lazy(() => import("./pages/SplashScreen"));
+const RoleSelection = lazy(() => import("./pages/RoleSelection"));
+const Login = lazy(() => import("./pages/Login"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const RequireAuth = lazy(() => import("./components/RequireAuth"));
+const Layout = lazy(() => import("./components/Layout"));
+const PGAdminLayout = lazy(() => import("./components/admin/PGAdminLayout"));
+const WardenLayout = lazy(() => import("./components/admin/WardenLayout"));
+const SuperAdmin = lazy(() => import("./pages/admin/SuperAdmin"));
+const PGManager = lazy(() => import("./pages/admin/PGManager"));
+const AddGuest = lazy(() => import("./pages/admin/AddGuest"));
+const GuestsList = lazy(() => import("./pages/admin/GuestsList"));
+const RoomManagement = lazy(() => import("./pages/admin/RoomManagement"));
+const ServiceRequests = lazy(() => import("./pages/admin/ServiceRequests"));
+const FinancialManagement = lazy(() => import("./pages/admin/FinancialManagement"));
+const Notifications = lazy(() => import("./pages/admin/Notifications"));
+const Reports = lazy(() => import("./pages/admin/Reports"));
+const JoiningRequests = lazy(() => import("./pages/admin/JoiningRequests"));
+const FoodManagement = lazy(() => import("./pages/admin/FoodManagement"));
+const SubscriptionPayment = lazy(() => import("./pages/admin/SubscriptionPayment"));
+const SuperAdminSettings = lazy(() => import("./pages/admin/SuperAdminSettings"));
+const PGAdminSettings = lazy(() => import("./pages/admin/PGAdminSettings"));
+const PGAdminHelp = lazy(() => import("./pages/admin/PGAdminHelp"));
+const PGAdminAbout = lazy(() => import("./pages/admin/PGAdminAbout"));
+const Security = lazy(() => import("./pages/admin/Security"));
+const Messages = lazy(() => import("./pages/admin/Messages"));
+const Expenses = lazy(() => import("./pages/admin/Expenses"));
 
-// New imports for sub-pages
-import WardenDashboard from "./pages/admin/WardenDashboard";
-import WardenAssets from "./pages/admin/WardenAssets";
-import WardenRequests from "./pages/admin/WardenRequests";
-import WardenMaintenance from "./pages/admin/WardenMaintenance";
-import WardenNotifications from "./pages/admin/WardenNotifications";
+// Lazy load warden pages
+const WardenDashboard = lazy(() => import("./pages/admin/WardenDashboard"));
+const WardenAssets = lazy(() => import("./pages/admin/WardenAssets"));
+const WardenRequests = lazy(() => import("./pages/admin/WardenRequests"));
+const WardenMaintenance = lazy(() => import("./pages/admin/WardenMaintenance"));
+const WardenNotifications = lazy(() => import("./pages/admin/WardenNotifications"));
+const WardenSettings = lazy(() => import("./pages/admin/WardenSettings"));
+const WardenHelp = lazy(() => import("./pages/admin/WardenHelp"));
+const WardenAbout = lazy(() => import("./pages/admin/WardenAbout"));
+const WardenSecurity = lazy(() => import("./pages/admin/WardenSecurity"));
 
-// Guest pages
-import GuestRooms from "./pages/guest/Rooms";
-import GuestMeals from "./pages/guest/Meals";
-import GuestNotifications from "./pages/guest/Notifications";
-import GuestProfile from "./pages/guest/Profile";
-import GuestIndex from "./pages/guest/Index";
+// Lazy load guest pages
+const GuestRooms = lazy(() => import("./pages/guest/Rooms"));
+const GuestMeals = lazy(() => import("./pages/guest/Meals"));
+const GuestNotifications = lazy(() => import("./pages/guest/Notifications"));
+const GuestProfile = lazy(() => import("./pages/guest/Profile"));
+const GuestIndex = lazy(() => import("./pages/guest/Index"));
+const GuestSettings = lazy(() => import("./pages/guest/Settings"));
+const GuestHelp = lazy(() => import("./pages/guest/Help"));
+const GuestAbout = lazy(() => import("./pages/guest/About"));
 
-// Public pages
-import PublicRooms from "./pages/public/Rooms";
-import RoomDetails from "./pages/public/RoomDetails";
-import BookingForm from "./pages/public/BookingForm";
-import Payment from "./pages/public/Payment";
+// Lazy load public pages
+const PublicRooms = lazy(() => import("./pages/public/Rooms"));
+const RoomDetails = lazy(() => import("./pages/public/RoomDetails"));
+const BookingForm = lazy(() => import("./pages/public/BookingForm"));
+const Payment = lazy(() => import("./pages/public/Payment"));
+
+// Loading component for Suspense
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+);
 
 // Warden protection component
 const RequireWarden = ({ children }: { children: JSX.Element }) => {
@@ -128,91 +143,101 @@ const RequirePGManager = ({ children }: { children: JSX.Element }) => {
 const AppRoutes = () => (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <CapacitorBackHandler />
-    <Routes>
-      <Route path="/" element={<SplashScreen />} />
-      <Route path="/role-selection" element={<RoleSelection />} />
-      <Route path="/login" element={<Login />} />
-      
-      {/* Super Admin Route */}
-      <Route path="/super-admin" element={
-        <RequireSuperAdmin>
-          <SuperAdmin />
-        </RequireSuperAdmin>
-      } />
-      <Route path="/super-admin/settings" element={
-        <RequireSuperAdmin>
-          <SuperAdminSettings />
-        </RequireSuperAdmin>
-      } />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/" element={<SplashScreen />} />
+        <Route path="/role-selection" element={<RoleSelection />} />
+        <Route path="/login" element={<Login />} />
+        
+        {/* Super Admin Route */}
+        <Route path="/super-admin" element={
+          <RequireSuperAdmin>
+            <SuperAdmin />
+          </RequireSuperAdmin>
+        } />
+        <Route path="/super-admin/settings" element={
+          <RequireSuperAdmin>
+            <SuperAdminSettings />
+          </RequireSuperAdmin>
+        } />
 
-      {/* PG Manager Routes */}
-      <Route path="/pg-admin" element={<PGAdminLayout />}>
-        <Route index element={<PGManager />} />
-        <Route path="residents/requests" element={<JoiningRequests />} />
-        <Route path="residents" element={<GuestsList />} />
-        <Route path="rooms" element={<RoomManagement />} />
-        <Route path="food" element={<FoodManagement />} />
-        <Route path="requests" element={<ServiceRequests />} />
-        <Route path="payments" element={<FinancialManagement />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="settings" element={<PGAdminSettings />} />
-        <Route path="help" element={<PGAdminHelp />} />
-        <Route path="about" element={<PGAdminAbout />} />
-        {/* New Routes */}
-        <Route path="security" element={<Security />} />
-        <Route path="messages" element={<Messages />} />
-        <Route path="expenses" element={<Expenses />} />
-      </Route>
+        {/* PG Manager Routes */}
+        <Route path="/pg-admin" element={<PGAdminLayout />}>
+          <Route index element={<PGManager />} />
+          <Route path="residents/requests" element={<JoiningRequests />} />
+          <Route path="residents" element={<GuestsList />} />
+          <Route path="rooms" element={<RoomManagement />} />
+          <Route path="food" element={<FoodManagement />} />
+          <Route path="requests" element={<ServiceRequests />} />
+          <Route path="payments" element={<FinancialManagement />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="settings" element={<PGAdminSettings />} />
+          <Route path="help" element={<PGAdminHelp />} />
+          <Route path="about" element={<PGAdminAbout />} />
+          <Route path="security" element={<Security />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="expenses" element={<Expenses />} />
+        </Route>
 
-      {/* Guest Routes */}
-      <Route path="/guest" element={
-        <RequireAuth allowedRole={UserRole.PG_GUEST}>
-          <Layout />
-        </RequireAuth>
-      }>
-        <Route index element={<GuestIndex />} />
-        <Route path="rooms" element={<GuestRooms />} />
-        <Route path="meals" element={<GuestMeals />} />
-        <Route path="notifications" element={<GuestNotifications />} />
-        <Route path="profile" element={<GuestProfile />} />
-      </Route>
+        {/* Guest Routes */}
+        <Route path="/guest" element={
+          <RequireAuth allowedRole={UserRole.PG_GUEST}>
+            <Layout />
+          </RequireAuth>
+        }>
+          <Route index element={<GuestIndex />} />
+          <Route path="rooms" element={<GuestRooms />} />
+          <Route path="meals" element={<GuestMeals />} />
+          <Route path="notifications" element={<GuestNotifications />} />
+          <Route path="profile" element={<GuestProfile />} />
+          <Route path="settings" element={<GuestSettings />} />
+          <Route path="help" element={<GuestHelp />} />
+          <Route path="about" element={<GuestAbout />} />
+        </Route>
 
-      {/* Public Routes */}
-      <Route path="/public" element={<Layout />}>
-        <Route path="rooms" element={<PublicRooms />} />
-        <Route path="rooms/:id" element={<RoomDetails />} />
-        <Route path="booking/:id" element={<BookingForm />} />
-        <Route path="payment/:id" element={<Payment />} />
-      </Route>
+        {/* Public Routes */}
+        <Route path="/public" element={<Layout />}>
+          <Route path="rooms" element={<PublicRooms />} />
+          <Route path="rooms/:id" element={<RoomDetails />} />
+          <Route path="booking/:id" element={<BookingForm />} />
+          <Route path="payment/:id" element={<Payment />} />
+        </Route>
 
-      {/* Warden Routes */}
-      <Route path="/warden" element={<RequireWarden><WardenLayout /></RequireWarden>}>
-        <Route index element={<WardenDashboard />} />
-        <Route path="assets" element={<WardenAssets />} />
-        <Route path="requests" element={<WardenRequests />} />
-        <Route path="maintenance" element={<WardenMaintenance />} />
-        <Route path="messages" element={<Messages />} />
-        <Route path="notifications" element={<WardenNotifications />} />
-      </Route>
+        {/* Warden Routes */}
+        <Route path="/warden" element={<RequireWarden><WardenLayout /></RequireWarden>}>
+          <Route index element={<WardenDashboard />} />
+          <Route path="assets" element={<WardenAssets />} />
+          <Route path="requests" element={<WardenRequests />} />
+          <Route path="maintenance" element={<WardenMaintenance />} />
+          <Route path="messages" element={<Messages />} />
+          <Route path="notifications" element={<WardenNotifications />} />
+          <Route path="settings" element={<WardenSettings />} />
+          <Route path="security" element={<WardenSecurity />} />
+          <Route path="help" element={<WardenHelp />} />
+          <Route path="about" element={<WardenAbout />} />
+        </Route>
 
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   </BrowserRouter>
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <div className="overflow-x-hidden">
-          <AppRoutes />
-        </div>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <div className="overflow-x-hidden">
+            <AppRoutes />
+          </div>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -92,6 +92,10 @@ const config = {
         "bounce-subtle": {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-5px)' }
+        },
+        "bounce-short": {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-3px)' }
         }
       },
       animation: {
@@ -101,7 +105,8 @@ const config = {
         "scale-in": "scale-in 0.5s ease-out",
         "fade-in": "fade-in 0.4s ease-out",
         "pulse": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "bounce-subtle": "bounce-subtle 2s ease infinite"
+        "bounce-subtle": "bounce-subtle 2s ease infinite",
+        "bounce-short": "bounce-short 1s ease-in-out infinite"
       },
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],

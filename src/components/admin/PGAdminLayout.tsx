@@ -143,12 +143,6 @@ const navigationItems: NavigationCategory[] = [
     category: "Communication",
     items: [
       { 
-        label: "Notifications", 
-        icon: Bell, 
-        path: "/pg-admin/notifications",
-        description: "Announcements"
-      },
-      { 
         label: "Messages", 
         icon: MessageSquare, 
         path: "/pg-admin/messages",
@@ -198,6 +192,16 @@ const mobileNavigationItems: Array<{
   { label: "Rooms", icon: Building, path: "/pg-admin/rooms" },
   { label: "Food", icon: Utensils, path: "/pg-admin/food" },
   { label: "Requests", icon: ClipboardList, path: "/pg-admin/requests" }
+];
+
+// Paths to hide in mobile side menu and notifications
+const mobileHiddenPaths = [
+  "/pg-admin",
+  "/pg-admin/residents",
+  "/pg-admin/rooms",
+  "/pg-admin/food",
+  "/pg-admin/requests",
+  "/pg-admin/notifications" // Add notifications to hidden paths
 ];
 
 const PGAdminLayout: React.FC = () => {
@@ -259,11 +263,13 @@ const PGAdminLayout: React.FC = () => {
     return location.pathname === path;
   };
 
-  // Filter navigation items based on search
+  // Filter navigation items based on search and mobile view
   const filteredNavItems = navigationItems.reduce<NavigationItem[]>((acc, category) => {
     const filteredItems = category.items.filter(item =>
-      item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      (item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      // Hide specific items in mobile side menu
+      (!isMobile || !mobileHiddenPaths.includes(item.path))
     );
     return [...acc, ...filteredItems];
   }, []);
@@ -344,43 +350,53 @@ const PGAdminLayout: React.FC = () => {
           </div>
         )}
 
-        {/* Desktop Navigation */}
+        {/* Desktop Sidebar Navigation */}
         <nav className="flex-1 py-4 overflow-y-auto">
-          {navigationItems.map((category) => (
-            <div key={category.category} className="mb-6">
-              <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                {category.category}
-              </h2>
-              <ul className="space-y-1">
-                {category.items.map((item) => {
-                  const active = isActive(item.path);
-                  const Icon = item.icon;
-                  return (
-                    <li key={item.path}>
-                      <Button
-                        variant={active ? "default" : "ghost"}
-                        className={cn(
-                          "w-full justify-start text-base py-6 flex items-center gap-3 rounded-lg transition-colors",
-                          active
-                            ? "bg-purple-600 text-white shadow-md"
-                            : "text-gray-700 hover:bg-purple-50 hover:text-purple-700"
-                        )}
-                        onClick={() => handleNavigation(item.path)}
-                      >
-                        <Icon size={20} className={active ? "text-white" : "text-purple-600"} />
-                        <span>{item.label}</span>
-                        {item.badge && (
-                          <Badge className="ml-auto bg-purple-100 text-purple-600">
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </Button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+          {navigationItems.map((category) => {
+            // Filter out items that should be hidden in mobile view
+            const visibleItems = category.items.filter(item => 
+              !isMobile || !mobileHiddenPaths.includes(item.path)
+            );
+            
+            // Skip rendering the category if it has no visible items
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={category.category} className="mb-6">
+                <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  {category.category}
+                </h2>
+                <ul className="space-y-1">
+                  {visibleItems.map((item) => {
+                    const active = isActive(item.path);
+                    const Icon = item.icon;
+                    return (
+                      <li key={item.path}>
+                        <Button
+                          variant={active ? "default" : "ghost"}
+                          className={cn(
+                            "w-full justify-start text-base py-6 flex items-center gap-3 rounded-lg transition-colors",
+                            active
+                              ? "bg-purple-600 text-white shadow-md"
+                              : "text-gray-700 hover:bg-purple-50 hover:text-purple-700"
+                          )}
+                          onClick={() => handleNavigation(item.path)}
+                        >
+                          <Icon size={20} className={active ? "text-white" : "text-purple-600"} />
+                          <span>{item.label}</span>
+                          {item.badge && (
+                            <Badge className="ml-auto bg-purple-100 text-purple-600">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </Button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
         </nav>
 
         {/* Logout Button */}
@@ -421,115 +437,141 @@ const PGAdminLayout: React.FC = () => {
         "flex flex-col w-full min-h-screen transition-all duration-300 ease-in-out",
         isCollapsed ? "lg:ml-20" : "lg:ml-72"
       )}>
-        {/* Mobile Header */}
-        <header className="lg:hidden bg-white shadow-sm border-b px-4 py-3 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white w-9 h-9 rounded-md flex items-center justify-center font-bold text-base shadow-sm">
-              SM
-            </div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Space Mate
-            </h1>
-          </div>
-          
-          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full text-gray-600">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 p-0">
-              <div className="flex flex-col h-full">
-                {/* Mobile Drawer Header */}
-                <div className="p-4 border-b">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white w-9 h-9 rounded-md flex items-center justify-center font-bold text-base shadow-sm">
-                      SM
-                    </div>
-                    <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                      Space Mate
-                    </h1>
-                  </div>
+        {/* Header */}
+        <header className="border-b sticky top-0 z-30 shadow-sm bg-white">
+          <div className="container mx-auto flex justify-between items-center h-16 px-4">
+            <div className="flex items-center gap-2">
+              <div className="flex md:hidden items-center gap-3">
+                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white w-10 h-10 rounded-md flex items-center justify-center font-bold text-lg">
+                  SM
                 </div>
-                
-                {/* User Profile in Drawer */}
-                <div className="p-4 border-b">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12 border-2 border-purple-100">
-                      <AvatarImage src={currentUser?.profileImage} />
-                      <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
-                        {currentUser?.name?.charAt(0) || 'A'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h2 className="font-semibold text-gray-900">{currentUser?.name || 'PG Admin'}</h2>
-                      <p className="text-sm text-gray-500">PG Admin</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Search in Drawer */}
-                <div className="p-4 border-b">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input 
-                      placeholder="Search..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9 bg-gray-50 border-gray-200 focus:bg-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Navigation Links in Drawer */}
-                <nav className="flex-1 py-4 overflow-y-auto">
-                  <ul className="space-y-1 px-2">
-                    {filteredNavItems.map((item) => {
-                      const active = isActive(item.path);
-                      const Icon = item.icon;
-                      return (
-                        <li key={item.path}>
-                          <Button
-                            variant={active ? "default" : "ghost"}
-                            className={cn(
-                              "w-full justify-start text-base py-6 flex items-center gap-3 rounded-lg transition-colors",
-                              active
-                                ? "bg-purple-600 text-white shadow-md"
-                                : "text-gray-700 hover:bg-purple-50 hover:text-purple-700"
-                            )}
-                            onClick={() => handleNavigation(item.path)}
-                          >
-                            <Icon size={20} className={active ? "text-white" : "text-purple-600"} />
-                            <span>{item.label}</span>
-                            {item.badge && (
-                              <Badge className="ml-auto bg-purple-100 text-purple-600">
-                                {item.badge}
-                              </Badge>
-                            )}
-                          </Button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </nav>
-                
-                {/* Logout Button in Drawer */}
-                <div className="p-4 border-t">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-base py-2 text-red-500 hover:bg-red-50 hover:text-red-600 flex items-center gap-3"
-                    onClick={handleLogout}
-                  >
-                    <LogOut size={18} />
-                    <span>Logout</span>
-                  </Button>
-                  <p className="text-xs text-gray-500 text-center mt-4">
-                    Space Mate v1.0.0
-                  </p>
-                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  Space Mate
+                </h1>
               </div>
-            </SheetContent>
-          </Sheet>
+              <h2 className="text-lg font-semibold text-gray-800 hidden md:block">
+                {navigationItems.find(category => 
+                  category.items.find(item => isActive(item.path))
+                )?.items.find(item => isActive(item.path))?.label || "Dashboard"}
+              </h2>
+            </div>
+
+            {/* Right Side Icons */}
+            <div className="flex items-center gap-4">
+              {/* Notification Icon */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                onClick={() => handleNavigation("/pg-admin/notifications")}
+              >
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  3
+                </span>
+              </Button>
+
+              {/* Mobile Menu Button */}
+              <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-72 p-0">
+                  <div className="flex flex-col h-full">
+                    {/* Mobile Drawer Header */}
+                    <div className="p-4 border-b">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white w-9 h-9 rounded-md flex items-center justify-center font-bold text-base shadow-sm">
+                          SM
+                        </div>
+                        <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                          Space Mate
+                        </h1>
+                      </div>
+                    </div>
+                    
+                    {/* User Profile in Drawer */}
+                    <div className="p-4 border-b">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-12 w-12 border-2 border-purple-100">
+                          <AvatarImage src={currentUser?.profileImage} />
+                          <AvatarFallback className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+                            {currentUser?.name?.charAt(0) || 'A'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h2 className="font-semibold text-gray-900">{currentUser?.name || 'PG Admin'}</h2>
+                          <p className="text-sm text-gray-500">PG Admin</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Search in Drawer */}
+                    <div className="p-4 border-b">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Input 
+                          placeholder="Search..." 
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-9 bg-gray-50 border-gray-200 focus:bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Navigation Links in Drawer */}
+                    <nav className="flex-1 py-4 overflow-y-auto">
+                      <ul className="space-y-1 px-2">
+                        {filteredNavItems.map((item) => {
+                          const active = isActive(item.path);
+                          const Icon = item.icon;
+                          return (
+                            <li key={item.path}>
+                              <Button
+                                variant={active ? "default" : "ghost"}
+                                className={cn(
+                                  "w-full justify-start text-base py-6 flex items-center gap-3 rounded-lg transition-colors",
+                                  active
+                                    ? "bg-purple-600 text-white shadow-md"
+                                    : "text-gray-700 hover:bg-purple-50 hover:text-purple-700"
+                                )}
+                                onClick={() => handleNavigation(item.path)}
+                              >
+                                <Icon size={20} className={active ? "text-white" : "text-purple-600"} />
+                                <span>{item.label}</span>
+                                {item.badge && (
+                                  <Badge className="ml-auto bg-purple-100 text-purple-600">
+                                    {item.badge}
+                                  </Badge>
+                                )}
+                              </Button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </nav>
+                    
+                    {/* Logout Button in Drawer */}
+                    <div className="p-4 border-t">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base py-2 text-red-500 hover:bg-red-50 hover:text-red-600 flex items-center gap-3"
+                        onClick={handleLogout}
+                      >
+                        <LogOut size={18} />
+                        <span>Logout</span>
+                      </Button>
+                      <p className="text-xs text-gray-500 text-center mt-4">
+                        Space Mate v1.0.0
+                      </p>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
         </header>
           
         {/* Main Content Area */}
@@ -554,16 +596,19 @@ const PGAdminLayout: React.FC = () => {
                       setIsSidebarOpen(true);
                     }
                   }}
-                  className="flex flex-col items-center justify-center relative"
+                  className={cn(
+                    "flex flex-col items-center justify-center relative transition-all duration-200",
+                    active && "animate-bounce-short"
+                  )}
                 >
                   <div className={cn(
-                    "flex items-center justify-center rounded-full w-10 h-10 relative",
-                    active ? "bg-purple-100 text-purple-600" : "text-gray-500"
+                    "flex items-center justify-center rounded-full w-10 h-10 relative transition-colors duration-200",
+                    active ? "bg-purple-100 text-purple-600" : "text-gray-500 hover:text-purple-600"
                   )}>
                     <Icon size={20} />
                   </div>
                   <span className={cn(
-                    "text-xs mt-1",
+                    "text-xs mt-1 transition-colors duration-200",
                     active ? "text-purple-600 font-medium" : "text-gray-500"
                   )}>
                     {item.label}
