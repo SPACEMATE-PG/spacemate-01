@@ -73,19 +73,6 @@ const RoleSelection = () => {
               <p className="text-sm text-gray-600 truncate">Access your resident details and services</p>
             </div>
           </div>
-
-          <div 
-            className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer flex items-center active:scale-95"
-            onClick={() => handleRoleSelect(UserRole.PUBLIC)}
-          >
-            <div className="w-12 h-12 rounded-full bg-hostel-accent flex items-center justify-center mr-3 flex-shrink-0">
-              <Home className="text-hostel-primary w-6 h-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="font-semibold text-lg text-gray-800">Continue as Guest</h2>
-              <p className="text-sm text-gray-600 truncate">Explore available hostels and room options</p>
-            </div>
-          </div>
         </div>
 
         <p className="text-xs text-gray-500 text-center mt-6">
